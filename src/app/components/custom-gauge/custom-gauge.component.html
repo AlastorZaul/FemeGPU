@@ -1,0 +1,22 @@
+<div class="gauge-container" [ngClass]="colorClass()">
+  <svg [attr.viewBox]="viewBox">
+    <circle
+      class="gauge-track"
+      cx="60" cy="60"
+      [attr.r]="radius"
+      [attr.stroke-width]="stroke"
+    />
+    <circle
+      class="gauge-progress"
+      cx="60" cy="60"
+      [attr.r]="radius"
+      [attr.stroke-width]="stroke"
+      [style.strokeDasharray]="circumference"
+      [style.strokeDashoffset]="strokeOffset()"
+    />
+  </svg>
+  <div class="gauge-text">
+    <span class="value">{{ value() | number:'1.0-0' }}<small>{{ append() }}</small></span>
+    <span class="label">{{ label() }}</span>
+  </div>
+</div>

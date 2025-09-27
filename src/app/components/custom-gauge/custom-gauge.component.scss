@@ -1,0 +1,69 @@
+:host {
+  display: block;
+  --color-normal: #16a34a;
+  --color-warning: #f59e0b;
+  --color-critical: #dc2626;
+  --track-color: #e5e7eb;
+}
+
+.gauge-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  // CORRECTION : Les sélecteurs `&` doivent être à l'intérieur de leur parent.
+  // Ils appliquent la couleur au .gauge-progress lorsque le .gauge-container a la classe correspondante.
+  &.color-normal .gauge-progress { stroke: var(--color-normal); }
+  &.color-warning .gauge-progress { stroke: var(--color-warning); }
+  &.color-critical .gauge-progress { stroke: var(--color-critical); }
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); // Fait commencer le cercle en haut
+  overflow: visible;
+}
+
+circle {
+  fill: none;
+}
+
+.gauge-track {
+  stroke: var(--track-color);
+}
+
+.gauge-progress {
+  stroke-linecap: round;
+  // C'est cette ligne qui crée l'animation fluide de la jauge.
+  // Elle anime le changement sur 0.5s avec un effet d'accélération/décélération.
+  transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-text {
+  position: absolute;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-color);
+
+  .value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    small {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-left: 2px;
+    }
+  }
+  .label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-color-secondary);
+    margin-top: 0.25rem;
+  }
+}

@@ -1,0 +1,73 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>Détails de <strong>{{ gpu.name }}</strong></span>
+  <button mat-icon-button (click)="dialogRef.close()" aria-label="Fermer la boîte de dialogue">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+
+  <div class="current-stats-grid">
+
+    <mat-card class="stat-card">
+      <div class="stat-icon temperature-color">
+        <mat-icon>device_thermostat</mat-icon>
+      </div>
+      <div class="stat-value">
+        {{ gpu.temperature | number:'1.0-0' }}°C
+      </div>
+      <div class="stat-label">Température</div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <div class="stat-icon utilization-color">
+        <mat-icon>speed</mat-icon>
+      </div>
+      <div class="stat-value">
+        {{ gpu.utilization | number:'1.0-0' }}%
+      </div>
+      <div class="stat-label">Utilisation</div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <div class="stat-icon fan-color">
+        <mat-icon>air</mat-icon>
+      </div>
+      <div class="stat-value">
+        {{ gpu.fanSpeed | number:'1.0-0' }}%
+      </div>
+      <div class="stat-label">Ventilateur</div>
+    </mat-card>
+
+    @if(gpu.power){
+      <mat-card class="stat-card">
+        <div class="stat-icon power-color">
+          <mat-icon>flash_on</mat-icon>
+        </div>
+        <div class="stat-value">
+          {{ gpu.power | number:'1.0-0' }}W
+        </div>
+        <div class="stat-label">Puissance</div>
+      </mat-card>
+    }
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="chart-container">
+    <h4>Historique de Température</h4>
+    <ngx-charts-line-chart
+      [results]="chartData"
+      [gradient]="gradient"
+      [schemeType]="schemeType"
+      [scheme]="colorScheme"
+      [showGridLines]="showGridLines"
+      [xAxis]="xAxis"
+      [yAxis]="yAxis"
+      [showYAxisLabel]="showYAxisLabel"
+      [yAxisLabel]="yAxisLabel"
+      [referenceLines]="referenceLines"
+      [autoScale]="true">
+    </ngx-charts-line-chart>
+  </div>
+</mat-dialog-content>

@@ -1,0 +1,29 @@
+@if (clusters().length > 0) {
+  <mat-accordion multi>
+    @for (cluster of clusters(); track cluster.id) {
+      <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>storage</mat-icon>
+            <h3>{{ cluster.name }}</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="gpu-grid">
+          @for (gpu of cluster.gpus; track gpu.id; let i = $index) {
+            <app-gpu-card
+              [gpu]="gpu"
+              [index]="i"
+              (viewHistory)="showHistory(gpu)">
+            </app-gpu-card>
+          }
+        </div>
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
+} @else {
+  <div class="loading-state">
+    <mat-spinner></mat-spinner>
+    <p>En attente des données de la ferme...</p>
+  </div>
+}
