@@ -5,13 +5,16 @@ mat-card {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   }
-
   background-color: var(--card-bg-color);
   border: 1px solid var(--border-color);
 }
 
-mat-card-title {
-  color: var(--text-color);
+mat-card-header {
+  // On transforme l'en-tête en conteneur flexbox
+  display: flex;
+  justify-content: space-between; // Espace entre le titre et le statut
+  align-items: center; // Centre les éléments verticalement
+  width: 100%; // S'assure que l'en-tête prend toute la largeur
 }
 
 mat-card-content {
