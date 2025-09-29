@@ -7,6 +7,28 @@
             <mat-icon>storage</mat-icon>
             <h3>{{ cluster.name }}</h3>
           </mat-panel-title>
+
+          <mat-panel-description>
+            <mat-form-field (click)="$event.stopPropagation()">
+              <mat-label>Sélectionner des GPUs</mat-label>
+              @if (selectionControls.get(cluster.id); as control) {
+                <mat-select [formControl]="control" multiple>
+
+                  <mat-option class="select-all-option">
+                    <mat-checkbox
+                      [checked]="isAllSelected(cluster.id, cluster.gpus.length)"
+                      (change)="toggleSelectAll(cluster.id, cluster.gpus)">
+                      Tout sélectionner
+                    </mat-checkbox>
+                  </mat-option>
+
+                  @for (gpu of cluster.gpus; track gpu.id) {
+                    <mat-option [value]="gpu.id">{{ gpu.name }}</mat-option>
+                  }
+                </mat-select>
+              }
+            </mat-form-field>
+          </mat-panel-description>
         </mat-expansion-panel-header>
 
         <div class="gpu-grid">

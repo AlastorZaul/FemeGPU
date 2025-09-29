@@ -1,27 +1,87 @@
-# GpuFarmDashboardGem
+# Tableau de Bord pour Ferme de GPU
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.9.
+Ce projet est une application web moderne développée avec Angular pour le monitoring en temps réel d'une ferme de GPUs, organisée par clusters. L'application offre une interface claire, dynamique et interactive pour visualiser l'état de chaque GPU.
 
-## Development server
+## 🚀 Fonctionnalités Clés
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+* **Monitoring en Temps Réel** : Les données des GPUs (température, utilisation, etc.) sont mises à jour dynamiquement à intervalle régulier.
+* **Organisation par Clusters** : Les GPUs sont regroupés dans des panneaux extensibles par cluster, permettant de gérer des infrastructures de grande taille.
+* **Navigation par Sidebar** : Une barre de navigation latérale permet de naviguer entre les différentes pages de l'application (Dashboard, Workers, Settings).
+* **Cartes GPU Dynamiques** : Chaque carte GPU met en avant une métrique principale différente pour éviter la répétition visuelle et affiche les autres en tant qu'informations secondaires.
+* **Modale de Détails** : Un clic sur une carte ouvre une modale affichant les statistiques actuelles du GPU et un graphique de l'historique de sa température.
+* **Sélection Multiple** : Chaque cluster dispose d'un sélecteur multiple pour sélectionner des GPUs spécifiques, ouvrant la voie à des actions groupées.
+* **Fil d'Ariane (Breadcrumb)** : Un fil d'Ariane dynamique indique la position de l'utilisateur dans l'application.
 
-## Code scaffolding
+## 🛠️ Technologies Utilisées
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+* **Framework** : Angular 17+
+* **Architecture** : Composants Standalone
+* **UI/UX** : Angular Material (Sidebar, Modales, Panneaux, Sélecteurs, etc.)
+* **Jauges** : Composant SVG personnalisé pour un contrôle total du visuel
+* **Graphiques** : `@swimlane/ngx-charts` pour les graphiques historiques
+* **Gestion d'état** : RxJS (Observables, BehaviorSubject) et Signals Angular pour une réactivité optimale
 
-## Build
+## 📂 Structure du Projet
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+Le projet est organisé de manière modulaire pour une maintenance facile :
 
-## Running unit tests
+```
+/src
+├── /app
+│   ├── /components       # Composants réutilisables
+│   │   ├── /breadcrumb
+│   │   ├── /custom-gauge
+│   │   ├── /gpu-card
+│   │   └── /gpu-history-chart
+│   ├── /models           # Interfaces et types de données (gpu.model.ts)
+│   ├── /pages            # Composants principaux agissant comme des pages
+│   │   ├── /dashboard
+│   │   ├── /settings
+│   │   └── /workers
+│   ├── /services         # Logique métier et gestion des données (gpu-data.service.ts)
+│   ├── app.component.ts  # Composant racine avec la mise en page principale
+│   ├── app.config.ts     # Configuration de l'application
+│   └── app.routes.ts     # Définition des routes
+└── ...
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## ⚙️ Installation et Démarrage
 
-## Running end-to-end tests
+Pour lancer le projet en local, suivez ces étapes :
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+1. **Cloner le dépôt :**
 
-## Further help
+   ```bash
+   git clone <url-du-depot>
+   cd nom-du-projet
+   ```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+2. **Installer les dépendances :**
+
+   ```bash
+   npm install
+   ```
+
+3. **Lancer le serveur de développement :**
+
+   ```bash
+   ng serve
+   ```
+
+   L'application sera accessible à l'adresse `http://localhost:4200/`.
+
+## 🧩 Détail des Composants
+
+* **`AppComponent`** : Le squelette de l'application. Il contient la `mat-toolbar` (barre d'outils supérieure), la `mat-sidenav` (barre de navigation) et le `<router-outlet>` où les pages sont affichées.
+* **`DashboardComponent`** : La page principale. Elle récupère les données des clusters via le `GpuDataService`, gère la logique de sélection multiple et affiche les panneaux de clusters.
+* **`GpuCardComponent`** : Affiche les informations d'un seul GPU. Ce composant intelligent fait un roulement de la métrique principale affichée pour éviter la monotonie visuelle.
+* **`CustomGaugeComponent`** : Notre propre composant de jauge SVG, créé pour un contrôle total sur l'animation, la couleur et le positionnement du texte, résolvant les problèmes de la bibliothèque externe.
+* **`GpuHistoryChartComponent`** : La modale qui s'ouvre pour afficher les détails d'un GPU, y compris ses statistiques actuelles et son historique de température via `ngx-charts`.
+* **`BreadcrumbComponent`** : Lit dynamiquement les données des routes pour afficher un fil d'Ariane de navigation.
+
+## 🔮 Améliorations Possibles
+
+* **Connexion à une API réelle** : Remplacer le `GpuDataService` par un service utilisant `HttpClient` pour récupérer des données réelles.
+* **Actions Groupées** : Implémenter des actions (ex: "Redémarrer", "Appliquer un profil") sur les GPUs sélectionnés via le sélecteur multiple.
+* **Authentification** : Ajouter une page de connexion pour sécuriser l'accès au tableau de bord.
+* **Thème Sombre/Clair** : Intégrer un interrupteur pour permettre à l'utilisateur de choisir son thème préféré.
