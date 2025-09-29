@@ -5,6 +5,13 @@ mat-card {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   }
+
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+}
+
+mat-card-title {
+  color: var(--text-color);
 }
 
 mat-card-content {
@@ -29,6 +36,7 @@ mat-card-content {
   text-align: center;
   border-top: 1px solid #eee;
   padding-top: 1rem;
+  border-top: 1px solid var(--border-color); // Variable pour le séparateur
 }
 
 .metric-item {
@@ -39,12 +47,13 @@ mat-card-content {
 
 .metric-label {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-color-secondary); // Variable pour le texte secondaire
 }
 
 .metric-value {
   font-size: 1.2rem;
   font-weight: 600;
+  color: var(--text-color); // Variable pour le texte principal
 }
 
 .status-badge {

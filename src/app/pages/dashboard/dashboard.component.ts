@@ -17,6 +17,7 @@ import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MultiSelectComponent} from '../../components/multi-select/multi-select.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,7 +32,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MultiSelectComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
@@ -40,10 +42,10 @@ export class DashboardComponent {
   private gpuService = inject(GpuDataService);
   private dialog = inject(MatDialog);
 
-  public clusters: Signal<Cluster[]>;
-
-  // Map pour stocker un FormControl pour chaque sélecteur de cluster
+  // selectionControls est toujours utile pour stocker l'état
   public selectionControls = new Map<string, FormControl>();
+
+  public clusters: Signal<Cluster[]>;
 
   constructor() {
     this.clusters = toSignal(this.gpuService.gpuData$, {initialValue: []});
@@ -59,27 +61,29 @@ export class DashboardComponent {
     });
   }
 
-  // Méthode pour "Tout sélectionner / Tout désélectionner"
-  toggleSelectAll(clusterId: string, gpus: Gpu[]): void {
+  // --- NOUVELLE MÉTHODE DE FILTRAGE ---
+  getFilteredGpus(cluster: Cluster): Gpu[] {
+    const control = this.selectionControls.get(cluster.id);
+    const selectedIds = control?.value;
+
+    // Si rien n'est sélectionné, on retourne tous les GPUs
+    if (!selectedIds || selectedIds.length === 0) {
+      return cluster.gpus;
+    }
+
+    // Sinon, on retourne uniquement les GPUs dont l'ID est dans la liste des sélectionnés
+    const selectedIdSet = new Set(selectedIds);
+    return cluster.gpus.filter(gpu => selectedIdSet.has(gpu.id));
+  }
+
+  // Méthode qui met à jour le FormControl quand l'enfant émet un changement
+  onSelectionChange(clusterId: string, selectedIds: any[]): void {
     const control = this.selectionControls.get(clusterId);
-    if (!control) return;
-
-    const allGpuIds = gpus.map(gpu => gpu.id);
-    const selectedIds = control.value || [];
-
-    if (selectedIds.length === allGpuIds.length) {
-      control.setValue([]); // Si tout est sélectionné, on désélectionne tout
-    } else {
-      control.setValue(allGpuIds); // Sinon, on sélectionne tout
+    if (control) {
+      // On met à jour la valeur du control, ce qui mettra à jour l'input [selectedIds] de l'enfant
+      control.setValue(selectedIds);
     }
   }
-
-  // Méthode pour vérifier si tout est sélectionné (pour l'état de la checkbox)
-  isAllSelected(clusterId: string, totalGpus: number): boolean {
-    const control = this.selectionControls.get(clusterId);
-    return control ? control.value?.length === totalGpus : false;
-  }
-
 
   showHistory(gpu: Gpu): void {
     this.dialog.open(GpuHistoryChartComponent, {

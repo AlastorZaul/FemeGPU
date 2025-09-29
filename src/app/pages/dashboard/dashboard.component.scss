@@ -17,11 +17,19 @@ mat-panel-description {
 
 mat-form-field {
   // Empêche le sélecteur d'être trop large
-  width: 250px;
+  width: 280px;
 }
 
 .select-all-option {
   // Ajoute une ligne de séparation pour distinguer l'option "Tout sélectionner"
   border-bottom: 1px solid #ccc;
   line-height: 2.5em; // Augmente légèrement la hauteur
+}
+
+.cluster-controls {
+  display: flex;
+  justify-content: flex-end; // Aligne le sélecteur à droite
+  padding: 0 24px 16px 24px; // Aligne avec le padding du contenu
+  border-bottom: 1px solid #eee; // Sépare les contrôles de la grille de GPUs
+  margin-bottom: 16px;
 }

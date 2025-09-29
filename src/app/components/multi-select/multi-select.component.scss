@@ -1,0 +1,30 @@
+.select-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+}
+
+.menu-content {
+  padding: 8px 0;
+}
+
+.menu-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  mat-checkbox {
+    margin-right: 16px;
+  }
+}
+
+.select-all-option {
+  border-bottom: 1px solid #ccc;
+}
