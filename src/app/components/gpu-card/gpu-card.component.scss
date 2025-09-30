@@ -1,12 +1,26 @@
 mat-card {
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-left-width: 5px; // On rend la bordure gauche plus épaisse
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
   }
-  background-color: var(--card-bg-color);
-  border: 1px solid var(--border-color);
+
+  // Couleurs de la bordure gauche en fonction du statut
+  &.en\ charge {
+    border-left-color: #16a34a; // Vert
+  }
+
+  &.inactif {
+    border-left-color: #9ca3af; // Gris
+  }
+
+  &.erreur {
+    border-left-color: #ef4444; // Rouge
+  }
 }
 
 mat-card-header {

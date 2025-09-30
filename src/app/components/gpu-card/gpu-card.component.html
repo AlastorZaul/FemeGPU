@@ -1,6 +1,8 @@
 <mat-card (click)="viewHistory.emit()">
   <mat-card-header>
-    <mat-card-title>{{ gpu.name }}</mat-card-title>
+    <div class="card-title-container">
+      <h3>{{ gpu.name }}</h3>
+    </div>
     <span class="status-badge" [ngClass]="gpu.status | lowercase">{{ gpu.status }}</span>
   </mat-card-header>
   <mat-card-content>

@@ -1,43 +1,63 @@
-<header class="dashboard-header">
-  <h1>Allocation de la Ferme</h1>
-</header>
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p>Vue d'ensemble de la santé de votre ferme de GPUs.</p>
+  </header>
 
-@if (metrics(); as m) {
-  <div class="summary-grid">
-    <mat-card class="summary-card">
-      <mat-card-title>{{ m.totalGpus }}</mat-card-title>
-      <mat-card-subtitle>GPUs au Total</mat-card-subtitle>
-    </mat-card>
-    <mat-card class="summary-card">
-      <mat-card-title>{{ m.totalAllocatedGpus }}</mat-card-title>
-      <mat-card-subtitle>Alloués</mat-card-subtitle>
-    </mat-card>
-    <mat-card class="summary-card">
-      <mat-card-title>{{ m.totalAvailableGpus }}</mat-card-title>
-      <mat-card-subtitle>Disponibles</mat-card-subtitle>
-    </mat-card>
-    <mat-card class="summary-card">
-      <mat-card-title class="error-text">{{ m.totalErrorGpus }}</mat-card-title>
-      <mat-card-subtitle>En Erreur</mat-card-subtitle>
-    </mat-card>
-  </div>
-
-  <h2>Détails par Cluster</h2>
-  <div class="cluster-grid">
-    @for (cluster of m.clusters; track cluster.id) {
-      <mat-card class="cluster-card">
-        <mat-card-header>
-          <mat-icon>storage</mat-icon>
-          <mat-card-title>{{ cluster.name }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p><strong>{{ cluster.allocatedGpus }} / {{ cluster.totalGpus }}</strong> GPUs alloués</p>
-          <mat-progress-bar mode="determinate" [value]="cluster.allocationRate"></mat-progress-bar>
-        </mat-card-content>
+  @if (metrics(); as m) {
+    <div class="farm-summary-grid">
+      <mat-card class="summary-card">
+        <mat-card-subtitle>GPUs au Total</mat-card-subtitle>
+        <mat-card-title>{{ m.totalGpus }}</mat-card-title>
       </mat-card>
-    }
-  </div>
+      <mat-card class="summary-card">
+        <mat-card-subtitle>Alloués</mat-card-subtitle>
+        <mat-card-title class="allocated-text">{{ m.totalAllocatedGpus }}</mat-card-title>
+      </mat-card>
+      <mat-card class="summary-card">
+        <mat-card-subtitle>Disponibles</mat-card-subtitle>
+        <mat-card-title class="available-text">{{ m.totalAvailableGpus }}</mat-card-title>
+      </mat-card>
+      <mat-card class="summary-card">
+        <mat-card-subtitle>En Erreur</mat-card-subtitle>
+        <mat-card-title class="error-text">{{ m.totalErrorGpus }}</mat-card-title>
+      </mat-card>
+    </div>
+    <mat-divider></mat-divider>
+  } @else {
+    <p>Chargement des métriques...</p>
+  }
 
-} @else {
-  <p>Calcul des métriques en cours...</p>
-}
+  @if (metrics(); as m) {
+    <section class="farm-summary-grid">
+    </section>
+  }
+
+  <section class="clusters-section">
+    <h2>Détails par Cluster</h2>
+    <div class="cluster-grid">
+      @for (cluster of displayClusters(); track cluster.id) {
+        <mat-card class="cluster-card" (click)="showClusterDetails(cluster.id)">
+          <mat-card-header>
+            <mat-card-title>{{ cluster.name }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              <strong>{{ cluster.allocatedGpus }} / {{ cluster.totalGpus }}</strong>
+              GPUs alloués
+            </p>
+            <mat-progress-bar mode="determinate" [value]="cluster.allocationRate"></mat-progress-bar>
+            <div class="gpu-list">
+              @for (gpu of cluster.gpus; track gpu.id) {
+                <div class="gpu-item">
+                  <span class="status-dot" [ngClass]="gpu.status | lowercase"></span>
+                  <span>{{ gpu.name }}</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  </section>
+</div>

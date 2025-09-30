@@ -1,0 +1,32 @@
+<h2 mat-dialog-title class="dialog-title">
+  <span>Détails du Cluster <strong>{{ data.clusterName }}</strong></span>
+  <button mat-icon-button (click)="dialogRef.close()" aria-label="Fermer la boîte de dialogue">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="gpu-list">
+    @for (gpu of data.gpus; track gpu.id) {
+      <div class="gpu-item">
+        <div class="gpu-info">
+          <span class="gpu-name">{{ gpu.name }}</span>
+          <span class="gpu-status" [ngClass]="gpu.status | lowercase">{{ gpu.status }}</span>
+        </div>
+
+        <div class="gpu-stat">
+          <mat-icon>device_thermostat</mat-icon>
+          <span>{{ gpu.temperature | number:'1.0-0' }}°C</span>
+          <mat-progress-bar mode="determinate" [value]="gpu.temperature"></mat-progress-bar>
+        </div>
+
+        <div class="gpu-stat">
+          <mat-icon>speed</mat-icon>
+          <span>{{ gpu.utilization | number:'1.0-0' }}%</span>
+          <mat-progress-bar mode="determinate" [value]="gpu.utilization"></mat-progress-bar>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+    }
+  </div>
+</mat-dialog-content>

@@ -1,12 +1,58 @@
 .dashboard-header {
   margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2.25rem;
+    font-weight: 700;
+  }
+
+  p {
+    color: var(--text-color-secondary);
+  }
 }
 
-.summary-grid {
+.clusters-section {
+  margin-top: 3rem;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.cluster-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.cluster-card {
+  padding: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  mat-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+  }
+}
+
+.farm-summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .summary-card {
@@ -15,43 +61,51 @@
 }
 
 mat-card-title {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
   line-height: 1;
-  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  align-items: center;
 }
 
-.error-text {
-  color: #ef4444; // Rouge pour les erreurs
+mat-card-subtitle {
+  font-weight: 500;
 }
 
-.cluster-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+// Couleurs pour les statuts
+
+.gpu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; // Espace entre chaque nom de GPU
 }
 
-.cluster-card {
-  padding: 1rem;
+.gpu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
 
-  mat-card-header {
-    padding: 0.5rem;
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+
+  // Couleurs basées sur le statut du GPU
+  &.charge {
+    background-color: #16a34a;
   }
 
-  mat-card-title {
-    font-size: 1.2rem;
-    margin-left: 0.5rem;
+  // Vert
+  &.inactif {
+    background-color: #9ca3af;
   }
 
-  mat-card-content {
-    p {
-      margin: 1rem 0 0.5rem 0;
-      font-size: 1rem;
-    }
-
-    mat-progress-bar {
-      height: 8px;
-      border-radius: 4px;
-    }
+  // Gris
+  &.erreur {
+    background-color: #ef4444;
   }
+
+  // Rouge
 }
