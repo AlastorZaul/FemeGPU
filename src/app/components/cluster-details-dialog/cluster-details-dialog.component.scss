@@ -30,18 +30,6 @@
 
 .gpu-status {
   font-size: 0.8rem;
-
-  .allocated-text {
-    color: var(--primary-color, #3f51b5);
-  }
-
-  .available-text {
-    color: #16a34a;
-  }
-
-  .error-text {
-    color: #ef4444;
-  }
 }
 
 .gpu-stat {
