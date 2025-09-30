@@ -1,41 +1,43 @@
-@if (clusters().length > 0) {
-  <mat-accordion multi>
-    @for (cluster of clusters(); track cluster.id) {
-      <mat-expansion-panel [expanded]="true">
+<header class="dashboard-header">
+  <h1>Allocation de la Ferme</h1>
+</header>
 
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>storage</mat-icon>
-            <h3>{{ cluster.name }}</h3>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-
-        <div class="cluster-controls">
-          @if (selectionControls.get(cluster.id); as control) {
-            <app-multi-select
-              [options]="cluster.gpus"
-              [selectedIds]="control.value || []"
-              (selectionChange)="onSelectionChange(cluster.id, $event)">
-            </app-multi-select>
-          }
-        </div>
-
-        <div class="gpu-grid">
-          @for (gpu of getFilteredGpus(cluster); track gpu.id; let i = $index) {
-            <app-gpu-card
-              [gpu]="gpu"
-              [index]="i"
-              (viewHistory)="showHistory(gpu)">
-            </app-gpu-card>
-          }
-        </div>
-
-      </mat-expansion-panel>
-    }
-  </mat-accordion>
-} @else {
-  <div class="loading-state">
-    <mat-spinner></mat-spinner>
-    <p>En attente des données de la ferme...</p>
+@if (metrics(); as m) {
+  <div class="summary-grid">
+    <mat-card class="summary-card">
+      <mat-card-title>{{ m.totalGpus }}</mat-card-title>
+      <mat-card-subtitle>GPUs au Total</mat-card-subtitle>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-title>{{ m.totalAllocatedGpus }}</mat-card-title>
+      <mat-card-subtitle>Alloués</mat-card-subtitle>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-title>{{ m.totalAvailableGpus }}</mat-card-title>
+      <mat-card-subtitle>Disponibles</mat-card-subtitle>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-title class="error-text">{{ m.totalErrorGpus }}</mat-card-title>
+      <mat-card-subtitle>En Erreur</mat-card-subtitle>
+    </mat-card>
   </div>
+
+  <h2>Détails par Cluster</h2>
+  <div class="cluster-grid">
+    @for (cluster of m.clusters; track cluster.id) {
+      <mat-card class="cluster-card">
+        <mat-card-header>
+          <mat-icon>storage</mat-icon>
+          <mat-card-title>{{ cluster.name }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p><strong>{{ cluster.allocatedGpus }} / {{ cluster.totalGpus }}</strong> GPUs alloués</p>
+          <mat-progress-bar mode="determinate" [value]="cluster.allocationRate"></mat-progress-bar>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+} @else {
+  <p>Calcul des métriques en cours...</p>
 }
