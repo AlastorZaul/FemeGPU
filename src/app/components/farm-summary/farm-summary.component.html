@@ -1,0 +1,26 @@
+@if (metrics(); as m) {
+  <div class="summary-grid">
+    <mat-card class="summary-card">
+      <mat-card-title>{{ m.totalGpus }}</mat-card-title>
+      <mat-card-subtitle>GPUs au Total</mat-card-subtitle>
+    </mat-card>
+
+    <mat-card class="summary-card">
+      <mat-card-title>{{ m.totalAllocatedGpus }}</mat-card-title>
+      <mat-card-subtitle>Alloués</mat-card-subtitle>
+    </mat-card>
+
+    <mat-card class="summary-card">
+      <mat-card-title>{{ m.totalAvailableGpus }}</mat-card-title>
+      <mat-card-subtitle>Disponibles</mat-card-subtitle>
+    </mat-card>
+
+    <mat-card class="summary-card large-card">
+      <mat-card-subtitle>Taux d'Allocation Global</mat-card-subtitle>
+      <mat-card-title>{{ m.overallAllocationRate | number:'1.0-0' }}%</mat-card-title>
+      <mat-progress-bar mode="determinate" [value]="m.overallAllocationRate"></mat-progress-bar>
+    </mat-card>
+  </div>
+} @else {
+  <p>Calcul des métriques...</p>
+}
