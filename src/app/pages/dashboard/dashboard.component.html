@@ -4,60 +4,52 @@
     <p>Vue d'ensemble de la santé de votre ferme de GPUs.</p>
   </header>
 
-  @if (metrics(); as m) {
-    <div class="farm-summary-grid">
-      <mat-card class="summary-card">
-        <mat-card-subtitle>GPUs au Total</mat-card-subtitle>
-        <mat-card-title>{{ m.totalGpus }}</mat-card-title>
-      </mat-card>
-      <mat-card class="summary-card">
-        <mat-card-subtitle>Alloués</mat-card-subtitle>
-        <mat-card-title class="allocated-text">{{ m.totalAllocatedGpus }}</mat-card-title>
-      </mat-card>
-      <mat-card class="summary-card">
-        <mat-card-subtitle>Disponibles</mat-card-subtitle>
-        <mat-card-title class="available-text">{{ m.totalAvailableGpus }}</mat-card-title>
-      </mat-card>
-      <mat-card class="summary-card">
-        <mat-card-subtitle>En Erreur</mat-card-subtitle>
-        <mat-card-title class="error-text">{{ m.totalErrorGpus }}</mat-card-title>
-      </mat-card>
-    </div>
-    <mat-divider></mat-divider>
-  } @else {
-    <p>Chargement des métriques...</p>
-  }
+  @for (cluster of clusters(); track cluster.cluster_name) {
+    <div class="cluster-container">
+      <h2>{{ cluster.cluster_name }}</h2>
 
-  @if (metrics(); as m) {
-    <section class="farm-summary-grid">
-    </section>
-  }
-
-  <section class="clusters-section">
-    <h2>Détails par Cluster</h2>
-    <div class="cluster-grid">
-      @for (cluster of displayClusters(); track cluster.id) {
-        <mat-card class="cluster-card" (click)="showClusterDetails(cluster.id)">
-          <mat-card-header>
-            <mat-card-title>{{ cluster.name }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <p>
-              <strong>{{ cluster.allocatedGpus }} / {{ cluster.totalGpus }}</strong>
-              GPUs alloués
-            </p>
-            <mat-progress-bar mode="determinate" [value]="cluster.allocationRate"></mat-progress-bar>
-            <div class="gpu-list">
-              @for (gpu of cluster.gpus; track gpu.id) {
-                <div class="gpu-item">
-                  <span class="status-dot" [ngClass]="gpu.status | lowercase"></span>
-                  <span>{{ gpu.name }}</span>
-                </div>
-              }
-            </div>
-          </mat-card-content>
+      <div class="farm-summary-grid">
+        <mat-card class="summary-card">
+          <mat-card-subtitle>GPUs Physiques</mat-card-subtitle>
+          <mat-card-title>{{ cluster.total_physical_gpus }}</mat-card-title>
         </mat-card>
-      }
+        <mat-card class="summary-card">
+          <mat-card-subtitle>GPUs Virtuels</mat-card-subtitle>
+          <mat-card-title class="allocated-text">{{ cluster.total_virtual_gpus }}</mat-card-title>
+        </mat-card>
+        <mat-card class="summary-card">
+          <mat-card-subtitle>GPUs Utilisés</mat-card-subtitle>
+          <mat-card-title class="available-text">{{ cluster.total_used_gpus }}</mat-card-title>
+        </mat-card>
+        <mat-card class="summary-card">
+          <mat-card-subtitle>Usage Global</mat-card-subtitle>
+          <mat-card-title class="error-text">{{ cluster.global_gpu_usage_percent }}%</mat-card-title>
+        </mat-card>
+      </div>
+      <mat-divider></mat-divider>
     </div>
-  </section>
+
+    <section class="nodes-section">
+      <h3>Détails par Nœud</h3>
+      <div class="node-grid">
+        @for (node of cluster.nodes | keyvalue: originalOrder; track node.key) {
+          <mat-card class="node-card">
+            <mat-card-header>
+              <mat-card-title>{{ node.key }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="node-metrics">
+              <p><strong>GPUs physiques:</strong> {{ node.value.physical_gpus }}</p>
+              <p><strong>GPUs virtuels:</strong> {{ node.value.virtual_gpus }}</p>
+              <p><strong>GPUs réservés:</strong> {{ node.value.reserved_gpus }}</p>
+              <p><strong>GPUs utilisés:</strong> {{ node.value.used_gpus }}</p>
+              <mat-progress-bar mode="determinate" [value]="node.value.gpu_usage_percent"></mat-progress-bar>
+              <p class="usage-percent">{{ node.value.gpu_usage_percent }}% d'utilisation</p>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </section>
+  } @empty {
+    <p>Chargement des données des clusters...</p>
+  }
 </div>
