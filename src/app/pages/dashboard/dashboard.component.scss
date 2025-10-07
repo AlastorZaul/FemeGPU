@@ -106,3 +106,22 @@ mat-card-subtitle {
   }
   // Rouge
 }
+
+.node-link {
+  text-decoration: none; // Supprime le soulignement du lien
+  color: inherit; // Le lien hérite de la couleur du texte parent
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.node-card {
+  height: 100%; // Assure que la carte remplit bien le lien
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+}

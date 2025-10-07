@@ -33,43 +33,45 @@
       <h3>Détails par Nœud</h3>
       <div class="node-grid">
         @for (node of cluster.nodes | keyvalue: originalOrder; track node.key) {
-          <mat-card class="node-card">
-            <mat-card-header>
-              <mat-icon mat-card-avatar>dns</mat-icon>
-              <mat-card-title>{{ node.key }}</mat-card-title>
-              <mat-card-subtitle>Statut du Nœud</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content class="node-metrics">
-              <div class="metrics-grid">
-                <div class="metric-item">
-                  <mat-icon>developer_board</mat-icon>
-                  <span>{{ node.value.physical_gpus }} GPUs Physiques</span>
+          <a [routerLink]="['/nodes']" class="node-link">
+            <mat-card class="node-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar>dns</mat-icon>
+                <mat-card-title>{{ node.key }}</mat-card-title>
+                <mat-card-subtitle>Statut du Nœud</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content class="node-metrics">
+                <div class="metrics-grid">
+                  <div class="metric-item">
+                    <mat-icon>developer_board</mat-icon>
+                    <span>{{ node.value.physical_gpus }} GPUs Physiques</span>
+                  </div>
+                  <div class="metric-item">
+                    <mat-icon>view_comfy_alt</mat-icon>
+                    <span>{{ node.value.virtual_gpus }} GPUs Virtuels</span>
+                  </div>
+                  <div class="metric-item">
+                    <mat-icon>bookmark</mat-icon>
+                    <span>{{ node.value.reserved_gpus }} GPUs Réservés</span>
+                  </div>
+                  <div class="metric-item">
+                    <mat-icon>memory</mat-icon>
+                    <span>{{ node.value.used_gpus }} GPUs Utilisés</span>
+                  </div>
                 </div>
-                <div class="metric-item">
-                  <mat-icon>view_comfy_alt</mat-icon>
-                  <span>{{ node.value.virtual_gpus }} GPUs Virtuels</span>
-                </div>
-                <div class="metric-item">
-                  <mat-icon>bookmark</mat-icon>
-                  <span>{{ node.value.reserved_gpus }} GPUs Réservés</span>
-                </div>
-                <div class="metric-item">
-                  <mat-icon>memory</mat-icon>
-                  <span>{{ node.value.used_gpus }} GPUs Utilisés</span>
-                </div>
-              </div>
 
-              <div class="usage-progress">
-                <span class="usage-label">Utilisation</span>
-                <mat-progress-bar
-                  mode="determinate"
-                  [value]="node.value.gpu_usage_percent"
-                  [ngClass]="getUsageClass(node.value.gpu_usage_percent)">
-                </mat-progress-bar>
-                <span class="usage-percent">{{ node.value.gpu_usage_percent }}%</span>
-              </div>
-            </mat-card-content>
-          </mat-card>
+                <div class="usage-progress">
+                  <span class="usage-label">Utilisation</span>
+                  <mat-progress-bar
+                    mode="determinate"
+                    [value]="node.value.gpu_usage_percent"
+                    [ngClass]="getUsageClass(node.value.gpu_usage_percent)">
+                  </mat-progress-bar>
+                  <span class="usage-percent">{{ node.value.gpu_usage_percent }}%</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </a>
         }
       </div>
     </section>

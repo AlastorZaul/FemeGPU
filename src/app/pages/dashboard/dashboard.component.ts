@@ -11,6 +11,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatDividerModule} from '@angular/material/divider';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +21,8 @@ import {MatDividerModule} from '@angular/material/divider';
     MatCardModule,
     MatIconModule,
     MatProgressBarModule,
-    MatDividerModule
+    MatDividerModule,
+    RouterLink
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']

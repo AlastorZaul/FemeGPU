@@ -1,0 +1,36 @@
+.node-list-container {
+  padding: 2rem;
+}
+
+table {
+  width: 100%;
+}
+
+.usage-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  mat-progress-bar {
+    flex-grow: 1;
+    height: 8px;
+    border-radius: 4px;
+
+    &.usage-low .mat-progress-bar-fill::after {
+      background-color: #4caf50;
+    }
+
+    &.usage-medium .mat-progress-bar-fill::after {
+      background-color: #ffc107;
+    }
+
+    &.usage-high .mat-progress-bar-fill::after {
+      background-color: #f44336;
+    }
+  }
+
+  span {
+    font-weight: bold;
+    min-width: 40px;
+  }
+}

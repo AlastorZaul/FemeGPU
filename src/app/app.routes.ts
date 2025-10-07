@@ -4,7 +4,8 @@ import {WorkersComponent} from './pages/workers/workers.component';
 import {SettingsComponent} from './pages/settings/settings.component';
 import {LoginComponent} from './pages/login/login.component';
 import {authGuard} from './services/auth.guard';
-import {LayoutComponent} from './layout/layout.component'; // Importez le nouveau layout
+import {LayoutComponent} from './layout/layout.component';
+import {NodeListComponent} from './pages/node-list/node-list.component'; // Importez le nouveau layout
 
 export const routes: Routes = [
   // Route pour la page de connexion, en dehors du layout principal
@@ -19,6 +20,7 @@ export const routes: Routes = [
     children: [
       {path: 'dashboard', component: DashboardComponent, data: {breadcrumb: 'Dashboard'}},
       {path: 'workers', component: WorkersComponent, data: {breadcrumb: 'Workers'}},
+      {path: 'nodes', component: NodeListComponent},
       {path: 'settings', component: SettingsComponent, data: {breadcrumb: 'Settings'}},
       // Redirige la racine (ex: localhost:4200) vers le dashboard
       {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
