@@ -39,4 +39,14 @@ export class DashboardComponent {
   originalOrder = (a: KeyValue<string, NodeMetrics>, b: KeyValue<string, NodeMetrics>): number => {
     return 0;
   }
+
+  getUsageClass(usagePercent: number): string {
+    if (usagePercent > 90) {
+      return 'usage-high';
+    }
+    if (usagePercent > 70) {
+      return 'usage-medium';
+    }
+    return 'usage-low';
+  }
 }

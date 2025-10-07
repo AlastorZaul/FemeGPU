@@ -9,7 +9,7 @@ export class GpuDataService {
   private http = inject(HttpClient);
 
   // Remplacez cette URL par l'endpoint de votre API
-  private apiUrl = '/api/gpu-clusters';
+  private apiUrl = 'https://ai-manager-tu1.ia1.metier.devpass.sf.intra.laposte.fr/api/admin/v2/dashboard/total_ressource_infrastructures';
 
   // L'observable va maintenant chercher les données toutes les 5 secondes
   public clusterData$: Observable<ClusterApiResponse[]> = timer(0, 5000).pipe(
