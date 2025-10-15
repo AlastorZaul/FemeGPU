@@ -1,26 +1,41 @@
-<mat-sidenav-container class="app-container">
-  <mat-sidenav mode="side" opened class="sidebar">
-    <div class="sidebar-header"><h2>GPU Farm</h2></div>
-    <mat-nav-list>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer mode="side" opened class="sidenav">
+    <div class="logo-container">
+      <mat-icon class="logo-icon">developer_board</mat-icon>
+      <span class="logo-title">GPU Farm</span>
+    </div>
+
+    <mat-nav-list class="nav-list">
       <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </a>
-      <a mat-list-item routerLink="/workers" routerLinkActive="active-link">
-        <mat-icon>memory</mat-icon>
-        <span>Workers</span>
+      <a mat-list-item routerLink="/nodes" routerLinkActive="active-link">
+        <mat-icon>dns</mat-icon>
+        <span>Nodes</span>
       </a>
-      <a mat-list-item routerLink="/settings" routerLinkActive="active-link">
-        <mat-icon>settings</mat-icon>
-        <span>Settings</span>
+      <a mat-list-item routerLink="/gateways" routerLinkActive="active-link">
+        <mat-icon>router</mat-icon>
+        <span>Gateways</span>
       </a>
     </mat-nav-list>
+
+    @if (authService.isAuthenticated()) {
+    <a mat-list-item (click)="authService.logout()" class="logout-button">
+      <mat-icon>logout</mat-icon>
+      <span>Déconnexion</span>
+    </a>
+    <div class="user-profile">
+      <mat-icon>account_circle</mat-icon>
+      <span class="username">{{ authService.currentUser() }}</span>
+    </div>
+    }
   </mat-sidenav>
 
-  <mat-sidenav-content class="main-content">
-    <div class="page-container">
+  <mat-sidenav-content>
+    <main>
       <app-breadcrumb></app-breadcrumb>
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

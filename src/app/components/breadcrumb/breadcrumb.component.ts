@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { filter, distinctUntilChanged } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 
 export interface Breadcrumb {
@@ -26,34 +26,29 @@ export class BreadcrumbComponent implements OnInit {
 
   ngOnInit(): void {
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
-      distinctUntilChanged(),
+      filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
-      const newBreadcrumbs = this.createBreadcrumbs(this.activatedRoute.root);
-      this.breadcrumbs.set(newBreadcrumbs);
+      this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
     });
+    this.breadcrumbs.set(this.createBreadcrumbs(this.activatedRoute.root));
   }
 
-  private createBreadcrumbs(route: ActivatedRoute, url: string = '', breadcrumbs: Breadcrumb[] = []): Breadcrumb[] {
-    const children: ActivatedRoute[] = route.children;
+  private createBreadcrumbs(route: ActivatedRoute, url: string = ''): Breadcrumb[] {
+    // MODIFICATION : On initialise un tableau vide au lieu d'ajouter "Home"
+    const newBreadcrumbs: Breadcrumb[] = [];
 
-    if (children.length === 0) {
-      return breadcrumbs;
-    }
-
-    for (const child of children) {
-      const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');
-      if (routeURL !== '') {
+    let currentRoute = route.firstChild;
+    while (currentRoute) {
+      const routeURL = currentRoute.snapshot.url.map(segment => segment.path).join('/');
+      
+      const label = currentRoute.snapshot.data['breadcrumb'];
+      if (label && routeURL) {
         url += `/${routeURL}`;
+        newBreadcrumbs.push({ label, url });
       }
 
-      const label = child.snapshot.data['breadcrumb'];
-      if (label) {
-        breadcrumbs.push({ label, url });
-      }
-
-      return this.createBreadcrumbs(child, url, breadcrumbs);
+      currentRoute = currentRoute.firstChild;
     }
-    return breadcrumbs;
+    return newBreadcrumbs;
   }
 }

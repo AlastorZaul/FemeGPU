@@ -1,53 +1,177 @@
-.app-container {
-  width: 100%;
-  height: 100vh;
-  // On utilise la variable pour le fond
-  background-color: var(--bg-color);
+// Définition des nouvelles variables pour un THÈME CLAIR
+:host {
+  --sidebar-bg: #ffffff; // Fond blanc pour la sidebar
+  --border-color: #e0e0e0; // Bordure grise claire
+  --primary-accent: #673ab7; // Violet/Indigo (couleur principale de Material)
+  --primary-text: rgba(0, 0, 0, 0.87); // Texte noir/gris foncé
+  --secondary-text: #616161; // Texte gris plus clair pour les icônes
+  --hover-bg: #f5f5f5; // Fond gris très clair pour le survol
+  --active-bg: rgba(103, 58, 183, 0.1); // Fond violet très clair pour le lien actif
 }
 
-.sidebar {
-  width: 250px;
-  // Variable pour le fond de la sidebar
-  background-color: var(--sidebar-bg-color);
-  border-right: 1px solid var(--border-color);
+.sidenav-container {
+  height: 100%;
 }
 
-.active-link {
-  // Variables pour le lien actif
-  background-color: var(--primary-color-lighter);
-  color: var(--primary-color);
-  mat-icon {
-    color: var(--primary-color);
-  }
-}
-
-.toolbar {
-  // Variables pour la barre d'outils
-  background-color: var(--card-bg-color);
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-color);
-}
-
-.sidebar-header {
-  padding: 1rem;
-  text-align: center;
-  h2 {
-    margin: 0;
-    font-weight: 600;
-  }
-}
-
-.main-content {
+.sidenav {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  color: var(--primary-text);
   display: flex;
   flex-direction: column;
+  border-right: 1px solid var(--border-color); // Bordure de séparation
 }
 
-.page-container {
+// Style de l'entête/logo adapté au thème clair
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 20px;
+  border-bottom: 1px solid var(--border-color);
+
+  .logo-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: var(--primary-accent); // Icône avec la couleur accent
+  }
+
+  .logo-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-text); // Texte foncé
+  }
+}
+
+// Style de la liste de navigation
+.nav-list {
+  padding: 16px 12px;
   flex-grow: 1;
-  padding: 2rem;
-  overflow-y: auto;
 }
 
-.spacer {
-  flex: 1 1 auto;
+// Style commun pour les liens de navigation et le bouton de déconnexion
+.nav-list a, .logout-button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px !important;
+  height: 48px !important;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  color: var(--primary-text); // Couleur du texte par défaut
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  mat-icon {
+    color: var(--secondary-text); // Couleur des icônes par défaut
+    transition: color 0.2s ease;
+  }
+
+  &:hover {
+    background-color: var(--hover-bg);
+  }
+
+  // Style du lien actif
+  &.active-link {
+    background-color: var(--active-bg);
+    color: var(--primary-accent); // Texte de la couleur accent
+    font-weight: 500;
+
+    mat-icon {
+      color: var(--primary-accent); // Icône de la couleur accent
+    }
+  }
+}
+
+.sidebar-footer {
+  // La bordure est maintenant sur ce conteneur
+  border-top: 1px solid var(--border-color);
+}
+
+// Section profil utilisateur
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px; // Ajustement du padding
+  font-size: 0.9rem;
+  // La bordure a été déplacée sur .sidebar-footer
+  // border-top: 1px solid var(--border-color); <--- SUPPRIMÉ
+
+  .username {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+}
+
+// Style spécifique au bouton de déconnexion
+.logout-button {
+  margin: 0; // On réinitialise les marges
+  cursor: pointer;
+  color: var(--secondary-text);
+  // On ajoute un padding pour l'aligner avec la section user-profile
+  padding: 0 20px !important;
+  
+  &:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+
+    mat-icon {
+      color: #f44336;
+    }
+  }
+}
+
+.sidenav {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  color: var(--primary-text);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-color);
+
+  // Correction pour la barre verticale (garder)
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // AJOUT : Correction pour la barre horizontale
+  overflow-x: hidden;
+}
+
+// Section profil utilisateur - CORRECTION CI-DESSOUS
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  overflow: hidden; // AJOUT : Empêche les enfants de déborder de cette section
+
+  .username {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; // AJOUT : C'est la correction la plus importante !
+  }
+}
+
+main {
+  // On ajoute un padding en haut pour faire de la place au fil d'Ariane
+  padding: 1.5rem 2rem;
+}
+
+// Style pour le composant breadcrumb
+app-breadcrumb {
+  // On le place en haut de la zone de contenu
+  display: block;
+  margin-bottom: 1.5rem;
 }

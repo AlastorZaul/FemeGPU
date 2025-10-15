@@ -48,6 +48,40 @@
   }
 }
 
+.cluster-container {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px; // Bords arrondis pour un look moderne
+  padding: 24px;
+  margin-bottom: 2rem; // Espace entre les cartes de cluster
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); // Ombre subtile pour donner du relief
+  transition: box-shadow 0.3s ease;
+
+  // Effet de survol pour un peu d'interactivité
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  // Amélioration du titre du cluster
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eeeeee; // Ligne de séparation sous le titre
+    color: #3f51b5; // Utilisation d'une couleur d'accentuation (indigo)
+  }
+}
+
+.nodes-section h3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #424242;
+  margin-top: 2rem;
+}
+
+
 .farm-summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

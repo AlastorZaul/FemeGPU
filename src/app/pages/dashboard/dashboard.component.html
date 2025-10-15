@@ -1,13 +1,27 @@
 <div class="dashboard-container">
   <header class="dashboard-header">
-    <h1>Dashboard</h1>
-    <p>Vue d'ensemble de la santé de votre ferme de GPUs.</p>
+    <div class="header-text">
+      <h1>Dashboard</h1>
+      <p>Vue d'ensemble de la santé de votre ferme de GPUs.</p>
+    </div>
+    <div class="header-filter">
+      <mat-form-field appearance="outline">
+        <mat-label>Filtrer par Clusters</mat-label>
+        <mat-select [ngModel]="selectedClusterNames()" (ngModelChange)="selectedClusterNames.set($event)" multiple>
+          <mat-select-trigger>
+            {{ selectedClusterNames().length > 0 ? selectedClusterNames().join(', ') : 'Tous les clusters' }}
+          </mat-select-trigger>
+          @for (name of clusterNames(); track name) {
+            <mat-option [value]="name">{{ name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
   </header>
 
-  @for (cluster of clusters(); track cluster.cluster_name) {
+  @for (cluster of filteredClusters(); track cluster.cluster_name) {
     <div class="cluster-container">
       <h2>{{ cluster.cluster_name }}</h2>
-
       <div class="farm-summary-grid">
         <mat-card class="summary-card">
           <mat-card-subtitle>GPUs Physiques</mat-card-subtitle>
@@ -27,55 +41,49 @@
         </mat-card>
       </div>
       <mat-divider></mat-divider>
+      <section class="nodes-section">
+        <h3>Détails par Nœud</h3>
+        <div class="node-grid">
+          @for (node of cluster.nodes | keyvalue: originalOrder; track node.key) {
+            <a [routerLink]="['/nodes']" class="node-link">
+              <mat-card class="node-card">
+                <mat-card-header>
+                  <mat-icon mat-card-avatar>dns</mat-icon>
+                  <mat-card-title>{{ node.key }}</mat-card-title>
+                  <mat-card-subtitle>Statut du Nœud</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="node-metrics">
+                  <div class="metrics-grid">
+                    <div class="metric-item">
+                      <mat-icon>developer_board</mat-icon>
+                      <span>{{ node.value.physical_gpus }} GPUs Physiques</span>
+                    </div>
+                    <div class="metric-item">
+                      <mat-icon>view_comfy_alt</mat-icon>
+                      <span>{{ node.value.virtual_gpus }} GPUs Virtuels</span>
+                    </div>
+                    <div class="metric-item">
+                      <mat-icon>bookmark</mat-icon>
+                      <span>{{ node.value.reserved_gpus }} GPUs Réservés</span>
+                    </div>
+                    <div class="metric-item">
+                      <mat-icon>memory</mat-icon>
+                      <span>{{ node.value.used_gpus }} GPUs Utilisés</span>
+                    </div>
+                  </div>
+                  <div class="usage-progress">
+                    <span class="usage-label">Utilisation</span>
+                    <mat-progress-bar mode="determinate" [value]="node.value.gpu_usage_percent" [ngClass]="getUsageClass(node.value.gpu_usage_percent)"></mat-progress-bar>
+                    <span class="usage-percent">{{ node.value.gpu_usage_percent }}%</span>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </a>
+          }
+        </div>
+      </section>
     </div>
-
-    <section class="nodes-section">
-      <h3>Détails par Nœud</h3>
-      <div class="node-grid">
-        @for (node of cluster.nodes | keyvalue: originalOrder; track node.key) {
-          <a [routerLink]="['/nodes']" class="node-link">
-            <mat-card class="node-card">
-              <mat-card-header>
-                <mat-icon mat-card-avatar>dns</mat-icon>
-                <mat-card-title>{{ node.key }}</mat-card-title>
-                <mat-card-subtitle>Statut du Nœud</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content class="node-metrics">
-                <div class="metrics-grid">
-                  <div class="metric-item">
-                    <mat-icon>developer_board</mat-icon>
-                    <span>{{ node.value.physical_gpus }} GPUs Physiques</span>
-                  </div>
-                  <div class="metric-item">
-                    <mat-icon>view_comfy_alt</mat-icon>
-                    <span>{{ node.value.virtual_gpus }} GPUs Virtuels</span>
-                  </div>
-                  <div class="metric-item">
-                    <mat-icon>bookmark</mat-icon>
-                    <span>{{ node.value.reserved_gpus }} GPUs Réservés</span>
-                  </div>
-                  <div class="metric-item">
-                    <mat-icon>memory</mat-icon>
-                    <span>{{ node.value.used_gpus }} GPUs Utilisés</span>
-                  </div>
-                </div>
-
-                <div class="usage-progress">
-                  <span class="usage-label">Utilisation</span>
-                  <mat-progress-bar
-                    mode="determinate"
-                    [value]="node.value.gpu_usage_percent"
-                    [ngClass]="getUsageClass(node.value.gpu_usage_percent)">
-                  </mat-progress-bar>
-                  <span class="usage-percent">{{ node.value.gpu_usage_percent }}%</span>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </a>
-        }
-      </div>
-    </section>
   } @empty {
-    <p>Chargement des données des clusters...</p>
+    <p class="empty-message">Chargement ou aucun cluster à afficher...</p>
   }
 </div>
