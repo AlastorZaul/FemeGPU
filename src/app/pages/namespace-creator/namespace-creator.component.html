@@ -79,13 +79,19 @@
 
         <div class="form-actions">
           <button mat-flat-button color="primary" type="submit" [disabled]="reservationForm.invalid || isSubmitting()">
+
             @if (isSubmitting()) {
-              <mat-spinner diameter="20" color="accent"></mat-spinner>
-              <span>Réservation en cours...</span>
+              <ng-container>
+                <mat-spinner diameter="20" color="accent"></mat-spinner>
+                <span>Réservation en cours...</span>
+              </ng-container>
             } @else {
-              <mat-icon>save</mat-icon>
-              <span>Réserver les ressources</span>
+              <ng-container>
+                <mat-icon>save</mat-icon>
+                <span>Réserver les ressources</span>
+              </ng-container>
             }
+
           </button>
         </div>
 
