@@ -1,0 +1,64 @@
+.list-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+
+  table {
+    width: 100%;
+  }
+
+  th.mat-header-cell,
+  td.mat-cell {
+    padding: 12px 16px;
+  }
+
+  th.mat-header-cell {
+    font-weight: 500;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--text-color-secondary);
+
+    mat-icon {
+      font-size: 4rem;
+      width: 4rem;
+      height: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin: 0.25rem 0;
+    }
+  }
+}
+
+.status-chip {
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+    margin-right: 6px;
+    margin-left: -2px;
+  }
+
+  // Style pour "Actif" (primary)
+  &.mat-mdc-chip-highlighted.mat-primary {
+    --mdc-chip-elevated-container-color: #e8eaf6; // Fond bleu clair
+    --mdc-chip-label-text-color: #3f51b5; // Texte bleu foncé
+  }
+
+  // Style pour "Inactif" (warn)
+  &.mat-warn {
+    --mdc-chip-elevated-container-color: #fce7e7; // Fond rouge clair
+    --mdc-chip-label-text-color: #b71c1c; // Texte rouge foncé
+  }
+}

@@ -1,0 +1,101 @@
+<div class="creator-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Créer une réservation de Namespace</mat-card-title>
+      <mat-card-subtitle>Réservez des GPUs pour une application dans un namespace spécifique.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Cluster</mat-label>
+          <mat-select formControlName="cluster">
+            @for (cluster of clusters(); track cluster.cluster_name) {
+              <mat-option [value]="cluster.cluster_name">{{ cluster.cluster_name }}</mat-option>
+            } @empty {
+              <mat-option disabled>Chargement des clusters...</mat-option>
+            }
+          </mat-select>
+          @if (reservationForm.get('cluster')?.hasError('required') && reservationForm.get('cluster')?.touched) {
+            <mat-error>Veuillez sélectionner un cluster.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nœud</mat-label>
+          <mat-select formControlName="node">
+            @for (node of availableNodes(); track node.name) {
+              <mat-option [value]="node.name">
+                {{ node.name }}
+                (Dispo: {{ node.metrics.physical_gpus - node.metrics.reserved_gpus }})
+              </mat-option>
+            } @empty {
+              <mat-option disabled>Sélectionnez d'abord un cluster</mat-option>
+            }
+          </mat-select>
+          @if (reservationForm.get('node')?.hasError('required') && reservationForm.get('node')?.touched) {
+            <mat-error>Veuillez sélectionner un nœud.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-divider class="section-divider"></mat-divider>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nom du Namespace</mat-label>
+          <input matInput formControlName="namespace" placeholder="mon-namespace-projet">
+          @if (reservationForm.get('namespace')?.hasError('required') && reservationForm.get('namespace')?.touched) {
+            <mat-error>Le nom du namespace est requis.</mat-error>
+          }
+          @if (reservationForm.get('namespace')?.hasError('pattern') && reservationForm.get('namespace')?.touched) {
+            <mat-error>Minuscules, chiffres et tirets uniquement.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nom de l'Application</mat-label>
+          <input matInput formControlName="application" placeholder="mon-app-IA">
+          @if (reservationForm.get('application')?.hasError('required') && reservationForm.get('application')?.touched) {
+            <mat-error>Le nom de l'application est requis.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="gpus-field">
+          <mat-label>GPUs à Réserver</mat-label>
+          <input matInput type="number" formControlName="gpusRequested" min="1">
+          @if (selectedNodeMetrics(); as metrics) {
+            <mat-hint align="end">Disponibles: {{ gpusAvailable() }}</mat-hint>
+          }
+          @if (reservationForm.get('gpusRequested')?.hasError('required') && reservationForm.get('gpusRequested')?.touched) {
+            <mat-error>Nombre de GPUs requis.</mat-error>
+          }
+          @if (reservationForm.get('gpusRequested')?.hasError('min') && reservationForm.get('gpusRequested')?.touched) {
+            <mat-error>Au moins 1 GPU doit être demandé.</mat-error>
+          }
+          @if (reservationForm.get('gpusRequested')?.hasError('max') && reservationForm.get('gpusRequested')?.touched) {
+            <mat-error>Pas assez de GPUs disponibles (max: {{ gpusAvailable() }}).</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-flat-button color="primary" type="submit" [disabled]="reservationForm.invalid || isSubmitting()">
+
+            @if (isSubmitting()) {
+              <ng-container>
+                <mat-spinner diameter="20" color="accent"></mat-spinner>
+                <span>Réservation en cours...</span>
+              </ng-container>
+            } @else {
+              <ng-container>
+                <mat-icon>save</mat-icon>
+                <span>Réserver les ressources</span>
+              </ng-container>
+            }
+
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

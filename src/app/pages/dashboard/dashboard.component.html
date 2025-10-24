@@ -50,7 +50,9 @@
                 <mat-card-header>
                   <mat-icon mat-card-avatar>dns</mat-icon>
                   <mat-card-title>{{ node.key }}</mat-card-title>
-                  <mat-card-subtitle>Statut du Nœud</mat-card-subtitle>
+                  <mat-card-subtitle [ngClass]="getUsageClass(node.value.gpu_usage_percent)">
+                    {{ getUsageStatusText(node.value.gpu_usage_percent) }}
+                  </mat-card-subtitle>
                 </mat-card-header>
                 <mat-card-content class="node-metrics">
                   <div class="metrics-grid">
@@ -71,10 +73,13 @@
                       <span>{{ node.value.used_gpus }} GPUs Utilisés</span>
                     </div>
                   </div>
-                  <div class="usage-progress">
-                    <span class="usage-label">Utilisation</span>
-                    <mat-progress-bar mode="determinate" [value]="node.value.gpu_usage_percent" [ngClass]="getUsageClass(node.value.gpu_usage_percent)"></mat-progress-bar>
-                    <span class="usage-percent">{{ node.value.gpu_usage_percent }}%</span>
+                  <div class="gauge-container">
+                    <app-custom-gauge
+                      [value]="node.value.gpu_usage_percent"
+                      [max]="100"
+                      label="Utilisation Totale"
+                      append="%"
+                    />
                   </div>
                 </mat-card-content>
               </mat-card>

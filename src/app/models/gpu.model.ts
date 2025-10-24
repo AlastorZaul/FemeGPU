@@ -1,3 +1,12 @@
+export interface ReservationDetail {
+  namespace: string;
+  application: string;
+  gpusRequested: number;
+  createdAt: Date; // Pour savoir quand elle a été créée
+  isActive: boolean;
+}
+
+
 // Interface pour les métriques d'un nœud (node)
 export interface NodeMetrics {
   physical_gpus: number;
@@ -6,6 +15,7 @@ export interface NodeMetrics {
   used_gpus: number;
   used_mig_units: number;
   gpu_usage_percent: number;
+  reservations: ReservationDetail[]
 }
 
 // Interface principale pour la réponse de l'API

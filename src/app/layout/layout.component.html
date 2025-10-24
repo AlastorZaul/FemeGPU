@@ -18,6 +18,24 @@
         <mat-icon>router</mat-icon>
         <span>Gateways</span>
       </a>
+      <mat-expansion-panel class="menu-expansion-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>list_alt</mat-icon>
+            <span>Réservations</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-nav-list class="submenu-nav-list">
+          <a mat-list-item routerLink="/reservations" routerLinkActive="active-link">
+            <mat-icon>view_list</mat-icon>
+            <span>Voir la liste</span>
+          </a>
+          <a mat-list-item routerLink="/create-namespace" routerLinkActive="active-link">
+            <mat-icon>add_box</mat-icon>
+            <span>Réserver (Créer)</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
     </mat-nav-list>
 
     @if (authService.isAuthenticated()) {
