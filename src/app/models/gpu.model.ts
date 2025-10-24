@@ -3,6 +3,7 @@ export interface ReservationDetail {
   application: string;
   gpusRequested: number;
   createdAt: Date; // Pour savoir quand elle a été créée
+  isActive: boolean;
 }
 
 
@@ -14,7 +15,7 @@ export interface NodeMetrics {
   used_gpus: number;
   used_mig_units: number;
   gpu_usage_percent: number;
-  reservations: ReservationDetail[];
+  reservations: ReservationDetail[]
 }
 
 // Interface principale pour la réponse de l'API

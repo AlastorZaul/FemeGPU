@@ -36,3 +36,29 @@
     }
   }
 }
+
+.status-chip {
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+    margin-right: 6px;
+    margin-left: -2px;
+  }
+
+  // Style pour "Actif" (primary)
+  &.mat-mdc-chip-highlighted.mat-primary {
+    --mdc-chip-elevated-container-color: #e8eaf6; // Fond bleu clair
+    --mdc-chip-label-text-color: #3f51b5; // Texte bleu foncé
+  }
+
+  // Style pour "Inactif" (warn)
+  &.mat-warn {
+    --mdc-chip-elevated-container-color: #fce7e7; // Fond rouge clair
+    --mdc-chip-label-text-color: #b71c1c; // Texte rouge foncé
+  }
+}

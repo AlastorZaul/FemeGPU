@@ -1,7 +1,6 @@
 import {Component, computed, inject, Signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {GpuDataService} from '../../services/gpu-data.service';
 import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
 
 // Imports Angular Material
@@ -9,6 +8,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatCardModule} from '@angular/material/card';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatIconModule} from '@angular/material/icon';
+import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 
 // Interface pour notre liste aplatie de nœuds
 export interface FlatNode {
@@ -25,7 +25,7 @@ export interface FlatNode {
   styleUrls: ['./node-list.component.scss']
 })
 export class NodeListComponent {
-  private gpuDataService = inject(GpuDataService);
+  private gpuDataService = inject(GpuDataServiceMock);
 
   // Signal pour les données brutes de l'API
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, {initialValue: []});

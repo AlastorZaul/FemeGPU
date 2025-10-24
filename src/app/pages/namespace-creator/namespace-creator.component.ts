@@ -1,19 +1,20 @@
-import { Component, computed, inject, signal, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { GpuDataService, NamespaceReservation } from '../../services/gpu-data.service';
-import { ClusterApiResponse, NodeMetrics } from '../../models/gpu.model';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
+import {Component, computed, inject, signal, Signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {Router} from '@angular/router';
+import {NamespaceReservation} from '../../services/gpu-data.service';
+import {ClusterApiResponse} from '../../models/gpu.model';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatDividerModule} from '@angular/material/divider';
+import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 
 @Component({
   selector: 'app-namespace-creator',
@@ -28,7 +29,7 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class NamespaceCreatorComponent {
   private fb = inject(FormBuilder);
-  private gpuDataService = inject(GpuDataService);
+  private gpuDataService = inject(GpuDataServiceMock);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
 

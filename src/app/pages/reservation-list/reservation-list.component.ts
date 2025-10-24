@@ -1,43 +1,43 @@
-import { Component, computed, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { MatTableModule } from '@angular/material/table';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { GpuDataService } from '../../services/gpu-data.service';
-import { ClusterApiResponse, ReservationDetail } from '../../models/gpu.model';
-
-// Interface pour notre tableau "aplati"
-export interface FlatReservation extends ReservationDetail {
-  clusterName: string;
-  nodeName: string;
-}
+import {Component, computed, inject, Signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {MatTableModule} from '@angular/material/table';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {ClusterApiResponse} from '../../models/gpu.model';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {FlatReservation, GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+import {MatTooltip} from '@angular/material/tooltip'; // <-- IMPORTER
 
 @Component({
   selector: 'app-reservation-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatCardModule, MatIconModule],
+  imports: [
+    CommonModule, MatTableModule, MatCardModule, MatIconModule,
+    MatChipsModule,
+    MatSlideToggleModule, MatTooltip, // <-- AJOUTER AUX IMPORTS
+  ],
   templateUrl: './reservation-list.component.html',
   styleUrls: ['./reservation-list.component.scss']
 })
 export class ReservationListComponent {
-  private gpuDataService = inject(GpuDataService);
+  private gpuDataService = inject(GpuDataServiceMock);
 
-  // 1. Obtenir les données brutes des clusters
+  // ... (propriété 'clusters' inchangée)
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
 
-  // 2. Transformer les données en une liste plate de réservations
+  // ... (propriété 'allReservations' inchangée)
   public allReservations: Signal<FlatReservation[]> = computed(() => {
     const flatList: FlatReservation[] = [];
     const allClusters = this.clusters();
-
     for (const cluster of allClusters) {
       for (const nodeName in cluster.nodes) {
         const node = cluster.nodes[nodeName];
         if (node.reservations && node.reservations.length > 0) {
           for (const res of node.reservations) {
             flatList.push({
-              ...res, // Copie les propriétés de ReservationDetail
+              ...res,
               clusterName: cluster.cluster_name,
               nodeName: nodeName
             });
@@ -45,10 +45,23 @@ export class ReservationListComponent {
         }
       }
     }
-    // Trier par date de création, la plus récente en premier
     return flatList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   });
 
-  // 3. Colonnes à afficher dans le tableau
-  public displayedColumns: string[] = ['clusterName', 'nodeName', 'namespace', 'application', 'gpusRequested', 'createdAt'];
+  // ... (propriété 'displayedColumns' inchangée)
+  public displayedColumns: string[] = [
+    'status', 'clusterName', 'nodeName', 'namespace', 'application', 'gpusRequested', 'createdAt'
+  ];
+
+  // **** NOUVELLE MÉTHODE ****
+  // Appelée lors du clic sur l'interrupteur
+  onToggleStatus(reservation: FlatReservation) {
+    // Affiche le changement dans la console, le service s'occupe de la sauvegarde
+    // Le 'timer' du service rafraîchira l'UI
+    console.log(`Changement de statut pour ${reservation.namespace}...`);
+    this.gpuDataService.toggleReservationStatus(reservation).subscribe({
+      next: (res) => console.log(`Statut changé à: ${res.newState}`),
+      error: (err) => console.error("Erreur lors du changement de statut", err)
+    });
+  }
 }

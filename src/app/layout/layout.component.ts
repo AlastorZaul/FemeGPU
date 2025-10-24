@@ -1,11 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../services/auth.service';
+import {Component, inject} from '@angular/core';
+import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatListModule} from '@angular/material/list';
+import {MatIconModule} from '@angular/material/icon';
+import {AuthService} from '../services/auth.service';
 // 1. Importer le BreadcrumbComponent ici
-import { BreadcrumbComponent } from '../components/breadcrumb/breadcrumb.component';
+import {BreadcrumbComponent} from '../components/breadcrumb/breadcrumb.component';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 @Component({
   selector: 'app-layout',
@@ -18,7 +19,8 @@ import { BreadcrumbComponent } from '../components/breadcrumb/breadcrumb.compone
     MatListModule,
     MatIconModule,
     // 2. Ajouter BreadcrumbComponent à la liste des imports
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    MatExpansionModule
   ],
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss']
