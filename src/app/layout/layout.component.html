@@ -18,6 +18,14 @@
         <mat-icon>router</mat-icon>
         <span>Gateways</span>
       </a>
+      <a mat-list-item routerLink="/create-namespace" routerLinkActive="active-link">
+        <mat-icon>add_box</mat-icon>
+        <span>Réserver (Namespace)</span>
+      </a>
+      <a mat-list-item routerLink="/reservations" routerLinkActive="active-link">
+        <mat-icon>list_alt</mat-icon>
+        <span>Liste des Réservations</span>
+      </a>
     </mat-nav-list>
 
     @if (authService.isAuthenticated()) {

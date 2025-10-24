@@ -1,0 +1,60 @@
+.creator-container {
+  max-width: 800px;
+  margin: 2rem auto;
+
+  mat-card-header {
+    padding-bottom: 1rem;
+  }
+
+  form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); // Grille de 2 colonnes
+    gap: 1.5rem;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  // Le divider, le champ GPU et le bouton prennent toute la largeur
+  .section-divider,
+  .gpus-field,
+  .form-actions {
+    grid-column: 1 / -1; // S'étend sur les 2 colonnes
+  }
+
+  .gpus-field {
+    max-width: 50%; // Le champ GPU n'a pas besoin d'être aussi large
+  }
+
+  mat-divider.section-divider {
+    margin: 0.5rem 0;
+  }
+
+  .form-actions {
+    text-align: right;
+    margin-top: 1rem;
+
+    button {
+      padding: 0.5rem 1.5rem;
+      min-width: 200px;
+      min-height: 48px;
+
+      mat-spinner {
+        display: inline-block;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      span, mat-icon {
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+// Style global pour les snackbars d'erreur (optionnel, dans styles.scss)
+.error-snackbar {
+  background-color: #f44336; // Rouge Material Design
+  color: white;
+}

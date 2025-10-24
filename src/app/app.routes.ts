@@ -5,6 +5,8 @@ import { NodeListComponent } from './pages/node-list/node-list.component';
 import { LoginComponent } from './pages/login/login.component';
 import { authGuard } from './services/auth.guard';
 import { GatewayManagementComponent } from './pages/gateway-management/gateway-management.component';
+import {NamespaceCreatorComponent} from './pages/namespace-creator/namespace-creator.component';
+import {ReservationListComponent} from './pages/reservation-list/reservation-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -15,20 +17,30 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       // On ajoute la donnée "breadcrumb" à chaque route
-      { 
-        path: 'dashboard', 
-        component: DashboardComponent, 
-        data: { breadcrumb: 'Dashboard' } 
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { breadcrumb: 'Dashboard' }
       },
-      { 
-        path: 'nodes', 
-        component: NodeListComponent, 
-        data: { breadcrumb: 'Nodes' } 
+      {
+        path: 'nodes',
+        component: NodeListComponent,
+        data: { breadcrumb: 'Nodes' }
       },
-      { 
-        path: 'gateways', 
-        component: GatewayManagementComponent, 
-        data: { breadcrumb: 'Gateways' } 
+      {
+        path: 'create-namespace',
+        component: NamespaceCreatorComponent,
+        data: { breadcrumb: 'Créer un Namespace' }
+      },
+      {
+        path: 'reservations',
+        component: ReservationListComponent,
+        data: { breadcrumb: 'Réservations Actives' }
+      },
+      {
+        path: 'gateways',
+        component: GatewayManagementComponent,
+        data: { breadcrumb: 'Gateways' }
       },
     ]
   },
