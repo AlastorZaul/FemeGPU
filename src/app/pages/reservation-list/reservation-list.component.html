@@ -18,8 +18,7 @@
           </ng-container>
 
           <ng-container matColumnDef="clusterName">
-            <th mat-header-cell *matHeaderCellDef> Nœud</th>
-            <td mat-cell *matCellDef="let res"> {{ res.clusterName }}</td>
+            <th mat-header-cell *matHeaderCellDef> Cluster</th> <td mat-cell *matCellDef="let res"> {{ res.clusterName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="nodeName">
@@ -38,8 +37,18 @@
           </ng-container>
 
           <ng-container matColumnDef="gpusRequested">
-            <th mat-header-cell *matHeaderCellDef> GPUs Réservés </th>
+            <th mat-header-cell *matHeaderCellDef> GPUs </th>
             <td mat-cell *matCellDef="let res"> {{res.gpusRequested}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="memoryRequest">
+            <th mat-header-cell *matHeaderCellDef> Mémoire (Go) </th>
+            <td mat-cell *matCellDef="let res"> {{res.memoryRequest}} Go </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cpuRequest">
+            <th mat-header-cell *matHeaderCellDef> CPU (Cores) </th>
+            <td mat-cell *matCellDef="let res"> {{res.cpuRequest}} </td>
           </ng-container>
 
           <ng-container matColumnDef="createdAt">
@@ -51,6 +60,11 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
       } @else {
+        <div class="empty-state">
+          <mat-icon>inbox</mat-icon>
+          <p>Aucune réservation trouvée.</p>
+          <p>Commencez par <a routerLink="/create">créer une nouvelle réservation</a>.</p>
+        </div>
       }
     </mat-card-content>
   </mat-card>

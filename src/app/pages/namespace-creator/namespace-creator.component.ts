@@ -44,7 +44,9 @@ export class NamespaceCreatorComponent {
     node: [{ value: '', disabled: true }, Validators.required],
     namespace: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
     application: ['', Validators.required],
-    gpusRequested: [1, [Validators.required, Validators.min(1)]]
+    gpusRequested: [1, [Validators.required, Validators.min(1)]],
+    memoryRequest: [1, [Validators.required, Validators.min(1)]], // NOUVEAU
+    cpuRequest: [1, [Validators.required, Validators.min(1)]]     // NOUVEAU
   });
 
   // Gérer les listes déroulantes dépendantes
@@ -78,34 +80,53 @@ export class NamespaceCreatorComponent {
     return Math.max(0, available); // S'assurer que ce n'est pas négatif
   });
 
+  memoryAvailable = computed(() => { // NOUVEAU
+    const metrics = this.selectedNodeMetrics();
+    if (!metrics) return 0;
+    const available = (metrics.total_memory_gb || 0) - (metrics.reserved_memory_gb || 0);
+    return Math.max(0, available);
+  });
+
+  cpuAvailable = computed(() => { // NOUVEAU
+    const metrics = this.selectedNodeMetrics();
+    if (!metrics) return 0;
+    const available = (metrics.total_cpu_cores || 0) - (metrics.reserved_cpu_cores || 0);
+    return Math.max(0, available);
+  });
+
   constructor() {
     // Réinitialiser le nœud si le cluster change
     this.reservationForm.get('cluster')?.valueChanges.subscribe(() => {
       this.reservationForm.get('node')?.reset('', { emitEvent: false });
-      this.updateGpuRequestedValidation();
+      this.updateAllValidators();
     });
 
     // Mettre à jour la validation du nombre de GPUs quand le nœud change
     this.reservationForm.get('node')?.valueChanges.subscribe(() => {
-      this.updateGpuRequestedValidation();
+      this.updateAllValidators();
     });
   }
 
+  private updateAllValidators() {
+    this.updateResourceValidation('gpusRequested', this.gpusAvailable());
+    this.updateResourceValidation('memoryRequest', this.memoryAvailable());
+    this.updateResourceValidation('cpuRequest', this.cpuAvailable());
+  }
+
   // Fonction pour mettre à jour les validateurs de gpusRequested
-  private updateGpuRequestedValidation() {
-    const maxAvailable = this.gpusAvailable();
-    const gpusControl = this.reservationForm.get('gpusRequested');
+  private updateResourceValidation(controlName: string, maxAvailable: number) {
+    const control = this.reservationForm.get(controlName);
 
     // Si maxAvailable est 0, le validateur max(0) poserait problème.
     // On met max(1) et on laisse l'erreur 'max' s'afficher si on demande 1.
     const maxVal = maxAvailable > 0 ? maxAvailable : 1;
 
-    gpusControl?.setValidators([
+    control?.setValidators([
       Validators.required,
       Validators.min(1),
       Validators.max(maxVal)
     ]);
-    gpusControl?.updateValueAndValidity({ emitEvent: false });
+    control?.updateValueAndValidity({ emitEvent: false });
   }
 
 
@@ -115,9 +136,19 @@ export class NamespaceCreatorComponent {
       return;
     }
 
-    // Vérification manuelle (au cas où la validation max(0) serait contournée)
+    // Vérifications manuelles (au cas où la validation max(0) serait contournée)
     if (this.gpusAvailable() <= 0 || this.reservationForm.get('gpusRequested')!.value! > this.gpusAvailable()) {
       this.reservationForm.get('gpusRequested')?.setErrors({ max: true });
+    }
+    if (this.memoryAvailable() <= 0 || this.reservationForm.get('memoryRequest')!.value! > this.memoryAvailable()) {
+      this.reservationForm.get('memoryRequest')?.setErrors({ max: true });
+    }
+    if (this.cpuAvailable() <= 0 || this.reservationForm.get('cpuRequest')!.value! > this.cpuAvailable()) {
+      this.reservationForm.get('cpuRequest')?.setErrors({ max: true });
+    }
+
+    // Revérifier si des erreurs ont été ajoutées
+    if (this.reservationForm.invalid) {
       return;
     }
 
@@ -126,7 +157,7 @@ export class NamespaceCreatorComponent {
 
     this.gpuDataService.createNamespaceReservation(formData).subscribe({
       next: (response) => {
-        this.snackBar.open(response.message, 'Fermer', { duration: 3000 });
+        this.snackBar.open(response.message || 'Réservation créée avec succès', 'Fermer', { duration: 3000 });
         this.router.navigate(['/dashboard']); // Rediriger vers le dashboard
       },
       error: (err) => {

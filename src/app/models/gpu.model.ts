@@ -2,6 +2,8 @@ export interface ReservationDetail {
   namespace: string;
   application: string;
   gpusRequested: number;
+  memoryRequest: number; // NOUVEAU (ex: en Go)
+  cpuRequest: number;    // NOUVEAU (ex: en Cores)
   createdAt: Date; // Pour savoir quand elle a été créée
   isActive: boolean;
 }
@@ -15,7 +17,13 @@ export interface NodeMetrics {
   used_gpus: number;
   used_mig_units: number;
   gpu_usage_percent: number;
-  reservations: ReservationDetail[]
+  reservations: ReservationDetail[];
+
+  // NOUVEAUX CHAMPS POUR LES QUOTAS
+  total_memory_gb: number;
+  reserved_memory_gb: number;
+  total_cpu_cores: number;
+  reserved_cpu_cores: number;
 }
 
 // Interface principale pour la réponse de l'API
@@ -29,4 +37,10 @@ export interface ClusterApiResponse {
     [nodeName: string]: NodeMetrics;
   };
   cluster_name: string;
+
+  // NOUVEAUX TOTAUX GLOBAUX (Optionnel, mais cohérent)
+  total_memory_gb: number;
+  total_cpu_cores: number;
+  total_used_memory_gb: number; // Calculé par le backend
+  total_used_cpu_cores: number; // Calculé par le backend
 }

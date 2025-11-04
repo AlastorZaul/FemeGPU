@@ -2,7 +2,7 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>Créer une réservation de Namespace</mat-card-title>
-      <mat-card-subtitle>Réservez des GPUs pour une application dans un namespace spécifique.</mat-card-subtitle>
+      <mat-card-subtitle>Réservez des ressources (GPU, CPU, Mémoire) pour une application.</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -28,7 +28,7 @@
             @for (node of availableNodes(); track node.name) {
               <mat-option [value]="node.name">
                 {{ node.name }}
-                (Dispo: {{ node.metrics.physical_gpus - node.metrics.reserved_gpus }})
+                (GPU Dispo: {{ node.metrics.physical_gpus - node.metrics.reserved_gpus }})
               </mat-option>
             } @empty {
               <mat-option disabled>Sélectionnez d'abord un cluster</mat-option>
@@ -60,26 +60,64 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="gpus-field">
-          <mat-label>GPUs à Réserver</mat-label>
-          <input matInput type="number" formControlName="gpusRequested" min="1">
-          @if (selectedNodeMetrics(); as metrics) {
-            <mat-hint align="end">Disponibles: {{ gpusAvailable() }}</mat-hint>
-          }
-          @if (reservationForm.get('gpusRequested')?.hasError('required') && reservationForm.get('gpusRequested')?.touched) {
-            <mat-error>Nombre de GPUs requis.</mat-error>
-          }
-          @if (reservationForm.get('gpusRequested')?.hasError('min') && reservationForm.get('gpusRequested')?.touched) {
-            <mat-error>Au moins 1 GPU doit être demandé.</mat-error>
-          }
-          @if (reservationForm.get('gpusRequested')?.hasError('max') && reservationForm.get('gpusRequested')?.touched) {
-            <mat-error>Pas assez de GPUs disponibles (max: {{ gpusAvailable() }}).</mat-error>
-          }
-        </mat-form-field>
+        <mat-divider class="section-divider"></mat-divider>
+
+        <div class="quota-grid">
+
+          <mat-form-field appearance="outline" class="gpus-field">
+            <mat-label>GPUs à Réserver</mat-label>
+            <input matInput type="number" formControlName="gpusRequested" min="1">
+            @if (selectedNodeMetrics(); as metrics) {
+              <mat-hint align="end">Disponibles: {{ gpusAvailable() }}</mat-hint>
+            }
+            @if (reservationForm.get('gpusRequested')?.hasError('required') && reservationForm.get('gpusRequested')?.touched) {
+              <mat-error>Nombre de GPUs requis.</mat-error>
+            }
+            @if (reservationForm.get('gpusRequested')?.hasError('min') && reservationForm.get('gpusRequested')?.touched) {
+              <mat-error>Au moins 1 GPU doit être demandé.</mat-error>
+            }
+            @if (reservationForm.get('gpusRequested')?.hasError('max') && reservationForm.get('gpusRequested')?.touched) {
+              <mat-error>Pas assez de GPUs disponibles (max: {{ gpusAvailable() }}).</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="memory-field">
+            <mat-label>Mémoire (Go)</mat-label>
+            <input matInput type="number" formControlName="memoryRequest" min="1">
+            @if (selectedNodeMetrics(); as metrics) {
+              <mat-hint align="end">Disponible: {{ memoryAvailable() }} Go</mat-hint>
+            }
+            @if (reservationForm.get('memoryRequest')?.hasError('required') && reservationForm.get('memoryRequest')?.touched) {
+              <mat-error>Mémoire requise.</mat-error>
+            }
+            @if (reservationForm.get('memoryRequest')?.hasError('min') && reservationForm.get('memoryRequest')?.touched) {
+              <mat-error>Au moins 1 Go requis.</mat-error>
+            }
+            @if (reservationForm.get('memoryRequest')?.hasError('max') && reservationForm.get('memoryRequest')?.touched) {
+              <mat-error>Pas assez de mémoire disponible (max: {{ memoryAvailable() }} Go).</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="cpu-field">
+            <mat-label>CPU (Cores)</mat-label>
+            <input matInput type="number" formControlName="cpuRequest" min="1">
+            @if (selectedNodeMetrics(); as metrics) {
+              <mat-hint align="end">Disponible: {{ cpuAvailable() }} Cores</mat-hint>
+            }
+            @if (reservationForm.get('cpuRequest')?.hasError('required') && reservationForm.get('cpuRequest')?.touched) {
+              <mat-error>CPU requis.</mat-error>
+            }
+            @if (reservationForm.get('cpuRequest')?.hasError('min') && reservationForm.get('cpuRequest')?.touched) {
+              <mat-error>Au moins 1 Core requis.</mat-error>
+            }
+            @if (reservationForm.get('cpuRequest')?.hasError('max') && reservationForm.get('cpuRequest')?.touched) {
+              <mat-error>Pas assez de CPU disponibles (max: {{ cpuAvailable() }} Cores).</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
         <div class="form-actions">
           <button mat-flat-button color="primary" type="submit" [disabled]="reservationForm.invalid || isSubmitting()">
-
             @if (isSubmitting()) {
               <ng-container>
                 <mat-spinner diameter="20" color="accent"></mat-spinner>
@@ -91,7 +129,6 @@
                 <span>Réserver les ressources</span>
               </ng-container>
             }
-
           </button>
         </div>
 

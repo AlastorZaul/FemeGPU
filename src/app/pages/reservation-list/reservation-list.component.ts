@@ -4,11 +4,21 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {MatTableModule} from '@angular/material/table';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
-import {ClusterApiResponse} from '../../models/gpu.model';
+import {ClusterApiResponse, ReservationDetail} from '../../models/gpu.model'; // Importer ReservationDetail
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {FlatReservation, GpuDataServiceMock} from '../../services/gpu-data-mock.service';
-import {MatTooltip} from '@angular/material/tooltip'; // <-- IMPORTER
+// S'assurer d'utiliser le bon service
+import {GpuDataService} from '../../services/gpu-data.service';
+// import {GpuDataServiceMock, FlatReservation} from '../../services/gpu-data-mock.service';
+import {MatTooltip} from '@angular/material/tooltip';
+import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+
+// Définir l'interface FlatReservation ici si elle n'est pas exportée du service mock
+// Elle doit correspondre à ReservationDetail + cluster/node
+export interface FlatReservation extends ReservationDetail {
+  clusterName: string;
+  nodeName: string;
+}
 
 @Component({
   selector: 'app-reservation-list',
@@ -16,18 +26,17 @@ import {MatTooltip} from '@angular/material/tooltip'; // <-- IMPORTER
   imports: [
     CommonModule, MatTableModule, MatCardModule, MatIconModule,
     MatChipsModule,
-    MatSlideToggleModule, MatTooltip, // <-- AJOUTER AUX IMPORTS
+    MatSlideToggleModule, MatTooltip,
   ],
   templateUrl: './reservation-list.component.html',
   styleUrls: ['./reservation-list.component.scss']
 })
 export class ReservationListComponent {
+  // S'assurer d'injecter le bon service
   private gpuDataService = inject(GpuDataServiceMock);
 
-  // ... (propriété 'clusters' inchangée)
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
 
-  // ... (propriété 'allReservations' inchangée)
   public allReservations: Signal<FlatReservation[]> = computed(() => {
     const flatList: FlatReservation[] = [];
     const allClusters = this.clusters();
@@ -48,16 +57,16 @@ export class ReservationListComponent {
     return flatList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   });
 
-  // ... (propriété 'displayedColumns' inchangée)
+  // AJOUTER LES NOUVELLES COLONNES
   public displayedColumns: string[] = [
-    'status', 'clusterName', 'nodeName', 'namespace', 'application', 'gpusRequested', 'createdAt'
+    'status', 'clusterName', 'nodeName', 'namespace', 'application',
+    'gpusRequested', 'memoryRequest', 'cpuRequest', 'createdAt'
   ];
 
-  // **** NOUVELLE MÉTHODE ****
-  // Appelée lors du clic sur l'interrupteur
+  // La méthode onToggleStatus n'est pas dans GpuDataService,
+  // elle est dans GpuDataServiceMock. Vous devrez l'implémenter
+  // dans GpuDataService si vous passez au backend réel.
   onToggleStatus(reservation: FlatReservation) {
-    // Affiche le changement dans la console, le service s'occupe de la sauvegarde
-    // Le 'timer' du service rafraîchira l'UI
     console.log(`Changement de statut pour ${reservation.namespace}...`);
     this.gpuDataService.toggleReservationStatus(reservation).subscribe({
       next: (res) => console.log(`Statut changé à: ${res.newState}`),

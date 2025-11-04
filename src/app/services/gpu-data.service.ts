@@ -12,6 +12,8 @@ export interface NamespaceReservation {
   namespace: string;
   application: string;
   gpusRequested: number;
+  memoryRequest: number; // NOUVEAU
+  cpuRequest: number;    // NOUVEAU
 }
 
 // !! TOUTE LA LOGIQUE MOCK (INITIAL_MOCK_DATA, STORAGE_KEY, etc.) EST SUPPRIMÉE !!
