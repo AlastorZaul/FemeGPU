@@ -138,3 +138,10 @@ app-layout .mat-drawer-inner-container {
 .mon-element {
   animation: monAnimationFadeOut_corrigee 1s forwards;
 }
+
+.mat-mdc-table {
+  th.mat-mdc-header-cell,
+  td.mat-mdc-cell {
+    vertical-align: middle !important;
+  }
+}

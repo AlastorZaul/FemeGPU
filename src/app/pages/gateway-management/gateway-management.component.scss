@@ -5,3 +5,43 @@
 table {
   width: 100%;
 }
+
+/* Style pour l'en-tête de la carte (pour le bouton "Ajouter") */
+mat-card-header {
+  display: flex;
+  align-items: center;
+
+  .header-spacer {
+    // Ce span prend toute la place disponible
+    flex: 1 1 auto;
+  }
+}
+
+/* Style pour le message d'erreur sous le statut */
+.gateway-error-message {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #f44336; // Couleur "warn" de Material
+  margin-top: 4px;
+
+  mat-icon {
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+    margin-right: 4px;
+  }
+}
+
+/* Conteneur pour les boutons d'action (pour l'espacement) */
+.actions-cell {
+  display: flex;
+  align-items: center; // Aligne les boutons au centre (verticalement)
+  gap: 4px; // Ajoute l'espace entre les boutons
+}
+
+/*
+ * NOTE: Les règles d'alignement vertical ont été déplacées
+ * vers le fichier global 'src/styles.scss'
+ * pour une application correcte.
+*/

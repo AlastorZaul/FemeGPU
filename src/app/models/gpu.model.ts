@@ -44,3 +44,13 @@ export interface ClusterApiResponse {
   total_used_memory_gb: number; // Calculé par le backend
   total_used_cpu_cores: number; // Calculé par le backend
 }
+
+export interface Gateway {
+  id: string;
+  name: string;
+  ipAddress: string;
+  // Statut étendu pour inclure un état de transition
+  status: 'Online' | 'Offline' | 'Restarting';
+  // Champ optionnel pour les messages d'erreur
+  errorMessage?: string;
+}

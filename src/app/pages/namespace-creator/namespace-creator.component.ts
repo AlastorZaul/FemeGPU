@@ -1,4 +1,4 @@
-import {Component, computed, inject, signal, Signal} from '@angular/core';
+import {Component, computed, effect, inject, signal, Signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
@@ -11,10 +11,11 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {Router} from '@angular/router';
 import {NamespaceReservation} from '../../services/gpu-data.service';
-import {ClusterApiResponse} from '../../models/gpu.model';
+import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatDividerModule} from '@angular/material/divider';
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+import {startWith} from 'rxjs';
 
 @Component({
   selector: 'app-namespace-creator',
@@ -30,6 +31,8 @@ import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 export class NamespaceCreatorComponent {
   private fb = inject(FormBuilder);
   private gpuDataService = inject(GpuDataServiceMock);
+  private readonly selectedClusterName: Signal<string | null | undefined>;
+  private readonly selectedNodeName: Signal<string | null | undefined>;
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
 
@@ -67,11 +70,7 @@ export class NamespaceCreatorComponent {
     return Object.entries(cluster.nodes).map(([name, metrics]) => ({ name, metrics }));
   });
 
-  selectedNodeMetrics = computed(() => {
-    const nodeName = this.reservationForm.get('node')?.value;
-    const node = this.availableNodes().find(n => n.name === nodeName);
-    return node ? node.metrics : null;
-  });
+  selectedNodeMetrics = signal<NodeMetrics | null>(null);
 
   gpusAvailable = computed(() => {
     const metrics = this.selectedNodeMetrics();
@@ -95,36 +94,85 @@ export class NamespaceCreatorComponent {
   });
 
   constructor() {
-    // Réinitialiser le nœud si le cluster change
-    this.reservationForm.get('cluster')?.valueChanges.subscribe(() => {
-      this.reservationForm.get('node')?.reset('', { emitEvent: false });
-      this.updateAllValidators();
+    this.reservationForm = this.fb.group({
+      cluster: ['', Validators.required],
+      node: [{ value: '', disabled: true }, Validators.required], // Reste désactivé
+      namespace: ['', [Validators.required, Validators.pattern(/^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/)]],
+      application: ['', Validators.required],
+      gpusRequested: [1, [Validators.required, Validators.min(1)]],
+      memoryRequest: [1, [Validators.required, Validators.min(1)]],
+      cpuRequest: [1, [Validators.required, Validators.min(1)]]
     });
+// 1. Créer des signaux à partir des changements de valeur du formulaire
+    const clusterControl = this.reservationForm.get('cluster')!;
+    const nodeControl = this.reservationForm.get('node')!;
 
-    // Mettre à jour la validation du nombre de GPUs quand le nœud change
-    this.reservationForm.get('node')?.valueChanges.subscribe(() => {
-      this.updateAllValidators();
+    // startWith() est crucial pour que le signal ait une valeur au démarrage
+    this.selectedClusterName = toSignal(
+      clusterControl.valueChanges.pipe(startWith(clusterControl.value))
+    );
+    this.selectedNodeName = toSignal(
+      nodeControl.valueChanges.pipe(startWith(nodeControl.value))
+    );
+
+
+    // 2. Mettre à jour les 'effects' pour utiliser les NOUVEAUX signaux
+    // (Remplacez vos anciens 'effects' par ceux-ci)
+
+    // Logique pour réinitialiser et (dés)activer le champ 'node'
+    effect(() => {
+      const clusterName = this.selectedClusterName(); // Utilise le signal
+      const nodeControl = this.reservationForm.get('node');
+
+      if (clusterName) {
+        nodeControl?.enable({ emitEvent: false });
+      } else {
+        nodeControl?.disable({ emitEvent: false });
+      }
+
+      // Réinitialiser le champ 'node' (cela va déclencher le signal selectedNodeName)
+      nodeControl?.reset(undefined);
+    }, { allowSignalWrites: true });
+
+
+    // Logique pour mettre à jour le nœud sélectionné et ses métriques
+    effect(() => {
+      const nodeName = this.selectedNodeName(); // Utilise le signal
+      const clusterName = this.selectedClusterName(); // Utilise le signal
+
+      if (nodeName && clusterName) {
+        const cluster = this.clusters().find(c => c.cluster_name === clusterName);
+        const node = cluster?.nodes[nodeName];
+        if (node) {
+          this.selectedNodeMetrics.set(node);
+        } else {
+          this.selectedNodeMetrics.set(null);
+        }
+      } else {
+        this.selectedNodeMetrics.set(null);
+      }
+    }, { allowSignalWrites: true });
+
+    // Logique pour mettre à jour les validateurs des ressources (celle-ci reste)
+    effect(() => {
+      this.updateResourceValidation('gpusRequested', this.gpusAvailable());
     });
-  }
-
-  private updateAllValidators() {
-    this.updateResourceValidation('gpusRequested', this.gpusAvailable());
-    this.updateResourceValidation('memoryRequest', this.memoryAvailable());
-    this.updateResourceValidation('cpuRequest', this.cpuAvailable());
+    effect(() => {
+      this.updateResourceValidation('memoryRequest', this.memoryAvailable());
+    });
+    effect(() => {
+      this.updateResourceValidation('cpuRequest', this.cpuAvailable());
+    });
   }
 
   // Fonction pour mettre à jour les validateurs de gpusRequested
   private updateResourceValidation(controlName: string, maxAvailable: number) {
     const control = this.reservationForm.get(controlName);
 
-    // Si maxAvailable est 0, le validateur max(0) poserait problème.
-    // On met max(1) et on laisse l'erreur 'max' s'afficher si on demande 1.
-    const maxVal = maxAvailable > 0 ? maxAvailable : 1;
-
     control?.setValidators([
       Validators.required,
       Validators.min(1),
-      Validators.max(maxVal)
+      Validators.max(maxAvailable)
     ]);
     control?.updateValueAndValidity({ emitEvent: false });
   }
@@ -158,7 +206,7 @@ export class NamespaceCreatorComponent {
     this.gpuDataService.createNamespaceReservation(formData).subscribe({
       next: (response) => {
         this.snackBar.open(response.message || 'Réservation créée avec succès', 'Fermer', { duration: 3000 });
-        this.router.navigate(['/dashboard']); // Rediriger vers le dashboard
+        void this.router.navigate(['/dashboard']); // Rediriger vers le dashboard
       },
       error: (err) => {
         this.snackBar.open(`Erreur: ${err.message || 'Échec de la réservation'}`, 'Fermer', {

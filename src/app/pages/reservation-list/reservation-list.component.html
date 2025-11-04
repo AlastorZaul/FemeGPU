@@ -61,42 +61,12 @@
             <th mat-header-cell *matHeaderCellDef> Actions </th>
             <td mat-cell *matCellDef="let res">
 
-              <button mat-icon-button [matMenuTriggerFor]="actionsMenu" matTooltip="Ouvrir les actions">
+              <button mat-icon-button (click)="openActionsModal(res)" matTooltip="Ouvrir les actions">
                 <mat-icon>more_vert</mat-icon>
               </button>
 
-              <mat-menu #actionsMenu="matMenu">
-
-                <button mat-menu-item [matMenuTriggerFor]="moveSubMenu"
-                        [disabled]="allNodes().length <= 1">
-                  <mat-icon color="primary">move_item</mat-icon>
-                  <span>Déplacer vers...</span>
-                </button>
-
-                <button mat-menu-item (click)="onDeleteReservation(res)">
-                  <mat-icon color="warn">delete</mat-icon>
-                  <span style="color: #f44336;">Supprimer</span>
-                </button>
-
-              </mat-menu>
-
-              <mat-menu #moveSubMenu="matMenu">
-                <ng-template matMenuContent>
-                  <div class="menu-header">Choisir un nœud :</div>
-                  @for (node of allNodes(); track node.name) {
-                    @if (node.name !== res.nodeName) {
-                      <button mat-menu-item (click)="onMoveReservation(res, node.name)">
-                        <mat-icon>dns</mat-icon>
-                        <span>{{ node.name }} ({{node.cluster}})</span>
-                      </button>
-                    }
-                  }
-                </ng-template>
-              </mat-menu>
-
             </td>
           </ng-container>
-
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>

@@ -38,7 +38,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
     total_used_cpu_cores: 0, // Sera calculé
     nodes: {
       // ⬇️ NOM CHANGÉ
-      "dgx-a100-01": {
+      "A100": {
         physical_gpus: 4, virtual_gpus: 4, reserved_gpus: 3, used_gpus: 3,
         used_mig_units: 0, gpu_usage_percent: 88,
         total_memory_gb: 128,
@@ -67,7 +67,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
         ]
       },
       // ⬇️ NOM CHANGÉ
-      "dgx-h100-01": {
+      "H200": {
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 2, used_gpus: 1,
         used_mig_units: 0, gpu_usage_percent: 13,
         total_memory_gb: 256,
@@ -86,16 +86,6 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
           }
         ]
       },
-      // ⬇️ NOM CHANGÉ (pour être clair qu'il n'a pas de GPU)
-      "cpu-node-01": {
-        physical_gpus: 0, virtual_gpus: 0, reserved_gpus: 0, used_gpus: 0,
-        used_mig_units: 0, gpu_usage_percent: 0,
-        total_memory_gb: 128,
-        reserved_memory_gb: 0,
-        total_cpu_cores: 32,
-        reserved_cpu_cores: 0,
-        reservations: []
-      }
     }
   },
 
@@ -112,7 +102,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
     total_used_cpu_cores: 0, // Sera calculé
     nodes: {
       // ⬇️ NOM CHANGÉ
-      "staging-a100-compute": {
+      "H200": {
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
         total_memory_gb: 512,
@@ -141,8 +131,8 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
         ]
       },
       // ⬇️ NOM CHANGÉ
-      "staging-a100-compute-02": {
-        physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 0, used_gpus: 0,
+      "L40S": {
+        physical_gpus: 2, virtual_gpus: 4, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
         total_memory_gb: 512,
         reserved_memory_gb: 0,
