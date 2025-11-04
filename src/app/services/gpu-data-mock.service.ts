@@ -360,4 +360,120 @@ export class GpuDataServiceMock {
     console.error('[Mock Service] Réservation non trouvée pour basculement:', reservation);
     return of({success: false, error: 'Réservation non trouvée'});
   }
+
+  // **** NOUVELLE FONCTION HELPER (pour vérifier les ressources) ****
+  private getNodeAvailableResources(node: NodeMetrics): { gpus: number, memory: number, cpu: number } {
+    if (!node) {
+      return { gpus: 0, memory: 0, cpu: 0 };
+    }
+
+    const reservedGpus = node.reservations.reduce((sum, res) => sum + res.gpusRequested, 0);
+    const reservedMem = node.reservations.reduce((sum, res) => sum + res.memoryRequest, 0);
+    const reservedCpu = node.reservations.reduce((sum, res) => sum + res.cpuRequest, 0);
+
+    return {
+      gpus: node.physical_gpus - reservedGpus,
+      memory: node.total_memory_gb - reservedMem,
+      cpu: node.total_cpu_cores - reservedCpu
+    };
+  }
+
+  // **** NOUVELLE MÉTHODE POUR DÉPLACER UNE RÉSERVATION ****
+  moveReservationToNode(reservation: FlatReservation, targetNodeName: string): Observable<any> {
+    const sourceCluster = this.mockClusters.find(c => c.cluster_name === reservation.clusterName);
+    if (!sourceCluster) {
+      return of({ success: false, message: 'Cluster source non trouvé' });
+    }
+
+    const sourceNode = sourceCluster.nodes[reservation.nodeName];
+    if (!sourceNode) {
+      return of({ success: false, message: 'Nœud source non trouvé' });
+    }
+
+    // Trouver le cluster et le nœud de destination
+    let targetCluster: ClusterApiResponse | undefined;
+    let targetNode: NodeMetrics | undefined;
+
+    for (const cluster of this.mockClusters) {
+      if (cluster.nodes[targetNodeName]) {
+        targetCluster = cluster;
+        targetNode = cluster.nodes[targetNodeName];
+        break;
+      }
+    }
+
+    if (!targetNode || !targetCluster) {
+      return of({ success: false, message: `Nœud de destination '${targetNodeName}' non trouvé` });
+    }
+
+    // 2. Vérifier la capacité de la destination
+    const available = this.getNodeAvailableResources(targetNode);
+
+    if (available.gpus < reservation.gpusRequested) {
+      return of({ success: false, message: `Pas assez de GPUs sur ${targetNodeName} (Dispo: ${available.gpus})` });
+    }
+    if (available.memory < reservation.memoryRequest) {
+      return of({ success: false, message: `Pas assez de mémoire sur ${targetNodeName} (Dispo: ${available.memory}Go)` });
+    }
+    if (available.cpu < reservation.cpuRequest) {
+      return of({ success: false, message: `Pas assez de CPU sur ${targetNodeName} (Dispo: ${available.cpu})` });
+    }
+
+    // 3. Retrouver l'index de la réservation dans le nœud source
+    const resIndex = sourceNode.reservations.findIndex(
+      res => new Date(res.createdAt).getTime() === new Date(reservation.createdAt).getTime()
+    );
+
+    if (resIndex === -1) {
+      return of({ success: false, message: 'Réservation non trouvée dans le nœud source' });
+    }
+
+    // 4. Retirer la réservation du nœud source
+    const [movedReservation] = sourceNode.reservations.splice(resIndex, 1);
+
+    // 5. Ajouter la réservation au nœud de destination
+    targetNode.reservations.push(movedReservation);
+
+    // 6. Sauvegarder et notifier
+    this.saveDataToLocalStorage();
+    console.log(`[Mock Service] Réservation ${reservation.namespace} déplacée de ${reservation.nodeName} à ${targetNodeName}`);
+
+    return of({
+      success: true,
+      message: `Réservation déplacée vers ${targetNodeName} (Cluster: ${targetCluster.cluster_name})`
+    }).pipe(delay(500));
+  }
+
+  deleteReservation(reservation: FlatReservation): Observable<any> {
+    const cluster = this.mockClusters.find(c => c.cluster_name === reservation.clusterName);
+    if (!cluster) {
+      return of({ success: false, message: 'Cluster non trouvé' });
+    }
+
+    const node = cluster.nodes[reservation.nodeName];
+    if (!node) {
+      return of({ success: false, message: 'Nœud non trouvé' });
+    }
+
+    // Retrouver l'index de la réservation dans le nœud
+    // Nous utilisons 'createdAt' comme identifiant unique
+    const resIndex = node.reservations.findIndex(
+      res => new Date(res.createdAt).getTime() === new Date(reservation.createdAt).getTime()
+    );
+
+    if (resIndex === -1) {
+      // La réservation n'a pas été trouvée
+      return of({ success: false, message: 'Réservation non trouvée à supprimer' });
+    }
+
+    // Supprimer la réservation du tableau en utilisant son index
+    node.reservations.splice(resIndex, 1);
+
+    // Sauvegarder les changements dans le localStorage
+    this.saveDataToLocalStorage();
+    console.log(`[Mock Service] Réservation ${reservation.namespace} supprimée de ${reservation.nodeName}`);
+
+    // Renvoyer un succès
+    return of({ success: true, message: 'Réservation supprimée avec succès.' }).pipe(delay(500));
+  }
 }

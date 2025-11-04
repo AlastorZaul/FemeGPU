@@ -114,3 +114,27 @@ body {
 app-layout .mat-drawer-inner-container {
   overflow-x: hidden !important;
 }
+
+/* * LA BONNE FAÇON (LA SOLUTION)
+ * On anime 'opacity' et on change 'visibility' d'un seul coup à la fin.
+*/
+@keyframes monAnimationFadeOut_corrigee {
+  0% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* * (Optionnel) : Si vous voulez que la visibilité change
+   * juste avant la fin, vous pouvez utiliser 99.9%
+  */
+
+  100% {
+    opacity: 0;
+    visibility: hidden; /* ⬅️ L'élément devient 'hidden' seulement à la fin */
+  }
+}
+
+/* N'oubliez pas 'forwards' pour que l'animation garde son état final ! */
+.mon-element {
+  animation: monAnimationFadeOut_corrigee 1s forwards;
+}
