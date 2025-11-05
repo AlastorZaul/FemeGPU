@@ -1,0 +1,60 @@
+<div class="list-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Liste des Applications</mat-card-title>
+      <mat-card-subtitle>Affiche toutes les applications et leurs namespaces associés.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+
+      @if (applicationsList().length > 0) {
+
+        <mat-accordion multi>
+
+          @for (app of applicationsList(); track app.applicationName) {
+
+            <mat-expansion-panel class="app-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title class="app-panel-title">
+                  <mat-icon>apps</mat-icon>
+                  {{ app.applicationName }}
+                </mat-panel-title>
+                <mat-panel-description>
+                  {{ app.totalGpus }} GPU(s) réservé(s) sur {{ app.namespaces.length }} namespace(s)
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="namespace-list">
+                @for (ns of app.namespaces; track ns.namespace) {
+
+                  <mat-chip-listbox>
+                    <mat-chip
+                      [matTooltip]="'Cluster: ' + ns.clusterName + ' | Nœud: ' + ns.nodeName"
+                      [color]="ns.isActive ? 'primary' : 'warn'"
+                      [highlighted]="ns.isActive">
+
+                      <mat-icon>{{ ns.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+                      <span class="namespace-name">{{ ns.namespace }}</span>
+                      <span class="namespace-gpus">({{ ns.gpusRequested }} GPU)</span>
+
+                    </mat-chip>
+                  </mat-chip-listbox>
+
+                }
+              </div>
+
+            </mat-expansion-panel>
+          }
+
+        </mat-accordion>
+
+      } @else {
+        <div class="empty-state">
+          <mat-icon>inbox</mat-icon>
+          <p>Aucune application trouvée.</p>
+          <p>Commencez par <a routerLink="/create">créer une nouvelle réservation</a>.</p>
+        </div>
+      }
+
+    </mat-card-content>
+  </mat-card>
+</div>

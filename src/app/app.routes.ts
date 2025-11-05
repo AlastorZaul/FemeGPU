@@ -7,6 +7,7 @@ import {authGuard} from './services/auth.guard';
 import {GatewayManagementComponent} from './pages/gateway-management/gateway-management.component';
 import {NamespaceCreatorComponent} from './pages/namespace-creator/namespace-creator.component';
 import {ReservationListComponent} from './pages/reservation-list/reservation-list.component';
+import {ApplicationListComponent} from './pages/application-list/application-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -41,6 +42,10 @@ export const routes: Routes = [
         path: 'gateways',
         component: GatewayManagementComponent,
         data: { breadcrumb: 'Gateways' }
+      },
+      { path: 'applications',
+        component: ApplicationListComponent,
+        data : { breadcrumb: 'Listes Applications' }
       },
     ]
   },

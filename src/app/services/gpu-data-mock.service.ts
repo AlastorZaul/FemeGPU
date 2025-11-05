@@ -148,7 +148,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
 })
 export class GpuDataServiceMock {
 
-  private mockClusters: ClusterApiResponse[];
+  private readonly mockClusters: ClusterApiResponse[];
 
   private saveDataToLocalStorage(): void {
     try {
@@ -316,20 +316,7 @@ export class GpuDataServiceMock {
     return of({message: `Réservation pour ${data.namespace} effectuée avec succès.`}).pipe(delay(1000));
   }
 
-  // Réallocation (logique inchangée, elle supprime les réservations)
-  reallocateGpus(nodeName: string): Observable<any> {
-    console.log(`[Mock Service] Réallocation pour ${nodeName}`);
-    for (const cluster of this.mockClusters) {
-      if (cluster.nodes[nodeName]) {
-        cluster.nodes[nodeName].reservations = []; // Vide les réservations
-        this.saveDataToLocalStorage();
-        break;
-      }
-    }
-    return of({message: `GPUs sur ${nodeName} réalloués (simulation).`}).pipe(delay(500));
-  }
-
-  // Basculement de statut (logique inchangée, elle change 'isActive')
+// Basculement de statut (logique inchangée, elle change 'isActive')
   toggleReservationStatus(reservation: FlatReservation): Observable<any> {
     const cluster = this.mockClusters.find(c => c.cluster_name === reservation.clusterName);
     if (cluster) {
