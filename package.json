@@ -1,5 +1,5 @@
 {
-  "name": "gpu-farm-dashboard-gem",
+  "name": "ferme-gpu",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",

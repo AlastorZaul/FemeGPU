@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "gpu-farm-dashboard-gem": {
+    "ferme-gpu": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/gpu-farm-dashboard-gem",
+            "outputPath": "dist/ferme-gpu",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -48,8 +48,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kB",
-                  "maximumError": "4kB"
+                  "maximumWarning": "2MB",
+                  "maximumError": "4MB"
                 }
               ],
               "outputHashing": "all"
@@ -66,15 +66,15 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "gpu-farm-dashboard-gem:build:production"
+              "buildTarget": "ferme-gpu:build:production"
             },
             "development": {
-              "buildTarget": "gpu-farm-dashboard-gem:build:development"
+              "buildTarget": "ferme-gpu:build:development"
             }
           },
           "defaultConfiguration": "development",
           "options": {
-            "buildTarget": "gpu-farm-dashboard-gem:build",
+            "buildTarget": "ferme-gpu:build",
             "proxyConfig": "proxy.conf.json"
           }
         },
