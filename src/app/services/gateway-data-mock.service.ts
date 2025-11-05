@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
-import { Gateway } from '../models/gpu.model'; // Nous importons le modèle
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {delay, tap} from 'rxjs/operators';
+import {Gateway} from '../models/gpu.model'; // Nous importons le modèle
 
 // Clé pour le stockage local
 const GATEWAY_STORAGE_KEY = 'gpuGatewayMockData';

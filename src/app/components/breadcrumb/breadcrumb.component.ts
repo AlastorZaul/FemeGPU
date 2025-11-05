@@ -1,8 +1,8 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { filter } from 'rxjs/operators';
-import { MatIconModule } from '@angular/material/icon';
+import {Component, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, NavigationEnd, Router, RouterModule} from '@angular/router';
+import {filter} from 'rxjs/operators';
+import {MatIconModule} from '@angular/material/icon';
 
 export interface Breadcrumb {
   label: string;
@@ -40,7 +40,7 @@ export class BreadcrumbComponent implements OnInit {
     let currentRoute = route.firstChild;
     while (currentRoute) {
       const routeURL = currentRoute.snapshot.url.map(segment => segment.path).join('/');
-      
+
       const label = currentRoute.snapshot.data['breadcrumb'];
       if (label && routeURL) {
         url += `/${routeURL}`;

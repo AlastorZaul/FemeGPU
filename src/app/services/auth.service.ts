@@ -1,5 +1,5 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
-import { Router } from '@angular/router';
+import {Injectable, signal, WritableSignal} from '@angular/core';
+import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'

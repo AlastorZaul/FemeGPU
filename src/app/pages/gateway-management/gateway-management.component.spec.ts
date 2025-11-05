@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { GatewayManagementComponent } from './gateway-management.component';
+import {GatewayManagementComponent} from './gateway-management.component';
 
 describe('GatewayManagementComponent', () => {
   let component: GatewayManagementComponent;

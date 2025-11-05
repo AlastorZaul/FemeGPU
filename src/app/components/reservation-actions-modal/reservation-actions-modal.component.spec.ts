@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { ReservationActionsModalComponent } from './reservation-actions-modal.component';
+import {ReservationActionsModalComponent} from './reservation-actions-modal.component';
 
 describe('ReservationActionsModalComponent', () => {
   let component: ReservationActionsModalComponent;

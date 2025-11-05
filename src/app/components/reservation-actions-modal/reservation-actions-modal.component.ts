@@ -1,11 +1,11 @@
-import { Component, Inject, computed } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
-import { FlatReservation } from '../../services/gpu-data-mock.service'; // Ajustez le chemin si nécessaire
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu'; // Pour le sous-menu de déplacement
-import { MatDividerModule } from '@angular/material/divider';
+import {Component, computed, Inject} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {MatButtonModule} from '@angular/material/button';
+import {CommonModule} from '@angular/common';
+import {FlatReservation} from '../../services/gpu-data-mock.service'; // Ajustez le chemin si nécessaire
+import {MatIconModule} from '@angular/material/icon';
+import {MatMenuModule} from '@angular/material/menu'; // Pour le sous-menu de déplacement
+import {MatDividerModule} from '@angular/material/divider';
 
 /**
  * Données attendues par la modale

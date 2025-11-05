@@ -7,7 +7,6 @@ import {MatIconModule} from '@angular/material/icon';
 import {ClusterApiResponse, ReservationDetail} from '../../models/gpu.model';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {GpuDataService} from '../../services/gpu-data.service';
 import {MatTooltip} from '@angular/material/tooltip';
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 import {MatSnackBar} from '@angular/material/snack-bar';

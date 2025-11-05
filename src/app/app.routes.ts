@@ -1,10 +1,10 @@
-import { Routes } from '@angular/router';
-import { LayoutComponent } from './layout/layout.component';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { NodeListComponent } from './pages/node-list/node-list.component';
-import { LoginComponent } from './pages/login/login.component';
-import { authGuard } from './services/auth.guard';
-import { GatewayManagementComponent } from './pages/gateway-management/gateway-management.component';
+import {Routes} from '@angular/router';
+import {LayoutComponent} from './layout/layout.component';
+import {DashboardComponent} from './pages/dashboard/dashboard.component';
+import {NodeListComponent} from './pages/node-list/node-list.component';
+import {LoginComponent} from './pages/login/login.component';
+import {authGuard} from './services/auth.guard';
+import {GatewayManagementComponent} from './pages/gateway-management/gateway-management.component';
 import {NamespaceCreatorComponent} from './pages/namespace-creator/namespace-creator.component';
 import {ReservationListComponent} from './pages/reservation-list/reservation-list.component';
 

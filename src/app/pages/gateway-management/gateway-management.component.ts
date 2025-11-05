@@ -1,21 +1,21 @@
-import { Component, inject, Signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, inject, Signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 // Imports Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {MatCardModule} from '@angular/material/card';
+import {MatTableModule} from '@angular/material/table';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {toSignal} from '@angular/core/rxjs-interop';
 
 // MODÈLE GLOBAL
-import { Gateway } from '../../models/gpu.model';
+import {Gateway} from '../../models/gpu.model';
 // **** MODIFICATION : Importer le NOUVEAU service ****
-import { GatewayDataMockService } from '../../services/gateway-data-mock.service';
+import {GatewayDataMockService} from '../../services/gateway-data-mock.service';
 
 
 @Component({

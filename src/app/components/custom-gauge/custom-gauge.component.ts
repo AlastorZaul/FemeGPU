@@ -1,5 +1,5 @@
-import { Component, computed, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, computed, input} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-custom-gauge',

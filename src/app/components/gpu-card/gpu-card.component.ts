@@ -1,9 +1,7 @@
-import { Component, EventEmitter, Input, Output, computed } from '@angular/core';
-import {CommonModule, DecimalPipe, LowerCasePipe, NgClass} from '@angular/common';
-import { Gpu } from '../../models/gpu.model';
-import {MatCard, MatCardContent, MatCardHeader, MatCardModule, MatCardTitle} from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import {Component, computed, EventEmitter, Input, Output} from '@angular/core';
+import {DecimalPipe, LowerCasePipe, NgClass} from '@angular/common';
+import {Gpu} from '../../models/gpu.model';
+import {MatCard, MatCardContent, MatCardHeader} from '@angular/material/card';
 import {CustomGaugeComponent} from '../custom-gauge/custom-gauge.component';
 
 // Interface pour la configuration d'une métrique
@@ -20,7 +18,6 @@ interface MetricConfig {
   imports: [
     MatCardHeader,
     MatCardContent,
-    MatCardTitle,
     MatCard,
     CustomGaugeComponent,
     DecimalPipe,
