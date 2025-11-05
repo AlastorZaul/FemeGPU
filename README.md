@@ -1,74 +1,48 @@
-# 🚀 Tableau de Bord pour Ferme de GPU
+# 🚀 FermeGPU Dashboard
 
-Tableau de bord moderne et réactif pour le monitoring en temps réel d'une ferme de GPUs, développé avec Angular 17+ et Angular Material. L'application offre une interface claire et dynamique pour visualiser l'état des GPUs regroupés par clusters.
+Bienvenue sur le projet FermeGPU ! Il s'agit d'une application web Angular moderne conçue pour surveiller et gérer les ressources (GPU, CPU, Mémoire) au sein d'un ou plusieurs clusters de calcul.
 
-## ✨ Fonctionnalités
+L'application offre une interface claire et réactive pour visualiser l'état des nœuds et gérer les réservations de ressources pour différentes applications et namespaces.
 
-* **Monitoring en Temps Réel** : Données mises à jour à intervalle régulier via une simulation de flux de données (RxJS).
-* **Organisation par Clusters** : Les GPUs sont regroupés dans des panneaux extensibles pour une meilleure lisibilité.
-* **Navigation Complète** : Une barre de navigation latérale et un fil d'Ariane dynamique pour une navigation aisée.
-* **Cartes GPU Dynamiques** : Chaque carte GPU met en avant une métrique principale différente pour éviter la répétition visuelle et affiche les autres en tant qu'informations secondaires.
-* **Modale de Détails** : Un clic sur un GPU ouvre une fenêtre affichant ses statistiques actuelles et un graphique de l'historique de sa température.
-* **Sélection Multiple par Cluster** : Un sélecteur personnalisé permet de sélectionner plusieurs GPUs pour de futures actions groupées.
-* **Authentification** : Une page de connexion simple protège l'accès au tableau de bord principal.
+## ✨ Fonctionnalités Principales
+
+Ce projet utilise une architecture moderne basée sur les **Signaux Angular** et les **Composants Standalone**.
+
+* **🖥️ Dashboard Principal** : Une vue d'ensemble de tous les clusters, affichant l'utilisation globale des GPU, de la mémoire et des CPU à l'aide de jauges personnalisées.
+* **📋 Gestion des Réservations** :
+  * **Création** : Un formulaire dédié pour créer de nouvelles réservations de ressources (GPU, CPU, Mémoire) pour une application et un namespace spécifiques sur un nœud choisi.
+  * **Liste & Actions** : Une table listant toutes les réservations existantes.
+  * **Actions Modales** : Possibilité de basculer le statut (Actif/Inactif), de supprimer, ou de déplacer une réservation vers un autre nœud via une modale de confirmation.
+* **📱 Vue Applicative** : Une vue "accordéon" qui regroupe toutes les réservations par nom d'application, affichant les namespaces associés à chacune.
+* **⚡ Gestion des Nœuds** : Une liste détaillée de tous les nœuds de tous les clusters, avec leurs métriques individuelles.
+* **🌐 Gestion des Gateways** : Un panneau pour surveiller l'état des gateways réseau (Online, Offline). Affiche les messages d'erreur et permet de simuler une relance des gateways hors ligne.
+* **🔒 Authentification** : Une page de connexion basique et un service d'authentification (`AuthService`) pour protéger l'accès au layout principal.
 
 ## 🛠️ Stack Technique
 
-* **Framework Principal** : [Angular](https://angular.io/) (v17+) avec composants Standalone.
-* **UI / Composants** : [Angular Material](https://material.angular.io/) pour la mise en page, les modales, les panneaux, etc.
-* **Graphiques** : [@swimlane/ngx-charts](https://github.com/swimlane/ngx-charts) pour les graphiques historiques.
-* **Jauges** : Un composant de jauge SVG personnalisé pour un contrôle total du visuel.
-* **Gestion d'état** : RxJS pour les flux de données asynchrones et les **Signals** d'Angular pour un état réactif.
+* **Framework** : Angular 17+
+* **UI** : Angular Material
+* **Architecture** : 100% Composants Standalone
+* **Gestion d'état** : Signaux Angular (`signal`, `computed`)
+* **Typage** : TypeScript
 
-## 📂 Structure du Projet
+## 🔌 Backend (Simulation)
 
-Le projet est organisé par fonctionnalités pour une meilleure maintenance :
+Actuellement, ce projet fonctionne avec un service de données simulées (`GpuDataServiceMock` et `GatewayDataMockService`).
 
-```
-/src
-├── /app
-│   ├── /components       # Composants réutilisables (carte GPU, jauge, breadcrumb, etc.)
-│   ├── /layout           # Composant de la mise en page principale (avec sidebar)
-│   ├── /models           # Interfaces et types de données (gpu.model.ts)
-│   ├── /pages            # Composants principaux (Dashboard, Login, Settings, etc.)
-│   ├── /services         # Logique métier et services (auth.guard, gpu-data)
-│   ├── app.config.ts     # Configuration de l'application
-│   └── app.routes.ts     # Définition des routes
-└── ...
-```
+Pour offrir une expérience de développement réaliste, **les données sont persistées dans le `localStorage` du navigateur**. Cela signifie que vos réservations, changements de statut et relances de gateway seront sauvegardés entre les rechargements de page.
 
-## ⚙️ Démarrage Rapide
+Un service "réel" (`GpuDataService`) est en place, prêt à être connecté à une véritable API.
 
-1. **Prérequis** : Assurez-vous d'avoir [Node.js](https://nodejs.org/) (v18+) et Angular CLI installés.
+## 🚀 Démarrage
 
-2. **Installer les dépendances :**
-
-   ```bash
-   npm install
-   ```
-
-3. **Lancer le serveur de développement :**
-
-   ```bash
-   ng serve
-   ```
-
-4. **Accéder à l'application :**
-   Ouvrez votre navigateur et allez sur `http://localhost:4200/`. Vous serez redirigé vers la page de connexion.
-
-## 🧩 Détail des Composants
-
-* **`AppComponent`** : Le point d'entrée de l'application, qui contient le routeur principal.
-* **`LayoutComponent`** : Le squelette de l'application authentifiée. Il contient la `mat-sidenav` (barre de navigation) et le `<router-outlet>` où les pages sont affichées.
-* **`DashboardComponent`** : La page principale. Elle récupère les données des clusters, gère la logique de sélection multiple et affiche les panneaux de clusters.
-* **`GpuCardComponent`** : Affiche les informations d'un seul GPU en faisant un roulement de la métrique principale.
-* **`CustomGaugeComponent`** : Notre propre composant de jauge SVG, pour un contrôle total sur l'animation et le style.
-* **`GpuHistoryChartComponent`** : La modale qui s'ouvre pour afficher les détails d'un GPU, y compris son historique de température.
-* **`BreadcrumbComponent`** : Lit dynamiquement les données des routes pour afficher un fil d'Ariane de navigation.
-
-## 🔮 Améliorations Possibles
-
-* **Connexion à une API réelle** : Remplacer le `GpuDataService` par un service utilisant `HttpClient`.
-* **Actions Groupées** : Implémenter des actions (ex: "Redémarrer") sur les GPUs sélectionnés.
-* **Améliorer l'authentification** : Remplacer la simulation `localStorage` par une vraie solution (JWT, OAuth).
-* **Tests Unitaires et End-to-End** : Ajouter une couverture de tests pour garantir la stabilité de l'application.
+1.  Clonez le dépôt.
+2.  Installez les dépendances :
+    ```bash
+    npm install
+    ```
+3.  Lancez le serveur de développement :
+    ```bash
+    ng serve -o
+    ```
+    L'application sera disponible sur `http://localhost:4200/`.
