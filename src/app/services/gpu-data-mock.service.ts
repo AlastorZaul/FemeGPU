@@ -108,7 +108,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
       // ⬇️ NOM CHANGÉ
       "H200": {
         owner: 'Mistral',
-        status: 'Réservé',
+        status: 'Blocked',
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
         total_memory_gb: 512,
