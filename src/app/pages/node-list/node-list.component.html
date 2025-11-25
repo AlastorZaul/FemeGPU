@@ -40,6 +40,24 @@
           <td mat-cell *matCellDef="let node"> {{ node.metrics.used_gpus }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="memory">
+          <th mat-header-cell *matHeaderCellDef> Mémoire (Go) </th>
+          <td mat-cell *matCellDef="let node">
+            <span class="metrics-text">
+              {{ node.metrics.reserved_memory_gb }} / {{ node.metrics.total_memory_gb }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cpu">
+          <th mat-header-cell *matHeaderCellDef> CPU (Cores) </th>
+          <td mat-cell *matCellDef="let node">
+            <span class="metrics-text">
+              {{ node.metrics.reserved_cpu_cores }} / {{ node.metrics.total_cpu_cores }}
+            </span>
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="gpu_usage_percent">
           <th mat-header-cell *matHeaderCellDef> Utilisation</th>
           <td mat-cell *matCellDef="let node">
@@ -47,7 +65,7 @@
               <mat-progress-bar
                 mode="determinate"
                 [value]="node.metrics.gpu_usage_percent"
-                [ngClass]="getUsageClass(node.metrics.gpu_usage_percent)">
+                [ngClass]="node.usageClass">
               </mat-progress-bar>
               <span>{{ node.metrics.gpu_usage_percent }}%</span>
             </div>

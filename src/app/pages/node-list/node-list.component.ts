@@ -1,20 +1,19 @@
-import {Component, computed, inject, Signal} from '@angular/core';
+import {Component, computed, inject, Signal, ChangeDetectionStrategy} from '@angular/core'; // 1. Import ChangeDetectionStrategy
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
 
-// Imports Angular Material
 import {MatTableModule} from '@angular/material/table';
 import {MatCardModule} from '@angular/material/card';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatIconModule} from '@angular/material/icon';
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 
-// Interface pour notre liste aplatie de nœuds
 export interface FlatNode {
   clusterName: string;
   nodeName: string;
   metrics: NodeMetrics;
+  usageClass: string;
 }
 
 @Component({
@@ -22,37 +21,48 @@ export interface FlatNode {
   standalone: true,
   imports: [CommonModule, MatTableModule, MatCardModule, MatProgressBarModule, MatIconModule],
   templateUrl: './node-list.component.html',
-  styleUrls: ['./node-list.component.scss']
+  styleUrls: ['./node-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush // 3. Activation du mode haute performance
 })
 export class NodeListComponent {
   private gpuDataService = inject(GpuDataServiceMock);
 
-  // Signal pour les données brutes de l'API
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, {initialValue: []});
 
-  // Signal calculé pour aplatir la liste de tous les nœuds
   public allNodes: Signal<FlatNode[]> = computed(() => {
     const nodes: FlatNode[] = [];
     for (const cluster of this.clusters()) {
       for (const nodeName in cluster.nodes) {
+        const metrics = cluster.nodes[nodeName];
+
+        // 4. Calcul de la classe CSS ici (exécuté seulement quand les données changent)
+        let cssClass = 'usage-low';
+        if (metrics.gpu_usage_percent > 90) cssClass = 'usage-high';
+        else if (metrics.gpu_usage_percent > 70) cssClass = 'usage-medium';
+
         nodes.push({
           clusterName: cluster.cluster_name,
           nodeName: nodeName,
-          metrics: cluster.nodes[nodeName]
+          metrics: metrics,
+          usageClass: cssClass // On stocke le résultat
         });
       }
     }
     return nodes;
   });
 
-  // Colonnes à afficher dans le tableau
+  // J'ai ajouté 'owner' suite à ta demande précédente
   public displayedColumns: string[] = [
-    'clusterName', 'nodeName', 'owner', 'physical_gpus', 'virtual_gpus', 'used_gpus', 'gpu_usage_percent'
+    'clusterName',
+    'nodeName',
+    'owner',
+    'physical_gpus',
+    'virtual_gpus',
+    'used_gpus',
+    'memory',
+    'cpu',
+    'gpu_usage_percent'
   ];
 
-  getUsageClass(usagePercent: number): string {
-    if (usagePercent > 90) return 'usage-high';
-    if (usagePercent > 70) return 'usage-medium';
-    return 'usage-low';
-  }
+  // 5. La méthode getUsageClass() a été supprimée car elle n'est plus nécessaire !
 }

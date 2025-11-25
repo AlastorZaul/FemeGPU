@@ -28,7 +28,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
   // --- Cluster A (Existant) ---
   {
     total_physical_gpus: 12,
-    cluster_name: 'Cluster Production A',
+    cluster_name: 'HPI A',
     total_virtual_gpus: 12,
     total_used_gpus: 0, // Sera calculé
     global_gpu_usage_percent: 0, // Sera calculé
@@ -94,7 +94,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
   // --- NOUVEAU CLUSTER ---
   {
     total_physical_gpus: 16,
-    cluster_name: 'Cluster Staging B',
+    cluster_name: 'HPI B',
     total_virtual_gpus: 16,
     total_used_gpus: 0, // Sera calculé
     global_gpu_usage_percent: 0, // Sera calculé
