@@ -1,31 +1,39 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
-import { AuthService } from './auth.service';
-import { UserRole } from '../models/user.model';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {inject} from '@angular/core';
+import {CanActivateFn, Router} from '@angular/router';
+import {AuthService} from './auth.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {UserRole} from '../models/user.model';
 
-export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
+export const roleGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const snackBar = inject(MatSnackBar);
 
-  // 1. Récupérer les rôles attendus depuis la configuration de la route
-  const expectedRoles = route.data['roles'] as UserRole[];
-
-  // 2. Si pas connecté -> Login
+  // 1. Vérifier si connecté
   if (!authService.isLoggedIn()) {
     router.navigate(['/login']);
     return false;
   }
 
-  // 3. Vérifier les droits
-  const hasRole = authService.hasAnyRole(expectedRoles);
+  // 2. Récupérer les rôles attendus par la route
+  const expectedRoles = route.data['roles'] as UserRole[];
 
-  if (!hasRole) {
-    snackBar.open('Accès refusé : Droits insuffisants', 'OK', { duration: 3000 });
-    // Optionnel : rediriger vers une page "Access Denied" ou rester sur place
+  const currentUser = authService.currentUser();
+  console.log('🔍 DEBUG GUARD:', {
+    user: currentUser,
+    userRoles: currentUser?.roles,
+    requiredRoles: expectedRoles
+  });
+
+  // 3. Vérifier les droits
+  if (authService.hasAnyRole(expectedRoles)) {
+    return true;
+  } else {
+    // Accès refusé
+    snackBar.open(`Accès refusé. Rôle requis : ${expectedRoles?.join(', ')}`, 'OK', {duration: 5000});
+    // Optionnel : rediriger vers dashboard si déjà connecté mais mauvais droits
+    router.navigate(['/dashboard']);
     return false;
   }
 
-  return true;
 };

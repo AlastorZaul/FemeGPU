@@ -1,51 +1,38 @@
 <div class="login-wrapper">
   <div class="bg-shape shape-1"></div>
   <div class="bg-shape shape-2"></div>
-  <div class="bg-shape shape-3"></div>
 
   <mat-card class="login-card">
     <mat-card-header class="login-header">
       <div class="logo-container">
         <mat-icon>developer_board</mat-icon>
       </div>
-      <mat-card-title>GPU Farm Manager</mat-card-title>
-      <mat-card-subtitle>Portail d'accès sécurisé</mat-card-subtitle>
+      <mat-card-title>Qui est-ce ?</mat-card-title>
+      <mat-card-subtitle>Choisissez un profil pour la démo</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-      <div class="login-actions">
-        <p class="instruction-text">Veuillez sélectionner votre profil :</p>
-
-        <button mat-flat-button class="role-button admin-btn" (click)="loginAs('ADMIN')">
-          <div class="btn-content">
-            <div class="icon-box">
-              <mat-icon>shield</mat-icon>
+      <div class="user-grid">
+        @for (user of users; track user.username) {
+          <button class="user-card-btn" (click)="login(user)">
+            <div class="avatar-circle" [ngClass]="user.roles[0].toLowerCase()">
+              <mat-icon>{{ user.icon }}</mat-icon>
             </div>
-            <div class="text-box">
-              <span class="role-title">Administrateur</span>
-              <span class="role-desc">Accès complet à l'infrastructure</span>
+            <div class="user-info">
+              <span class="name">{{ user.username }}</span>
+              <span class="role-badge" [ngClass]="user.roles[0].toLowerCase()">
+                {{ user.roles[0] }}
+              </span>
+              <span class="desc">{{ user.description }}</span>
             </div>
-          </div>
-          <mat-icon class="arrow">arrow_forward</mat-icon>
-        </button>
-
-        <button mat-stroked-button class="role-button user-btn" (click)="loginAs('USER')">
-          <div class="btn-content">
-            <div class="icon-box">
-              <mat-icon>person</mat-icon>
-            </div>
-            <div class="text-box">
-              <span class="role-title">Utilisateur</span>
-              <span class="role-desc">Réservation de ressources</span>
-            </div>
-          </div>
-          <mat-icon class="arrow">arrow_forward</mat-icon>
-        </button>
+            <mat-icon class="chevron">chevron_right</mat-icon>
+          </button>
+        }
       </div>
     </mat-card-content>
 
     <mat-card-footer>
-      <span class="version">v1.0.2 &bull; Powered by Angular</span>
+      <span class="version">Demo Environment v1.1</span>
     </mat-card-footer>
   </mat-card>
 </div>

@@ -1,49 +1,72 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Router } from '@angular/router';
-import { UserProfile, UserRole } from '../models/user.model'; // Ajuste l'import selon où tu as mis l'interface
+import {Injectable, signal, computed} from '@angular/core';
+import {Router} from '@angular/router';
+import {UserProfile, UserRole} from '../models/user.model';
+
+
+export const MOCK_USERS: (UserProfile & { description: string, icon: string })[] = [
+  {
+    username: 'Alice Admin',
+    email: 'alice@admin.local',
+    roles: ['ADMIN'],
+    token: 'admin-token',
+    description: 'Accès complet, gestion gateways',
+    icon: 'shield_person'
+  },
+  {
+    username: 'Bob Developer',
+    email: 'bob@dev.local',
+    roles: ['USER'],
+    token: 'user-token',
+    description: 'Peut créer des réservations',
+    icon: 'code'
+  },
+  {
+    username: 'Charlie Viewer',
+    email: 'charlie@audit.local',
+    roles: ['VIEWER'], // Assure-toi d'avoir ajouté 'VIEWER' dans ton type UserRole
+    token: 'viewer-token',
+    description: 'Lecture seule (Audit)',
+    icon: 'visibility'
+  }
+];
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Signal qui contient l'état actuel de l'utilisateur (null = non connecté)
   public currentUser = signal<UserProfile | null>(null);
-
-  // Signal dérivé pour savoir si on est connecté
   public isLoggedIn = computed(() => !!this.currentUser());
 
   constructor(private router: Router) {
-    // Restauration de session (simulation)
-    const savedUser = localStorage.getItem('mock_sso_user');
-    if (savedUser) {
-      this.currentUser.set(JSON.parse(savedUser));
+    // Restauration session
+    const saved = localStorage.getItem('user_profile');
+    if (saved) {
+      this.currentUser.set(JSON.parse(saved));
     }
   }
 
-  // Simulation du login SSO
-  login(role: UserRole = 'USER'): void {
-    const mockUser: UserProfile = {
-      username: role === 'ADMIN' ? 'AdminSystem' : 'JohnDoe',
-      email: role === 'ADMIN' ? 'admin@fermegpu.local' : 'user@fermegpu.local',
-      roles: [role], // On assigne le rôle choisi
-      token: 'fake-jwt-token-xyz-123'
-    };
+  // Retourne la liste pour l'affichage
+  getAvailableUsers() {
+    return MOCK_USERS;
+  }
 
-    this.currentUser.set(mockUser);
-    localStorage.setItem('mock_sso_user', JSON.stringify(mockUser));
+  // Login simplifié : on passe directement l'objet utilisateur
+  login(user: UserProfile): void {
+    this.currentUser.set(user);
+    localStorage.setItem('user_profile', JSON.stringify(user));
     this.router.navigate(['/dashboard']);
   }
 
   logout(): void {
+    localStorage.removeItem('user_profile');
     this.currentUser.set(null);
-    localStorage.removeItem('mock_sso_user');
     this.router.navigate(['/login']);
   }
 
-  // Vérifie si l'utilisateur a l'un des rôles requis
   hasAnyRole(requiredRoles: UserRole[]): boolean {
     const user = this.currentUser();
     if (!user) return false;
+    if (!requiredRoles || requiredRoles.length === 0) return true;
     return user.roles.some(role => requiredRoles.includes(role));
   }
 }
