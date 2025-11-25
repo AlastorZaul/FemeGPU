@@ -16,6 +16,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatDividerModule} from '@angular/material/divider';
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 import {startWith} from 'rxjs';
+import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.component';
 
 @Component({
   selector: 'app-namespace-creator',
@@ -23,7 +24,7 @@ import {startWith} from 'rxjs';
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatButtonModule, MatIconModule,
-    MatSnackBarModule, MatProgressSpinnerModule, MatDividerModule
+    MatSnackBarModule, MatProgressSpinnerModule, MatDividerModule, CustomGaugeComponent
   ],
   templateUrl: './namespace-creator.component.html',
   styleUrls: ['./namespace-creator.component.scss']

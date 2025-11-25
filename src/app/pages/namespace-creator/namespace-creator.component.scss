@@ -101,3 +101,12 @@
   background-color: #f44336; // Rouge Material Design
   color: white;
 }
+
+.gauges-row {
+  display: flex;
+  justify-content: space-around; /* Espacement égal entre les jauges */
+  align-items: center;
+  margin-top: 1.5rem; /* Un peu d'espace avec le texte au-dessus */
+  flex-wrap: wrap; /* Pour gérer les petits écrans */
+  gap: 1rem;
+}
