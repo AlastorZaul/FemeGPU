@@ -40,6 +40,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
       // ⬇️ NOM CHANGÉ
       "A100": {
         owner: 'Équipe IA',
+        status: 'En ligne',
         physical_gpus: 4, virtual_gpus: 4, reserved_gpus: 3, used_gpus: 3,
         used_mig_units: 0, gpu_usage_percent: 88,
         total_memory_gb: 128,
@@ -70,6 +71,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
       // ⬇️ NOM CHANGÉ
       "H200": {
         owner: 'Infrastructure',
+        status: 'Maintenance',
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 2, used_gpus: 1,
         used_mig_units: 0, gpu_usage_percent: 13,
         total_memory_gb: 256,
@@ -106,6 +108,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
       // ⬇️ NOM CHANGÉ
       "H200": {
         owner: 'Mistral',
+        status: 'Réservé',
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
         total_memory_gb: 512,
@@ -136,6 +139,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
       // ⬇️ NOM CHANGÉ
       "L40S": {
         owner: 'Data Science',
+        status: 'En Ligne',
         physical_gpus: 2, virtual_gpus: 4, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
         total_memory_gb: 512,
@@ -175,6 +179,9 @@ export class GpuDataServiceMock {
           Object.values(cluster.nodes).forEach(node => {
             if (!node.owner) {
               node.owner = 'Non assigné';
+            }
+            if (!node.status) {
+              node.status = 'En ligne';
             }
             if (node.reservations) {
               node.reservations.forEach(res => {

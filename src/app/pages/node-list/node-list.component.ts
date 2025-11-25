@@ -14,6 +14,7 @@ export interface FlatNode {
   nodeName: string;
   metrics: NodeMetrics;
   usageClass: string;
+  statusClass: string;
 }
 
 @Component({
@@ -40,11 +41,15 @@ export class NodeListComponent {
         if (metrics.gpu_usage_percent > 90) cssClass = 'usage-high';
         else if (metrics.gpu_usage_percent > 70) cssClass = 'usage-medium';
 
+        const statusSlug = (metrics.status || 'En ligne').toLowerCase().replace(' ', '-');
+        const statusClass = `status-${statusSlug}`;
+
         nodes.push({
           clusterName: cluster.cluster_name,
           nodeName: nodeName,
           metrics: metrics,
-          usageClass: cssClass // On stocke le résultat
+          usageClass: cssClass, // On stocke le résultat
+          statusClass: statusClass // <--- On stocke la classe
         });
       }
     }
@@ -56,6 +61,7 @@ export class NodeListComponent {
     'clusterName',
     'nodeName',
     'owner',
+    'status',
     'physical_gpus',
     'virtual_gpus',
     'used_gpus',

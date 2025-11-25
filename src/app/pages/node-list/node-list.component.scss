@@ -34,3 +34,30 @@ table {
     min-width: 40px;
   }
 }
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.status-en-ligne {
+    background-color: #e6f4ea;
+    color: #1e8e3e; /* Vert */
+    border: 1px solid #ceead6;
+  }
+
+  &.status-maintenance {
+    background-color: #fef7e0;
+    color: #f9ab00; /* Orange */
+    border: 1px solid #fce8b2;
+  }
+
+  &.status-bloqué, &.status-blocked {
+    background-color: #fce8e6;
+    color: #d93025; /* Rouge */
+    border: 1px solid #fad2cf;
+  }
+}

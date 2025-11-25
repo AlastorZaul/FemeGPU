@@ -12,6 +12,7 @@ export interface ReservationDetail {
 // Interface pour les métriques d'un nœud (node)
 export interface NodeMetrics {
   owner: string;
+  status: string;
   physical_gpus: number;
   virtual_gpus: number;
   reserved_gpus: number;
