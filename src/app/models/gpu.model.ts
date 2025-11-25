@@ -11,6 +11,7 @@ export interface ReservationDetail {
 
 // Interface pour les métriques d'un nœud (node)
 export interface NodeMetrics {
+  owner: string;
   physical_gpus: number;
   virtual_gpus: number;
   reserved_gpus: number;
@@ -18,8 +19,6 @@ export interface NodeMetrics {
   used_mig_units: number;
   gpu_usage_percent: number;
   reservations: ReservationDetail[];
-
-  // NOUVEAUX CHAMPS POUR LES QUOTAS
   total_memory_gb: number;
   reserved_memory_gb: number;
   total_cpu_cores: number;

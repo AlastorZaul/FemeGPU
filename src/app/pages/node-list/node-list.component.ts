@@ -47,7 +47,7 @@ export class NodeListComponent {
 
   // Colonnes à afficher dans le tableau
   public displayedColumns: string[] = [
-    'clusterName', 'nodeName', 'physical_gpus', 'virtual_gpus', 'used_gpus', 'gpu_usage_percent'
+    'clusterName', 'nodeName', 'owner', 'physical_gpus', 'virtual_gpus', 'used_gpus', 'gpu_usage_percent'
   ];
 
   getUsageClass(usagePercent: number): string {

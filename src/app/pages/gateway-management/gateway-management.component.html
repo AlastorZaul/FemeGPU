@@ -74,15 +74,6 @@
                 <mat-icon>edit</mat-icon>
               </button>
 
-              <button
-                mat-icon-button
-                color="warn"
-                aria-label="Supprimer la gateway"
-                matTooltip="Supprimer (doit être Offline)"
-                [disabled]="gw.status !== 'Offline'">
-                <mat-icon>delete</mat-icon>
-              </button>
-
             </div> </td>
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
