@@ -1,34 +1,221 @@
-.login-container {
+// Variables de couleurs
+$primary-color: #673ab7; // Deep Purple
+$secondary-color: #512da8;
+$accent-color: #ffd740;
+$bg-gradient-start: #f3e5f5;
+$bg-gradient-end: #e1bee7;
+
+.login-wrapper {
+  height: 100vh;
+  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: var(--bg-color);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  position: relative;
+  overflow: hidden;
+
+  // Formes décoratives en arrière-plan
+  .bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    z-index: 0;
+  }
+
+  .shape-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba($primary-color, 0.4);
+    top: -100px;
+    left: -100px;
+  }
+
+  .shape-2 {
+    width: 300px;
+    height: 300px;
+    background: rgba(#2196f3, 0.3); // Bleu
+    bottom: -50px;
+    right: -50px;
+  }
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
-  background-color: var(--card-bg-color);
-  color: var(--text-color);
-}
-
-mat-card-header {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-form {
+  max-width: 420px;
+  padding: 32px;
+  border-radius: 24px !important; // Arrondi moderne
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0,0,0,0.05) !important;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px); // Effet verre dépoli
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 24px;
 }
 
-mat-form-field {
-  width: 100%;
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 16px;
+
+  .logo-container {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 16px rgba($primary-color, 0.3);
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+  }
+
+  mat-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  mat-card-subtitle {
+    font-size: 0.95rem;
+    color: #666;
+  }
 }
 
-button[type="submit"] {
-  width: 100%;
-  padding: 0.75rem;
+.login-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .instruction-text {
+    text-align: center;
+    color: #777;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+// Style des boutons "Role"
+.role-button {
+  height: auto !important;
+  padding: 12px 16px !important;
+  border-radius: 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+
+  // Layout interne du bouton pour gérer l'icône et le texte
+  ::ng-deep .mdc-button__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .btn-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+  }
+
+  .icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .text-box {
+    display: flex;
+    flex-direction: column;
+
+    .role-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .role-desc {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+  }
+
+  .arrow {
+    font-size: 18px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+
+    .arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+// Spécificités Admin vs User
+.admin-btn {
+  background-color: $primary-color !important;
+  color: antiquewhite !important;
+  box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+
+  .icon-box {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba($primary-color, 0.4);
+  }
+}
+
+.user-btn {
+  border: 1px solid #e0e0e0 !important;
+  background-color: white !important;
+  color: #333 !important;
+
+  .icon-box {
+    background: #f5f5f5;
+    color: #555;
+  }
+
+  &:hover {
+    border-color: $primary-color !important;
+    background-color: #fafafa !important;
+  }
+}
+
+mat-card-footer {
+  margin-top: 16px;
+  text-align: center;
+
+  .version {
+    font-size: 0.75rem;
+    color: #aaa;
+  }
 }

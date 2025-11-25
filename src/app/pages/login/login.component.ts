@@ -5,23 +5,20 @@ import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
+import {MatIcon} from '@angular/material/icon';
+import {UserRole} from '../../models/user.model';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ FormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule ],
+  imports: [FormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIcon],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  username = '';
-  password = '';
-
-  // Injecter le service d'authentification
   private authService = inject(AuthService);
 
-  // Mettre à jour la méthode de connexion
-  onLogin(): void {
-    this.authService.login(this.username, this.password);
+  loginAs(role: UserRole) {
+    this.authService.login(role);
   }
 }

@@ -42,15 +42,16 @@
       </mat-expansion-panel>
     </mat-nav-list>
 
-    @if (authService.isAuthenticated()) {
-    <a mat-list-item (click)="authService.logout()" class="logout-button">
-      <mat-icon>logout</mat-icon>
-      <span>Déconnexion</span>
-    </a>
-    <div class="user-profile">
-      <mat-icon>account_circle</mat-icon>
-      <span class="username">{{ authService.currentUser() }}</span>
-    </div>
+    @if (authService.isLoggedIn()) {
+      <a mat-list-item (click)="authService.logout()" class="logout-button">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
+      </a>
+
+      <div class="user-profile">
+        <mat-icon>account_circle</mat-icon>
+        <span class="username">{{ authService.currentUser()?.username }}</span>
+      </div>
     }
   </mat-sidenav>
 

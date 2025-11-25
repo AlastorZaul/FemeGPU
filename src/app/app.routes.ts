@@ -8,6 +8,7 @@ import {GatewayManagementComponent} from './pages/gateway-management/gateway-man
 import {NamespaceCreatorComponent} from './pages/namespace-creator/namespace-creator.component';
 import {ReservationListComponent} from './pages/reservation-list/reservation-list.component';
 import {ApplicationListComponent} from './pages/application-list/application-list.component';
+import {roleGuard} from './services/role.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,9 +25,10 @@ export const routes: Routes = [
         data: { breadcrumb: 'Dashboard' }
       },
       {
-        path: 'nodes',
-        component: NodeListComponent,
-        data: { breadcrumb: 'Nodes' }
+        path: 'node-list',
+        loadComponent: () => import('./pages/node-list/node-list.component').then(m => m.NodeListComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'USER'], breadcrumb: 'Node List' }
       },
       {
         path: 'create-namespace',
@@ -39,9 +41,10 @@ export const routes: Routes = [
         data: { breadcrumb: 'Réservations Actives' }
       },
       {
-        path: 'gateways',
-        component: GatewayManagementComponent,
-        data: { breadcrumb: 'Gateways' }
+        path: 'gateway-management',
+        loadComponent: () => import('./pages/gateway-management/gateway-management.component').then(m => m.GatewayManagementComponent),
+        canActivate: [roleGuard], // Protection RBAC active !
+        data: { roles: ['ADMIN'], breadcrumb: 'Gateways' } // Seul un ADMIN peut entrer
       },
       { path: 'applications',
         component: ApplicationListComponent,
