@@ -1,5 +1,11 @@
+// Variables Banque Postale
+$lbp-blue: #004192;
+$lbp-bg-light: #f8fafc;
+
 .list-container {
   padding: 2rem;
+  background-color: $lbp-bg-light;
+  min-height: 100%;
 }
 
 .empty-state {
@@ -8,27 +14,44 @@
   align-items: center;
   justify-content: center;
   padding: 3rem;
-  color: #666;
+  color: #64748b; // Gris plus doux
 
   mat-icon {
     font-size: 64px;
     width: 64px;
     height: 64px;
     margin-bottom: 1rem;
+    color: #cbd5e1; // Gris clair pour l'icône vide
   }
 }
 
 // Style pour le panneau d'application
 .app-panel {
   margin-bottom: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+
+  // Bordure bleue au survol
+  &:hover {
+    border-color: $lbp-blue;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 65, 146, 0.05);
+  }
 }
 
 .app-panel-title {
-  font-weight: 500;
-  gap: 8px; // Espace entre l'icône et le nom
+  font-weight: 600;
+  gap: 12px;
+  color: #334155;
+  font-size: 1rem;
+
+  mat-icon {
+    color: $lbp-blue; // Icône en bleu LBP
+  }
 }
 
-// Conteneur pour les namespaces à l'intérieur du panneau
+// Conteneur pour les namespaces
 .namespace-list {
   display: flex;
   flex-wrap: wrap;
@@ -38,15 +61,23 @@
 
 // Style pour les chips de namespace
 .mat-mdc-chip {
+  background-color: #f1f5f9 !important; // Fond gris très léger par défaut
+  border: 1px solid #e2e8f0;
+
   mat-icon {
     margin-right: 6px !important;
+    color: $lbp-blue; // Icône en bleu
   }
+
   .namespace-name {
     font-weight: 500;
+    color: #334155;
   }
+
   .namespace-gpus {
     font-size: 0.8em;
     margin-left: 6px;
     opacity: 0.8;
+    color: #64748b;
   }
 }

@@ -23,6 +23,7 @@ import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
+
 export class DashboardComponent {
   private gpuDataService = inject(GpuDataServiceMock);
 

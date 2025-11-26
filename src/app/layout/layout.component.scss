@@ -1,12 +1,14 @@
-// Définition des nouvelles variables pour un THÈME CLAIR
+// Définition des nouvelles variables pour le thème BANQUE POSTALE
 :host {
-  --sidebar-bg: #ffffff; // Fond blanc pour la sidebar
-  --border-color: #e0e0e0; // Bordure grise claire
-  --primary-accent: #673ab7; // Violet/Indigo (couleur principale de Material)
-  --primary-text: rgba(0, 0, 0, 0.87); // Texte noir/gris foncé
-  --secondary-text: #616161; // Texte gris plus clair pour les icônes
-  --hover-bg: #f5f5f5; // Fond gris très clair pour le survol
-  --active-bg: rgba(103, 58, 183, 0.1); // Fond violet très clair pour le lien actif
+  --sidebar-bg: #ffffff;
+  --border-color: #e0e0e0;
+  // MODIFICATION : Bleu principal
+  --primary-accent: #004192;
+  --primary-text: rgba(0, 0, 0, 0.87);
+  --secondary-text: #616161;
+  --hover-bg: #f5f5f5;
+  // MODIFICATION : Fond bleu très clair pour l'actif (au lieu de violet)
+  --active-bg: rgba(0, 65, 146, 0.1);
 }
 
 .sidenav-container {
@@ -19,10 +21,16 @@
   color: var(--primary-text);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border-color); // Bordure de séparation
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  overflow-x: hidden;
 }
 
-// Style de l'entête/logo adapté au thème clair
 .logo-container {
   display: flex;
   align-items: center;
@@ -34,23 +42,21 @@
     font-size: 36px;
     width: 36px;
     height: 36px;
-    color: var(--primary-accent); // Icône avec la couleur accent
+    color: var(--primary-accent);
   }
 
   .logo-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-text); // Texte foncé
+    color: var(--primary-text);
   }
 }
 
-// Style de la liste de navigation
 .nav-list {
   padding: 16px 12px;
   flex-grow: 1;
 }
 
-// Style commun pour les liens de navigation et le bouton de déconnexion
 .nav-list a, .logout-button {
   display: flex;
   align-items: center;
@@ -59,11 +65,11 @@
   height: 48px !important;
   margin-bottom: 8px;
   border-radius: 8px;
-  color: var(--primary-text); // Couleur du texte par défaut
+  color: var(--primary-text);
   transition: background-color 0.2s ease, color 0.2s ease;
 
   mat-icon {
-    color: var(--secondary-text); // Couleur des icônes par défaut
+    color: var(--secondary-text);
     transition: color 0.2s ease;
   }
 
@@ -71,32 +77,29 @@
     background-color: var(--hover-bg);
   }
 
-  // Style du lien actif
   &.active-link {
     background-color: var(--active-bg);
-    color: var(--primary-accent); // Texte de la couleur accent
+    color: var(--primary-accent);
     font-weight: 500;
 
     mat-icon {
-      color: var(--primary-accent); // Icône de la couleur accent
+      color: var(--primary-accent);
     }
   }
 }
 
 .sidebar-footer {
-  // La bordure est maintenant sur ce conteneur
   border-top: 1px solid var(--border-color);
 }
 
-// Section profil utilisateur
 .user-profile {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px 20px; // Ajustement du padding
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
   font-size: 0.9rem;
-  // La bordure a été déplacée sur .sidebar-footer
-  // border-top: 1px solid var(--border-color); <--- SUPPRIMÉ
+  overflow: hidden;
 
   .username {
     font-weight: 500;
@@ -107,14 +110,12 @@
   }
 }
 
-// Style spécifique au bouton de déconnexion
 .logout-button {
-  margin: 0; // On réinitialise les marges
+  margin: 0;
   cursor: pointer;
   color: var(--secondary-text);
-  // On ajoute un padding pour l'aligner avec la section user-profile
   padding: 0 20px !important;
-  
+
   &:hover {
     background-color: rgba(244, 67, 54, 0.1);
     color: #f44336;
@@ -125,53 +126,11 @@
   }
 }
 
-.sidenav {
-  width: 260px;
-  background-color: var(--sidebar-bg);
-  color: var(--primary-text);
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--border-color);
-
-  // Correction pour la barre verticale (garder)
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  // AJOUT : Correction pour la barre horizontale
-  overflow-x: hidden;
-}
-
-// Section profil utilisateur - CORRECTION CI-DESSOUS
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  border-top: 1px solid var(--border-color);
-  font-size: 0.9rem;
-  overflow: hidden; // AJOUT : Empêche les enfants de déborder de cette section
-
-  .username {
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0; // AJOUT : C'est la correction la plus importante !
-  }
-}
-
 main {
-  // On ajoute un padding en haut pour faire de la place au fil d'Ariane
   padding: 1.5rem 2rem;
 }
 
-// Style pour le composant breadcrumb
 app-breadcrumb {
-  // On le place en haut de la zone de contenu
   display: block;
   margin-bottom: 1.5rem;
 }

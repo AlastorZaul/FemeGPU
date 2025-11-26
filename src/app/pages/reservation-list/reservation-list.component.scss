@@ -1,18 +1,25 @@
+$lbp-blue: #004192;
+
 .list-container {
   max-width: 1200px;
   margin: 2rem auto;
 
   table {
     width: 100%;
-  }
-
-  th.mat-header-cell,
-  td.mat-cell {
-    padding: 12px 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   }
 
   th.mat-header-cell {
-    font-weight: 500;
+    font-weight: 600;
+    color: $lbp-blue; // En-têtes bleus
+    padding: 16px;
+  }
+
+  td.mat-cell {
+    padding: 12px 16px;
+    color: #334155;
   }
 
   .empty-state {
@@ -20,14 +27,15 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
-    color: var(--text-color-secondary);
+    padding: 4rem 2rem;
+    color: #94a3b8;
 
     mat-icon {
       font-size: 4rem;
       width: 4rem;
       height: 4rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      color: #cbd5e1;
     }
 
     p {
@@ -38,27 +46,40 @@
 }
 
 .status-chip {
-  padding: 4px 10px !important;
+  padding: 6px 12px !important;
   border-radius: 6px !important;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
 
   mat-icon {
-    font-size: 16px;
-    height: 16px;
-    width: 16px;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
     margin-right: 6px;
     margin-left: -2px;
   }
 
-  // Style pour "Actif" (primary)
+  // Style pour "Actif" (Remplacement du primary Indigo par le Bleu LBP)
   &.mat-mdc-chip-highlighted.mat-primary {
-    --mdc-chip-elevated-container-color: #e8eaf6; // Fond bleu clair
-    --mdc-chip-label-text-color: #3f51b5; // Texte bleu foncé
+    background-color: rgba(0, 65, 146, 0.1) !important; // Bleu très clair
+    color: $lbp-blue !important;
+
+    // On force les variables CSS locales si Material utilise celles-ci
+    --mdc-chip-elevated-container-color: #e3f2fd;
+    --mdc-chip-label-text-color: #004192;
+
+    mat-icon {
+      color: $lbp-blue;
+    }
   }
 
   // Style pour "Inactif" (warn)
   &.mat-warn {
-    --mdc-chip-elevated-container-color: #fce7e7; // Fond rouge clair
-    --mdc-chip-label-text-color: #b71c1c; // Texte rouge foncé
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+
+    --mdc-chip-elevated-container-color: #fee2e2;
+    --mdc-chip-label-text-color: #dc2626;
   }
 }

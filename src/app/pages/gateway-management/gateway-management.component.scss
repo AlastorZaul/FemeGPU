@@ -4,25 +4,34 @@
 
 table {
   width: 100%;
+  // Optionnel : style de tableau plus aéré
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+  th.mat-header-cell {
+    background-color: #f8fafc;
+    color: #004192; // En-têtes en bleu
+    font-weight: 600;
+  }
 }
 
-/* Style pour l'en-tête de la carte (pour le bouton "Ajouter") */
 mat-card-header {
   display: flex;
   align-items: center;
+  margin-bottom: 1rem;
 
   .header-spacer {
-    // Ce span prend toute la place disponible
     flex: 1 1 auto;
   }
 }
 
-/* Style pour le message d'erreur sous le statut */
 .gateway-error-message {
   display: flex;
   align-items: center;
   font-size: 12px;
-  color: #f44336; // Couleur "warn" de Material
+  color: #dc2626; // Rouge unifié
   margin-top: 4px;
 
   mat-icon {
@@ -33,15 +42,17 @@ mat-card-header {
   }
 }
 
-/* Conteneur pour les boutons d'action (pour l'espacement) */
 .actions-cell {
   display: flex;
-  align-items: center; // Aligne les boutons au centre (verticalement)
-  gap: 4px; // Ajoute l'espace entre les boutons
-}
+  align-items: center;
+  gap: 8px;
 
-/*
- * NOTE: Les règles d'alignement vertical ont été déplacées
- * vers le fichier global 'src/styles.scss'
- * pour une application correcte.
-*/
+  // Boutons d'action aux couleurs du thème
+  button {
+    color: #64748b;
+
+    &:hover {
+      color: #004192; // Bleu au survol
+    }
+  }
+}

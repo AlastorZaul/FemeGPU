@@ -4,60 +4,74 @@
 
 table {
   width: 100%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  overflow: hidden;
+
+  th {
+    color: #004192; // En-têtes bleus
+    font-weight: 600;
+  }
 }
 
 .usage-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 
   mat-progress-bar {
     flex-grow: 1;
-    height: 8px;
-    border-radius: 4px;
+    height: 6px; // Plus fin
+    border-radius: 3px;
 
     &.usage-low .mat-progress-bar-fill::after {
-      background-color: #4caf50;
+      background-color: #16a34a; // Vert standard
     }
 
     &.usage-medium .mat-progress-bar-fill::after {
-      background-color: #ffc107;
+      background-color: #fecb00; // Jaune/Ambre thème LBP
     }
 
     &.usage-high .mat-progress-bar-fill::after {
-      background-color: #f44336;
+      background-color: #dc2626; // Rouge
     }
   }
 
   span {
-    font-weight: bold;
-    min-width: 40px;
+    font-weight: 600;
+    min-width: 45px;
+    font-size: 0.9rem;
+    color: #334155;
   }
 }
 
 .status-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 20px; // Forme "pilule" plus moderne
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   &.status-en-ligne {
-    background-color: #e6f4ea;
-    color: #1e8e3e; /* Vert */
-    border: 1px solid #ceead6;
+    background-color: #dcfce7; // Vert très clair
+    color: #15803d;
+    border: 1px solid transparent;
   }
 
   &.status-maintenance {
-    background-color: #fef7e0;
-    color: #f9ab00; /* Orange */
-    border: 1px solid #fce8b2;
+    background-color: #fef9c3; // Jaune clair
+    color: #a16207;
+    border: 1px solid transparent;
   }
 
   &.status-bloqué, &.status-blocked {
-    background-color: #fce8e6;
-    color: #d93025; /* Rouge */
-    border: 1px solid #fad2cf;
+    background-color: #fee2e2; // Rouge clair
+    color: #b91c1c;
+    border: 1px solid transparent;
   }
 }

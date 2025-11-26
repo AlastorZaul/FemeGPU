@@ -1,90 +1,80 @@
+// --- Variables locales (pour garder la cohérence avec le style global) ---
+// Bleu Banque Postale
+$lbp-blue: #004192;
+// Bleu foncé secondaire
+$lbp-dark-blue: #002b6b;
+// Jaune accent (logo)
+$lbp-yellow: #fecb00;
+// Gris clair pour les fonds
+$lbp-bg-light: #f8fafc;
+// Gris bordure
+$lbp-border: #e2e8f0;
+
+:host {
+  display: block;
+  padding-bottom: 2rem;
+  background-color: $lbp-bg-light;
+}
+
+// --- En-tête du Dashboard ---
 .dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
   margin-bottom: 2rem;
+  padding: 0 1rem;
 
-  h1 {
-    font-size: 2.25rem;
-    font-weight: 700;
+  .header-text {
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: $lbp-blue; // Titre en bleu
+      margin: 0;
+    }
+
+    p {
+      color: #64748b; // Gris secondaire
+      margin-top: 0.5rem;
+    }
   }
 
-  p {
-    color: var(--text-color-secondary);
-  }
-}
-
-.clusters-section {
-  margin-top: 3rem;
-
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-  }
-}
-
-.cluster-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.cluster-card {
-  padding: 1rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
-  }
-
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-
-  mat-progress-bar {
-    height: 8px;
-    border-radius: 4px;
+  .header-filter {
+    mat-form-field {
+      min-width: 250px;
+    }
   }
 }
 
+// --- Conteneur du Cluster ---
 .cluster-container {
   background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px; // Bords arrondis pour un look moderne
+  border: 1px solid $lbp-border;
+  border-left: 5px solid $lbp-blue; // Marqueur bleu distinctif à gauche
+  border-radius: 12px;
   padding: 24px;
-  margin-bottom: 2rem; // Espace entre les cartes de cluster
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); // Ombre subtile pour donner du relief
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease;
 
-  // Effet de survol pour un peu d'interactivité
   &:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   }
 
-  // Amélioration du titre du cluster
   h2 {
     font-size: 1.75rem;
-    font-weight: 500;
+    font-weight: 600;
     margin-top: 0;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #eeeeee; // Ligne de séparation sous le titre
-    color: #3f51b5; // Utilisation d'une couleur d'accentuation (indigo)
+    border-bottom: 1px solid #f1f5f9;
+    color: $lbp-blue; // Titre cluster en bleu
   }
 }
 
-.nodes-section h3 {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #424242;
-  margin-top: 2rem;
-}
-
-
+// --- Grille des résumés (Haut du cluster) ---
 .farm-summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -92,97 +82,175 @@
 .summary-card {
   padding: 1.5rem;
   text-align: center;
-}
+  border-radius: 12px;
+  background-color: #fff;
+  border: 1px solid #f1f5f9;
+  box-shadow: none !important; // On retire l'ombre par défaut des mat-card ici pour un look 'flat' propre
 
-mat-card-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  line-height: 1;
-  align-items: center;
-}
-
-mat-card-subtitle {
-  font-weight: 500;
-}
-
-// Couleurs pour les statuts
-
-.gpu-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem; // Espace entre chaque nom de GPU
-}
-
-.gpu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-
-  // Couleurs basées sur le statut du GPU
-  &.charge {
-    background-color: #16a34a;
-  }
-  // Vert
-  &.inactif {
-    background-color: #9ca3af;
-  }
-  // Gris
-  &.erreur {
-    background-color: #ef4444;
-  }
-  // Rouge
-}
-
-.node-link {
-  text-decoration: none; // Supprime le soulignement du lien
-  color: inherit; // Le lien hérite de la couleur du texte parent
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
-.node-card mat-card-content {
-  height: 100%; // Assure que la carte remplit bien le lien
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  display: flex; // Ou grid, selon votre layout
-  flex-direction: column;
-  align-items: center; // Pour centrer la jauge par exemple
   mat-card-subtitle {
     font-weight: 500;
-    padding: 2px 8px; // Un peu de padding
-    border-radius: 4px; // Bords arrondis
-    display: inline-block; // Nécessaire pour que le padding et le fond s'appliquent
-    transition: background-color 0.3s ease, color 0.3s ease;
-
-    // Classe pour utilisation moyenne (orange/ambre)
-    &.usage-medium {
-      color: #b45309; // Texte ambre foncé
-      background-color: #fef3c7; // Fond ambre clair
-    }
-
-    // Classe pour utilisation élevée (rouge)
-    &.usage-high {
-      color: #b91c1c; // Texte rouge foncé
-      background-color: #fee2e2; // Fond rouge clair
-    }
-
-    // (usage-low utilisera les couleurs par défaut)
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 8px;
   }
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+  mat-card-title {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: $lbp-dark-blue; // Chiffres en bleu foncé
+
+    // Variantes de couleurs pour les chiffres clés
+    &.allocated-text { color: $lbp-blue; }
+    &.available-text { color: #16a34a; } // Vert reste vert pour 'disponible'
+    &.error-text { color: #dc2626; } // Rouge pour erreur
   }
 }
 
-.node-usage-gauge {
-  width: 150px; // Ajustez la taille selon vos besoins
-  margin-top: 1rem; // Espace au-dessus de la jauge
+// --- Section des Nœuds ---
+.nodes-section {
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #475569;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 16px;
+      background-color: $lbp-yellow; // Petit accent jaune
+      border-radius: 2px;
+    }
+  }
+}
+
+.node-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+// --- Carte d'un Nœud ---
+.node-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.node-card {
+  height: 100%;
+  border-radius: 12px !important; // Force l'arrondi
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 1px solid #f1f5f9;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 65, 146, 0.15) !important; // Ombre bleutée au survol
+    border-color: rgba(0, 65, 146, 0.3);
+  }
+
+  mat-card-header {
+    padding: 16px;
+
+    .mat-mdc-card-avatar {
+      background-color: rgba(0, 65, 146, 0.05); // Fond avatar très clair
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        color: $lbp-blue;
+      }
+    }
+
+    mat-card-title {
+      font-size: 1.1rem !important;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    mat-card-subtitle {
+      font-size: 0.85rem;
+      margin-top: 4px;
+
+      // Badges de statut
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      font-weight: 600;
+
+      // Par défaut (faible usage) -> Vert
+      color: #15803d;
+      background-color: #dcfce7;
+
+      &.usage-medium {
+        color: #b45309;
+        background-color: #fef3c7;
+      }
+
+      &.usage-high {
+        color: #b91c1c;
+        background-color: #fee2e2;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 0 16px 16px 16px;
+  }
+}
+
+// --- Métriques internes de la carte ---
+.node-metrics {
+  padding-top: 16px;
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .metric-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #64748b;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: $lbp-blue; // Icônes en bleu
+    }
+
+    span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.gauge-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 3rem;
+  color: #94a3b8;
+  font-style: italic;
 }

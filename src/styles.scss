@@ -1,13 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg-color: #f8fafc; // Fond très clair
+  --bg-color: #f8fafc;
   --widget-bg-color: #ffffff;
   --border-color: #e2e8f0;
   --text-color: #0f172a;
   --text-color-secondary: #64748b;
 
-  --accent-blue: #2563eb;
+  // MODIFICATION : Bleu Banque Postale
+  --accent-blue: #004192;
   --color-green: #16a34a;
   --color-amber: #f59e0b;
   --color-red: #dc2626;
@@ -24,14 +25,12 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-// Styles pour la grille des nœuds
 .node-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
-// Styles pour la carte d'un nœud
 .node-card {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
@@ -49,7 +48,6 @@ body {
   }
 }
 
-// Styles pour les métriques à l'intérieur de la carte
 .node-metrics {
   padding-top: 16px;
 
@@ -67,12 +65,12 @@ body {
     font-size: 0.9em;
 
     mat-icon {
-      color: #673ab7; // Couleur principale de l'icône
+      // MODIFICATION : Utilisation du bleu au lieu du violet (#673ab7)
+      color: #004192;
     }
   }
 }
 
-// Styles pour la barre de progression et son label
 .usage-progress {
   display: flex;
   align-items: center;
@@ -90,17 +88,16 @@ body {
     border-radius: 4px;
     height: 8px;
 
-    // Classes de couleur dynamiques
     &.usage-low .mat-progress-bar-fill::after {
-      background-color: #4caf50; // Vert
+      background-color: #4caf50;
     }
 
     &.usage-medium .mat-progress-bar-fill::after {
-      background-color: #ffc107; // Orange
+      background-color: #ffc107;
     }
 
     &.usage-high .mat-progress-bar-fill::after {
-      background-color: #f44336; // Rouge
+      background-color: #f44336;
     }
   }
 
@@ -115,26 +112,17 @@ app-layout .mat-drawer-inner-container {
   overflow-x: hidden !important;
 }
 
-/* * LA BONNE FAÇON (LA SOLUTION)
- * On anime 'opacity' et on change 'visibility' d'un seul coup à la fin.
-*/
 @keyframes monAnimationFadeOut_corrigee {
   0% {
     opacity: 1;
     visibility: visible;
   }
-
-  /* * (Optionnel) : Si vous voulez que la visibilité change
-   * juste avant la fin, vous pouvez utiliser 99.9%
-  */
-
   100% {
     opacity: 0;
-    visibility: hidden; /* ⬅️ L'élément devient 'hidden' seulement à la fin */
+    visibility: hidden;
   }
 }
 
-/* N'oubliez pas 'forwards' pour que l'animation garde son état final ! */
 .mon-element {
   animation: monAnimationFadeOut_corrigee 1s forwards;
 }
