@@ -113,9 +113,19 @@
 
         @if (selectedNodeMetrics(); as metrics) {
           <div class="resource-calculator">
-            <div class="resource-header">
-              <mat-icon>calculate</mat-icon>
-              <span>Estimation restante sur <strong>{{ reservationForm.get('node')?.value }}</strong></span>
+
+            <div class="resource-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <mat-icon>calculate</mat-icon>
+                <span>Estimation restante sur <strong>{{ reservationForm.get('node')?.value }}</strong></span>
+              </div>
+
+              <mat-slide-toggle
+                [checked]="showGauges()"
+                (change)="showGauges.set($event.checked)"
+                color="primary"
+                style="transform: scale(0.8);"> <span style="font-size: 0.85rem; color: #64748b;">Jauges</span>
+              </mat-slide-toggle>
             </div>
 
             <div class="resource-details">
@@ -133,28 +143,30 @@
               </div>
             </div>
 
-            <div class="gauges-row">
-              <app-custom-gauge
-                [value]="projectedGpus()"
-                [max]="metrics.physical_gpus"
-                label="GPU Restants"
-                append="">
-              </app-custom-gauge>
+            @if (showGauges()) {
+              <div class="gauges-row">
+                <app-custom-gauge
+                  [value]="projectedGpus()"
+                  [max]="metrics.physical_gpus"
+                  label="GPU"
+                  append="">
+                </app-custom-gauge>
 
-              <app-custom-gauge
-                [value]="projectedMemory()"
-                [max]="metrics.total_memory_gb"
-                label="RAM Restante"
-                append="Go">
-              </app-custom-gauge>
+                <app-custom-gauge
+                  [value]="projectedMemory()"
+                  [max]="metrics.total_memory_gb"
+                  label="RAM"
+                  append="Go">
+                </app-custom-gauge>
 
-              <app-custom-gauge
-                [value]="projectedCpu()"
-                [max]="metrics.total_cpu_cores"
-                label="CPU Restants"
-                append="C">
-              </app-custom-gauge>
-            </div>
+                <app-custom-gauge
+                  [value]="projectedCpu()"
+                  [max]="metrics.total_cpu_cores"
+                  label="CPU"
+                  append="C">
+                </app-custom-gauge>
+              </div>
+            }
           </div>
         }
 

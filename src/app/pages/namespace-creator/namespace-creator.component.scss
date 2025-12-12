@@ -125,16 +125,17 @@ $lbp-blue: #004192;
 // --- Jauges compactes ---
 .gauges-row {
   display: flex;
-  justify-content: center; // Centré
+  justify-content: center; // Centré c'est souvent plus joli
   align-items: center;
+  margin-top: 2rem;
   flex-wrap: wrap;
-  gap: 2rem; // Espacement entre les jauges
+  gap: 3rem; // Espacement un peu plus grand entre les jauges
 
-  // Cible le composant gauge pour le réduire
+  // CIBLAGE DES JAUGES POUR LES AGRANDIR
   app-custom-gauge {
-    width: 90px;  // Largeur forcée
-    height: 90px; // Hauteur forcée
-    font-size: 12px; // Réduit la taille du texte à l'intérieur (grâce aux em)
+    width: 140px;  // Agrandissement (ex: 90px -> 140px)
+    height: 140px;
+    font-size: 18px; // Augmente la taille du texte à l'intérieur
     display: block;
   }
 }

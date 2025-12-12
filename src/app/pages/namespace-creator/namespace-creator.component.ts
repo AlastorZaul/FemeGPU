@@ -17,6 +17,7 @@ import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 import {startWith} from 'rxjs/operators'; // IMPORTANT : pour initialiser les valeurs
 import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.component';
 import {NamespaceReservation} from '../../services/gpu-data.service';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-namespace-creator',
@@ -24,7 +25,8 @@ import {NamespaceReservation} from '../../services/gpu-data.service';
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatButtonModule, MatIconModule,
-    MatSnackBarModule, MatProgressSpinnerModule, MatDividerModule, CustomGaugeComponent
+    MatSnackBarModule, MatProgressSpinnerModule, MatDividerModule, CustomGaugeComponent,
+    MatSlideToggleModule
   ],
   templateUrl: './namespace-creator.component.html',
   styleUrls: ['./namespace-creator.component.scss']
@@ -36,11 +38,9 @@ export class NamespaceCreatorComponent {
   private router = inject(Router);
 
   public isSubmitting = signal(false);
-
-  // 1. Données brutes
   clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
-
   availableApplications = toSignal(this.gpuDataService.getAvailableApplications(), { initialValue: [] });
+  showGauges = signal(true);
 
   // 2. Formulaire
   reservationForm = this.fb.group({
