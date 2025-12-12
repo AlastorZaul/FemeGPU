@@ -16,7 +16,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" style="width: 220px;">
-          <mat-label>Filtrer par Statut</mat-label>
+          <mat-label>Statut</mat-label>
           <mat-select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
             <mat-option [value]="null">-- Tous --</mat-option>
             @for (status of availableStatuses(); track status) {
@@ -53,33 +53,33 @@
           <th mat-header-cell *matHeaderCellDef> Statut</th>
           <td mat-cell *matCellDef="let node">
             <span class="status-badge" [ngClass]="node.statusClass">
-              @if (node.statusClass.includes('en-ligne')) {
-                <mat-icon style="font-size: 16px; height: 16px; width: 16px;">check_circle</mat-icon>
-              } @else if (node.statusClass.includes('maintenance')) {
-                <mat-icon style="font-size: 16px; height: 16px; width: 16px;">build</mat-icon>
-              } @else {
-                <mat-icon style="font-size: 16px; height: 16px; width: 16px;">block</mat-icon>
-              }
+               @if (node.statusClass.includes('en-ligne') || node.statusClass.includes('online')) {
+                 <mat-icon>check_circle</mat-icon>
+               } @else if (node.statusClass.includes('maintenance')) {
+                 <mat-icon>build</mat-icon>
+               } @else {
+                 <mat-icon>block</mat-icon>
+               }
               {{ node.metrics.status }}
             </span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="physical_gpus">
-          <th mat-header-cell *matHeaderCellDef> GPUs Physiques</th>
-          <td mat-cell *matCellDef="let node" style="text-align: center;">
+          <th mat-header-cell *matHeaderCellDef> GPUs Phys.</th>
+          <td mat-cell *matCellDef="let node">
             <span style="font-weight: 700;">{{ node.metrics.physical_gpus }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="virtual_gpus">
           <th mat-header-cell *matHeaderCellDef> vGPUs</th>
-          <td mat-cell *matCellDef="let node" style="text-align: center;"> {{ node.metrics.virtual_gpus }}</td>
+          <td mat-cell *matCellDef="let node"> {{ node.metrics.virtual_gpus }}</td>
         </ng-container>
 
         <ng-container matColumnDef="used_gpus">
           <th mat-header-cell *matHeaderCellDef> Utilisés</th>
-          <td mat-cell *matCellDef="let node" style="text-align: center;"> {{ node.metrics.used_gpus }}</td>
+          <td mat-cell *matCellDef="let node"> {{ node.metrics.used_gpus }}</td>
         </ng-container>
 
         <ng-container matColumnDef="memory">
@@ -122,7 +122,7 @@
 
       @if (filteredNodes().length === 0) {
         <div style="padding: 4rem; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
-          <mat-icon style="font-size: 48px; height: 48px; width: 48px; margin-bottom: 1rem; color: #cbd5e1;">search_off</mat-icon>
+          <mat-icon style="font-size: 48px; margin-bottom: 1rem; color: #cbd5e1;">search_off</mat-icon>
           <p style="font-size: 1.1rem; font-style: italic;">Aucun nœud ne correspond à vos critères.</p>
         </div>
       }

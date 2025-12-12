@@ -8,14 +8,6 @@
 
     <mat-card-content>
 
-      <div class="filters-container">
-        <mat-form-field appearance="outline" style="width: 100%; max-width: 400px;">
-          <mat-label>Rechercher une application...</mat-label>
-          <input matInput [ngModel]="searchText()" (ngModelChange)="searchText.set($event)" placeholder="Ex: Jupyter, LLM">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-      </div>
-
       @if (applicationsList().length > 0) {
         <mat-accordion multi>
           @for (app of applicationsList(); track app.applicationName) {
@@ -23,9 +15,10 @@
             <mat-expansion-panel class="app-panel" hideToggle>
               <mat-expansion-panel-header>
                 <mat-panel-title class="app-panel-title">
-                  <mat-icon>folder_special</mat-icon> {{ app.applicationName }}
+                  <mat-icon>folder_special</mat-icon>
+                  {{ app.applicationName }}
                 </mat-panel-title>
-                <mat-panel-description style="justify-content: flex-end; align-items: center;">
+                <mat-panel-description style="justify-content: flex-end;">
                   <span class="app-stats">
                     {{ app.totalGpus }} GPU • {{ app.namespaces.length }} Namespace{{ app.namespaces.length > 1 ? 's' : '' }}
                   </span>
@@ -40,12 +33,11 @@
                        [class.status-inactive]="!ns.isActive"
                        [matTooltip]="'Cluster: ' + ns.clusterName + ' | Nœud: ' + ns.nodeName">
 
-                    <mat-icon>{{ ns.isActive ? 'check_circle_outline' : 'highlight_off' }}</mat-icon>
-                    <span class="ns-name">{{ ns.namespace }}</span>
+                    <mat-icon>{{ ns.isActive ? 'check_circle' : 'highlight_off' }}</mat-icon>
+                    <span>{{ ns.namespace }}</span>
                     <span class="ns-details">{{ ns.gpusRequested }} GPU</span>
 
                   </div>
-
                 }
               </div>
 
@@ -56,9 +48,6 @@
         <div class="empty-state">
           <mat-icon>search_off</mat-icon>
           <p>Aucune application trouvée.</p>
-          @if (!searchText()) {
-            <p style="font-size: 0.9rem;">Commencez par <a routerLink="/create-namespace">créer une réservation</a>.</p>
-          }
         </div>
       }
 

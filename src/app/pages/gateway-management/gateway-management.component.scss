@@ -1,8 +1,7 @@
 // Variables LBP
 $lbp-blue: #004192;
-$lbp-yellow: #fecb00;
-$lbp-red: #dc2626;
 $lbp-green: #15803d;
+$lbp-red: #dc2626;
 $lbp-bg-light: #f8fafc;
 
 .page-container {
@@ -20,20 +19,12 @@ mat-card {
 mat-card-header {
   border-bottom: 1px solid #f1f5f9;
   padding-bottom: 1rem;
-  margin-bottom: 0; // Reset margin for table alignment
+  margin-bottom: 0;
 
   mat-card-title {
     color: $lbp-blue;
     font-weight: 700;
     font-size: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  mat-card-subtitle {
-    margin-top: 4px;
-    font-size: 0.9rem;
   }
 }
 
@@ -41,34 +32,40 @@ table {
   width: 100%;
   background: white;
 
+  // --- ALIGNEMENT VERTICAL ---
+  th.mat-header-cell, td.mat-cell {
+    vertical-align: middle; // Centre verticalement
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
   th.mat-header-cell {
     background-color: #f8fafc;
-    color: $lbp-blue; // En-têtes en bleu LBP
+    color: $lbp-blue;
     font-weight: 600;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 16px;
     border-bottom: 2px solid #e2e8f0;
-  }
-
-  td.mat-cell {
-    padding: 12px 16px;
-    color: #334155;
-    font-size: 0.95rem;
-    border-bottom: 1px solid #f1f5f9;
-  }
-
-  // Effet de survol sur les lignes
-  tr.mat-row:hover {
-    background-color: #f8fafc;
   }
 }
 
-// --- Nouveaux styles pour les Badges (remplace les Chips) ---
+// --- CENTRAGE DES COLONNES ---
+.mat-column-status,
+.mat-column-actions {
+  text-align: center; // Centre le contenu horizontalement
+}
+
+// Pour s'assurer que le contenu flexible (flex) est aussi centré
+.mat-column-status .mat-cell-content,
+.actions-cell {
+  justify-content: center;
+}
+
+// --- STYLE DES BADGES ---
 .status-badge {
   padding: 6px 12px;
-  border-radius: 20px;
+  border-radius: 20px; // Pilule
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -77,41 +74,30 @@ table {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 90px;
+  min-width: 100px;
 
   &.online {
-    background-color: #dcfce7; // Vert très clair
-    color: $lbp-green;
+    background-color: #dcfce7; color: $lbp-green;
   }
-
   &.offline {
-    background-color: #fee2e2; // Rouge clair
-    color: $lbp-red;
+    background-color: #fee2e2; color: $lbp-red;
   }
-
   &.restarting {
-    background-color: #e0f2fe; // Bleu ciel très clair
-    color: $lbp-blue;
+    background-color: #e0f2fe; color: $lbp-blue;
   }
 }
 
 .gateway-error-message {
   display: flex;
   align-items: center;
+  justify-content: center; // Centré aussi
   font-size: 0.8rem;
   color: $lbp-red;
   margin-top: 6px;
   font-weight: 500;
-  background-color: #fef2f2;
-  padding: 4px 8px;
-  border-radius: 4px;
-  width: fit-content;
 
   mat-icon {
-    font-size: 16px;
-    height: 16px;
-    width: 16px;
-    margin-right: 6px;
+    font-size: 16px; height: 16px; width: 16px; margin-right: 4px;
   }
 }
 
@@ -121,37 +107,12 @@ table {
   gap: 8px;
 
   button {
-    color: #64748b; // Gris par défaut
-
-    &:hover:not([disabled]) {
-      background-color: rgba(0, 65, 146, 0.1);
-      color: $lbp-blue; // Bleu LBP au survol
-    }
-
-    &.restart-btn:hover:not([disabled]) {
-      color: $lbp-blue;
-    }
+    color: #64748b;
+    &:hover:not([disabled]) { color: $lbp-blue; }
   }
 }
 
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  color: #94a3b8;
-
-  mat-icon {
-    font-size: 48px;
-    height: 48px;
-    width: 48px;
-    margin-bottom: 1rem;
-    color: #cbd5e1;
-  }
-
-  p {
-    font-size: 1.1rem;
-    font-style: italic;
-  }
+  display: flex; flex-direction: column; align-items: center; padding: 4rem; color: #94a3b8;
+  mat-icon { font-size: 48px; height: 48px; width: 48px; margin-bottom: 1rem; color: #cbd5e1; }
 }

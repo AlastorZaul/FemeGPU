@@ -116,30 +116,27 @@ export class ReservationListComponent {
 
   // **** NOUVELLE MÉTHODE POUR OUVRIR LA MODALE ****
   openActionsModal(reservation: FlatReservation): void {
+    // --- MODIFICATION ICI : On filtre pour ne garder que les nœuds du MÊME cluster ---
+    const sameClusterNodes = this.allNodes().filter(node => node.cluster === reservation.clusterName);
+
     const dialogData: ReservationActionsModalData = {
       reservation: reservation,
-      allNodes: this.allNodes() // Passe la liste des nœuds à la modale
+      allNodes: sameClusterNodes // On passe la liste filtrée
     };
 
     const dialogRef = this.dialog.open<ReservationActionsModalComponent, ReservationActionsModalData, ReservationActionsModalResult>(
       ReservationActionsModalComponent,
       {
         data: dialogData,
-        width: '450px' // Définissez une largeur appropriée
+        width: '450px'
       }
     );
 
-    // Gérer le résultat à la fermeture de la modale
     dialogRef.afterClosed().subscribe(result => {
-      if (!result) {
-        return; // L'utilisateur a annulé
-      }
-
+      if (!result) return;
       if (result.action === 'delete') {
-        // L'utilisateur a cliqué 'Supprimer' dans la modale
         this.onDeleteReservation(reservation);
       } else if (result.action === 'move' && result.targetNodeName) {
-        // L'utilisateur a choisi un nœud pour le déplacement
         this.onMoveReservation(reservation, result.targetNodeName);
       }
     });

@@ -144,7 +144,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
       "L40S": {
         owner: 'Data Science',
         status: 'En Ligne',
-        physical_gpus: 2, virtual_gpus: 4, reserved_gpus: 0, used_gpus: 0,
+        physical_gpus: 4, virtual_gpus: 4, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
         total_memory_gb: 512,
         reserved_memory_gb: 0,
@@ -377,35 +377,33 @@ export class GpuDataServiceMock {
     };
   }
 
-  // **** NOUVELLE MÉTHODE POUR DÉPLACER UNE RÉSERVATION ****
   moveReservationToNode(reservation: FlatReservation, targetNodeName: string): Observable<any> {
+    // 1. Trouver le cluster source
     const sourceCluster = this.mockClusters.find(c => c.cluster_name === reservation.clusterName);
     if (!sourceCluster) {
       return of({ success: false, message: 'Cluster source non trouvé' });
     }
 
+    // 2. Trouver le nœud source
     const sourceNode = sourceCluster.nodes[reservation.nodeName];
     if (!sourceNode) {
       return of({ success: false, message: 'Nœud source non trouvé' });
     }
 
-    // Trouver le cluster et le nœud de destination
-    let targetCluster: ClusterApiResponse | undefined;
-    let targetNode: NodeMetrics | undefined;
+    // 3. Trouver le nœud de destination (UNIQUEMENT DANS LE MÊME CLUSTER)
+    // On ne cherche plus dans tous les clusters via une boucle globale
+    const targetNode = sourceCluster.nodes[targetNodeName];
 
-    for (const cluster of this.mockClusters) {
-      if (cluster.nodes[targetNodeName]) {
-        targetCluster = cluster;
-        targetNode = cluster.nodes[targetNodeName];
-        break;
+    if (!targetNode) {
+      // Petite vérification supplémentaire pour donner un message clair
+      const existsElsewhere = this.mockClusters.some(c => c.nodes[targetNodeName]);
+      if (existsElsewhere) {
+        return of({ success: false, message: `Interdit : Le nœud '${targetNodeName}' appartient à un autre cluster.` });
       }
+      return of({ success: false, message: `Nœud de destination '${targetNodeName}' introuvable dans le cluster ${sourceCluster.cluster_name}.` });
     }
 
-    if (!targetNode || !targetCluster) {
-      return of({ success: false, message: `Nœud de destination '${targetNodeName}' non trouvé` });
-    }
-
-    // 2. Vérifier la capacité de la destination
+    // 4. Vérifier la capacité de la destination (Code existant inchangé)
     const available = this.getNodeAvailableResources(targetNode);
 
     if (available.gpus < reservation.gpusRequested) {
@@ -418,7 +416,7 @@ export class GpuDataServiceMock {
       return of({ success: false, message: `Pas assez de CPU sur ${targetNodeName} (Dispo: ${available.cpu})` });
     }
 
-    // 3. Retrouver l'index de la réservation dans le nœud source
+    // 5. Retrouver et déplacer la réservation (Code existant inchangé)
     const resIndex = sourceNode.reservations.findIndex(
       res => new Date(res.createdAt).getTime() === new Date(reservation.createdAt).getTime()
     );
@@ -427,19 +425,15 @@ export class GpuDataServiceMock {
       return of({ success: false, message: 'Réservation non trouvée dans le nœud source' });
     }
 
-    // 4. Retirer la réservation du nœud source
     const [movedReservation] = sourceNode.reservations.splice(resIndex, 1);
-
-    // 5. Ajouter la réservation au nœud de destination
     targetNode.reservations.push(movedReservation);
 
-    // 6. Sauvegarder et notifier
     this.saveDataToLocalStorage();
-    console.log(`[Mock Service] Réservation ${reservation.namespace} déplacée de ${reservation.nodeName} à ${targetNodeName}`);
+    console.log(`[Mock Service] Réservation ${reservation.namespace} déplacée de ${reservation.nodeName} à ${targetNodeName} (Même Cluster)`);
 
     return of({
       success: true,
-      message: `Réservation déplacée vers ${targetNodeName} (Cluster: ${targetCluster.cluster_name})`
+      message: `Réservation déplacée vers ${targetNodeName}`
     }).pipe(delay(500));
   }
 
