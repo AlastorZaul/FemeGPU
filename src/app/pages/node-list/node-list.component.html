@@ -1,27 +1,51 @@
 <div class="node-list-container">
   <mat-card>
     <mat-card-header>
-      <mat-icon mat-card-avatar>dns</mat-icon>
+      <mat-icon mat-card-avatar style="color: #004192">dns</mat-icon>
       <mat-card-title>Liste de tous les Nœuds</mat-card-title>
       <mat-card-subtitle>Vue centralisée des nœuds de tous les clusters</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content>
-      <table mat-table [dataSource]="allNodes()" class="mat-elevation-z8">
+
+    <mat-card-content class="p-0">
+
+      <div class="filters-container">
+        <mat-form-field appearance="outline" style="flex: 1; min-width: 200px;">
+          <mat-label>Rechercher un nœud...</mat-label>
+          <input matInput [ngModel]="searchText()" (ngModelChange)="searchText.set($event)" placeholder="Nom ou Cluster">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" style="width: 220px;">
+          <mat-label>Filtrer par Statut</mat-label>
+          <mat-select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+            <mat-option [value]="null">-- Tous --</mat-option>
+            @for (status of availableStatuses(); track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <table mat-table [dataSource]="filteredNodes()" class="mat-elevation-z0">
 
         <ng-container matColumnDef="clusterName">
           <th mat-header-cell *matHeaderCellDef> Cluster</th>
-          <td mat-cell *matCellDef="let node"> {{ node.clusterName }}</td>
+          <td mat-cell *matCellDef="let node">
+            <span style="font-weight: 600; color: #004192;">{{ node.clusterName }}</span>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="nodeName">
           <th mat-header-cell *matHeaderCellDef> Nom du Nœud</th>
-          <td mat-cell *matCellDef="let node"> {{ node.nodeName }}</td>
+          <td mat-cell *matCellDef="let node">
+            <span style="font-weight: 500;">{{ node.nodeName }}</span>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="owner">
           <th mat-header-cell *matHeaderCellDef> Propriétaire</th>
           <td mat-cell *matCellDef="let node">
-            <span style="font-weight: 500; color: #555;">{{ node.metrics.owner }}</span>
+            <span style="color: #64748b;">{{ node.metrics.owner }}</span>
           </td>
         </ng-container>
 
@@ -29,6 +53,13 @@
           <th mat-header-cell *matHeaderCellDef> Statut</th>
           <td mat-cell *matCellDef="let node">
             <span class="status-badge" [ngClass]="node.statusClass">
+              @if (node.statusClass.includes('en-ligne')) {
+                <mat-icon style="font-size: 16px; height: 16px; width: 16px;">check_circle</mat-icon>
+              } @else if (node.statusClass.includes('maintenance')) {
+                <mat-icon style="font-size: 16px; height: 16px; width: 16px;">build</mat-icon>
+              } @else {
+                <mat-icon style="font-size: 16px; height: 16px; width: 16px;">block</mat-icon>
+              }
               {{ node.metrics.status }}
             </span>
           </td>
@@ -36,17 +67,19 @@
 
         <ng-container matColumnDef="physical_gpus">
           <th mat-header-cell *matHeaderCellDef> GPUs Physiques</th>
-          <td mat-cell *matCellDef="let node"> {{ node.metrics.physical_gpus }}</td>
+          <td mat-cell *matCellDef="let node" style="text-align: center;">
+            <span style="font-weight: 700;">{{ node.metrics.physical_gpus }}</span>
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="virtual_gpus">
-          <th mat-header-cell *matHeaderCellDef> GPUs Virtuels</th>
-          <td mat-cell *matCellDef="let node"> {{ node.metrics.virtual_gpus }}</td>
+          <th mat-header-cell *matHeaderCellDef> vGPUs</th>
+          <td mat-cell *matCellDef="let node" style="text-align: center;"> {{ node.metrics.virtual_gpus }}</td>
         </ng-container>
 
         <ng-container matColumnDef="used_gpus">
-          <th mat-header-cell *matHeaderCellDef> GPUs Utilisés</th>
-          <td mat-cell *matCellDef="let node"> {{ node.metrics.used_gpus }}</td>
+          <th mat-header-cell *matHeaderCellDef> Utilisés</th>
+          <td mat-cell *matCellDef="let node" style="text-align: center;"> {{ node.metrics.used_gpus }}</td>
         </ng-container>
 
         <ng-container matColumnDef="memory">
@@ -68,7 +101,7 @@
         </ng-container>
 
         <ng-container matColumnDef="gpu_usage_percent">
-          <th mat-header-cell *matHeaderCellDef> Utilisation</th>
+          <th mat-header-cell *matHeaderCellDef> Charge GPU</th>
           <td mat-cell *matCellDef="let node">
             <div class="usage-cell">
               <mat-progress-bar
@@ -76,7 +109,9 @@
                 [value]="node.metrics.gpu_usage_percent"
                 [ngClass]="node.usageClass">
               </mat-progress-bar>
-              <span>{{ node.metrics.gpu_usage_percent }}%</span>
+              <span [style.color]="node.metrics.gpu_usage_percent > 90 ? '#dc2626' : '#334155'">
+                {{ node.metrics.gpu_usage_percent }}%
+              </span>
             </div>
           </td>
         </ng-container>
@@ -84,6 +119,13 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
+
+      @if (filteredNodes().length === 0) {
+        <div style="padding: 4rem; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
+          <mat-icon style="font-size: 48px; height: 48px; width: 48px; margin-bottom: 1rem; color: #cbd5e1;">search_off</mat-icon>
+          <p style="font-size: 1.1rem; font-style: italic;">Aucun nœud ne correspond à vos critères.</p>
+        </div>
+      }
     </mat-card-content>
   </mat-card>
 </div>

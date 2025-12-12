@@ -23,34 +23,42 @@ export interface FlatReservation extends ReservationDetail {
 // Clé pour le stockage local
 const STORAGE_KEY = 'gpuFarmMockData';
 
+export const MOCK_APPLICATIONS_LIST = [
+  'Jupyter Notebook',
+  'Triton Inference Server',
+  'LLM Training',
+  'Stable Diffusion',
+  'TensorFlow Job',
+  'PyTorch Job',
+  'Autre'
+];
+
 // Données initiales (utilisées uniquement si localStorage est vide) (MISE À JOUR)
 const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
-  // --- Cluster A (Existant) ---
   {
     total_physical_gpus: 12,
     cluster_name: 'HPI A',
     total_virtual_gpus: 12,
-    total_used_gpus: 0, // Sera calculé
-    global_gpu_usage_percent: 0, // Sera calculé
+    total_used_gpus: 0,
+    global_gpu_usage_percent: 0,
     total_memory_gb: 512,
     total_cpu_cores: 128,
-    total_used_memory_gb: 0, // Sera calculé
-    total_used_cpu_cores: 0, // Sera calculé
+    total_used_memory_gb: 0,
+    total_used_cpu_cores: 0,
     nodes: {
-      // ⬇️ NOM CHANGÉ
       "A100": {
         owner: 'Équipe IA',
         status: 'En ligne',
         physical_gpus: 4, virtual_gpus: 4, reserved_gpus: 3, used_gpus: 3,
         used_mig_units: 0, gpu_usage_percent: 88,
         total_memory_gb: 128,
-        reserved_memory_gb: 48, // 32 + 16
+        reserved_memory_gb: 48,
         total_cpu_cores: 32,
-        reserved_cpu_cores: 12, // 8 + 4
+        reserved_cpu_cores: 12,
         reservations: [
           {
             namespace: 'alpha-train',
-            application: 'jupyter-notebook',
+            application: 'Jupyter Notebook', // Mis à jour
             gpusRequested: 2,
             memoryRequest: 32,
             cpuRequest: 8,
@@ -59,7 +67,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
           },
           {
             namespace: 'alpha-train',
-            application: 'model-builder',
+            application: 'PyTorch Job', // Mis à jour
             gpusRequested: 1,
             memoryRequest: 16,
             cpuRequest: 4,
@@ -68,57 +76,54 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
           }
         ]
       },
-      // ⬇️ NOM CHANGÉ
       "H200": {
         owner: 'Infrastructure',
         status: 'Maintenance',
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 2, used_gpus: 1,
         used_mig_units: 0, gpu_usage_percent: 13,
         total_memory_gb: 256,
-        reserved_memory_gb: 64, // 64
+        reserved_memory_gb: 64,
         total_cpu_cores: 64,
-        reserved_cpu_cores: 16, // 16
+        reserved_cpu_cores: 16,
         reservations: [
           {
             namespace: 'beta-inference',
-            application: 'triton-server',
+            application: 'Triton Inference Server', // Mis à jour
             gpusRequested: 2,
             memoryRequest: 64,
             cpuRequest: 16,
             createdAt: new Date(Date.now() - 86400000),
-            isActive: false // Inactif
+            isActive: false
           }
         ]
       },
     }
   },
-
-  // --- NOUVEAU CLUSTER ---
+  // ... (Le reste du cluster HPI B peut rester inchangé ou être mis à jour de la même façon) ...
   {
     total_physical_gpus: 16,
     cluster_name: 'HPI B',
     total_virtual_gpus: 16,
-    total_used_gpus: 0, // Sera calculé
-    global_gpu_usage_percent: 0, // Sera calculé
+    total_used_gpus: 0,
+    global_gpu_usage_percent: 0,
     total_memory_gb: 1024,
     total_cpu_cores: 256,
-    total_used_memory_gb: 0, // Sera calculé
-    total_used_cpu_cores: 0, // Sera calculé
+    total_used_memory_gb: 0,
+    total_used_cpu_cores: 0,
     nodes: {
-      // ⬇️ NOM CHANGÉ
       "H200": {
         owner: 'Mistral',
         status: 'Blocked',
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
         total_memory_gb: 512,
-        reserved_memory_gb: 80, // 64 + 16
+        reserved_memory_gb: 80,
         total_cpu_cores: 128,
-        reserved_cpu_cores: 32, // 24 + 8
+        reserved_cpu_cores: 32,
         reservations: [
           {
             namespace: 'data-science',
-            application: 'llm-training',
+            application: 'LLM Training', // Mis à jour
             gpusRequested: 4,
             memoryRequest: 64,
             cpuRequest: 24,
@@ -127,7 +132,7 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
           },
           {
             namespace: 'data-science',
-            application: 'llm-compile',
+            application: 'TensorFlow Job', // Mis à jour
             gpusRequested: 1,
             memoryRequest: 16,
             cpuRequest: 8,
@@ -136,7 +141,6 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
           }
         ]
       },
-      // ⬇️ NOM CHANGÉ
       "L40S": {
         owner: 'Data Science',
         status: 'En Ligne',
@@ -146,17 +150,22 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
         reserved_memory_gb: 0,
         total_cpu_cores: 128,
         reserved_cpu_cores: 0,
-        reservations: [] // Nœud vide, prêt pour les réservations
+        reservations: []
       }
     }
   }
 ];
+
 @Injectable({
   providedIn: 'root'
 })
 export class GpuDataServiceMock {
 
   private readonly mockClusters: ClusterApiResponse[];
+
+  getAvailableApplications(): Observable<string[]> {
+    return of(MOCK_APPLICATIONS_LIST);
+  }
 
   private saveDataToLocalStorage(): void {
     try {

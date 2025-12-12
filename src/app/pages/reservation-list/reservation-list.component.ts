@@ -1,4 +1,4 @@
-import {Component, computed, inject, Signal} from '@angular/core';
+import {Component, computed, inject, signal, Signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MatTableModule} from '@angular/material/table';
@@ -18,10 +18,10 @@ import {
   ReservationActionsModalData,
   ReservationActionsModalResult
 } from '../../components/reservation-actions-modal/reservation-actions-modal.component';
-
-// IMPORTS DE MENU (ils seront retirés de l'array 'imports' ci-dessous)
-// import {MatMenu, MatMenuContent, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
-
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {FormsModule} from '@angular/forms';
 
 export interface FlatReservation extends ReservationDetail {
   clusterName: string;
@@ -35,7 +35,7 @@ export interface FlatReservation extends ReservationDetail {
     CommonModule, MatTableModule, MatCardModule, MatIconModule,
     MatChipsModule,
     MatSlideToggleModule, MatTooltip, MatIconButton,
-    // MatMenuTrigger, MatMenu, MatMenuItem, MatMenuContent, // <- Supprimés
+    MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule
   ],
   templateUrl: './reservation-list.component.html',
   styleUrls: ['./reservation-list.component.scss']
@@ -46,6 +46,9 @@ export class ReservationListComponent {
   private dialog = inject(MatDialog); // NOUVELLE INJECTION
 
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
+
+  public searchText = signal('');
+  public selectedNodeFilter = signal<string | null>(null);
 
   public allReservations: Signal<FlatReservation[]> = computed(() => {
     // ... (votre logique computed existante reste inchangée)
@@ -66,6 +69,24 @@ export class ReservationListComponent {
       }
     }
     return flatList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  });
+
+  public filteredReservations = computed(() => {
+    let data = this.allReservations();
+    const search = this.searchText().toLowerCase();
+    const nodeFilter = this.selectedNodeFilter();
+    // Filtre par Noeud (Select)
+    if (nodeFilter) {
+      data = data.filter(res => res.nodeName === nodeFilter);
+    }
+    // Filtre par Texte (Namespace ou Application)
+    if (search) {
+      data = data.filter(res =>
+        res.namespace.toLowerCase().includes(search) ||
+        res.application.toLowerCase().includes(search)
+      );
+    }
+    return data;
   });
 
   public allNodes: Signal<{ name: string, cluster: string }[]> = computed(() => {

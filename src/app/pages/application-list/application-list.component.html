@@ -1,57 +1,64 @@
 <div class="list-container">
   <mat-card>
     <mat-card-header>
+      <mat-icon mat-card-avatar style="color: #004192">apps</mat-icon>
       <mat-card-title>Liste des Applications</mat-card-title>
-      <mat-card-subtitle>Affiche toutes les applications et leurs namespaces associés.</mat-card-subtitle>
+      <mat-card-subtitle>Vue regroupée par application</mat-card-subtitle>
     </mat-card-header>
+
     <mat-card-content>
 
+      <div class="filters-container">
+        <mat-form-field appearance="outline" style="width: 100%; max-width: 400px;">
+          <mat-label>Rechercher une application...</mat-label>
+          <input matInput [ngModel]="searchText()" (ngModelChange)="searchText.set($event)" placeholder="Ex: Jupyter, LLM">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+
       @if (applicationsList().length > 0) {
-
         <mat-accordion multi>
-
           @for (app of applicationsList(); track app.applicationName) {
 
-            <mat-expansion-panel class="app-panel">
+            <mat-expansion-panel class="app-panel" hideToggle>
               <mat-expansion-panel-header>
                 <mat-panel-title class="app-panel-title">
-                  <mat-icon>apps</mat-icon>
-                  {{ app.applicationName }}
+                  <mat-icon>folder_special</mat-icon> {{ app.applicationName }}
                 </mat-panel-title>
-                <mat-panel-description>
-                  {{ app.totalGpus }} GPU(s) réservé(s) sur {{ app.namespaces.length }} namespace(s)
+                <mat-panel-description style="justify-content: flex-end; align-items: center;">
+                  <span class="app-stats">
+                    {{ app.totalGpus }} GPU • {{ app.namespaces.length }} Namespace{{ app.namespaces.length > 1 ? 's' : '' }}
+                  </span>
                 </mat-panel-description>
               </mat-expansion-panel-header>
 
               <div class="namespace-list">
                 @for (ns of app.namespaces; track ns.namespace) {
 
-                  <mat-chip-listbox>
-                    <mat-chip
-                      [matTooltip]="'Cluster: ' + ns.clusterName + ' | Nœud: ' + ns.nodeName"
-                      [color]="ns.isActive ? 'primary' : 'warn'"
-                      [highlighted]="ns.isActive">
+                  <div class="namespace-badge"
+                       [class.status-active]="ns.isActive"
+                       [class.status-inactive]="!ns.isActive"
+                       [matTooltip]="'Cluster: ' + ns.clusterName + ' | Nœud: ' + ns.nodeName">
 
-                      <mat-icon>{{ ns.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
-                      <span class="namespace-name">{{ ns.namespace }}</span>
-                      <span class="namespace-gpus">({{ ns.gpusRequested }} GPU)</span>
+                    <mat-icon>{{ ns.isActive ? 'check_circle_outline' : 'highlight_off' }}</mat-icon>
+                    <span class="ns-name">{{ ns.namespace }}</span>
+                    <span class="ns-details">{{ ns.gpusRequested }} GPU</span>
 
-                    </mat-chip>
-                  </mat-chip-listbox>
+                  </div>
 
                 }
               </div>
 
             </mat-expansion-panel>
           }
-
         </mat-accordion>
-
       } @else {
         <div class="empty-state">
-          <mat-icon>inbox</mat-icon>
+          <mat-icon>search_off</mat-icon>
           <p>Aucune application trouvée.</p>
-          <p>Commencez par <a routerLink="/create">créer une nouvelle réservation</a>.</p>
+          @if (!searchText()) {
+            <p style="font-size: 0.9rem;">Commencez par <a routerLink="/create-namespace">créer une réservation</a>.</p>
+          }
         </div>
       }
 

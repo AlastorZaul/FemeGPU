@@ -1,4 +1,4 @@
-import {Component, computed, inject, Signal, ChangeDetectionStrategy} from '@angular/core'; // 1. Import ChangeDetectionStrategy
+import {Component, computed, inject, Signal, ChangeDetectionStrategy, signal} from '@angular/core'; // 1. Import ChangeDetectionStrategy
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
@@ -8,6 +8,11 @@ import {MatCardModule} from '@angular/material/card';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatIconModule} from '@angular/material/icon';
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {FormsModule} from '@angular/forms';
 
 export interface FlatNode {
   clusterName: string;
@@ -20,7 +25,7 @@ export interface FlatNode {
 @Component({
   selector: 'app-node-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatCardModule, MatProgressBarModule, MatIconModule],
+  imports: [CommonModule, MatTableModule, MatCardModule, MatProgressBarModule, MatIconModule,MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
   templateUrl: './node-list.component.html',
   styleUrls: ['./node-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush // 3. Activation du mode haute performance
@@ -29,6 +34,9 @@ export class NodeListComponent {
   private gpuDataService = inject(GpuDataServiceMock);
 
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, {initialValue: []});
+
+  public searchText = signal('');
+  public statusFilter = signal<string | null>(null);
 
   public allNodes: Signal<FlatNode[]> = computed(() => {
     const nodes: FlatNode[] = [];
@@ -41,7 +49,7 @@ export class NodeListComponent {
         if (metrics.gpu_usage_percent > 90) cssClass = 'usage-high';
         else if (metrics.gpu_usage_percent > 70) cssClass = 'usage-medium';
 
-        const statusSlug = (metrics.status || 'En ligne').toLowerCase().replace(' ', '-');
+        const statusSlug = (metrics.status || 'En ligne').toLowerCase().replace('', '-');
         const statusClass = `status-${statusSlug}`;
 
         nodes.push({
@@ -56,7 +64,31 @@ export class NodeListComponent {
     return nodes;
   });
 
-  // J'ai ajouté 'owner' suite à ta demande précédente
+  public filteredNodes = computed(() => {
+    let data = this.allNodes();
+    const search = this.searchText().toLowerCase();
+    const status = this.statusFilter();
+
+    if (status) {
+      data = data.filter(n => n.metrics.status === status);
+    }
+
+    if (search) {
+      data = data.filter(n =>
+        n.nodeName.toLowerCase().includes(search) ||
+        n.clusterName.toLowerCase().includes(search)
+      );
+    }
+
+    return data;
+  });
+
+  // Pour remplir le dropdown de statut automatiquement
+  public availableStatuses = computed(() => {
+    const statuses = new Set(this.allNodes().map(n => n.metrics.status));
+    return Array.from(statuses).sort();
+  });
+
   public displayedColumns: string[] = [
     'clusterName',
     'nodeName',
@@ -69,6 +101,4 @@ export class NodeListComponent {
     'cpu',
     'gpu_usage_percent'
   ];
-
-  // 5. La méthode getUsageClass() a été supprimée car elle n'est plus nécessaire !
 }

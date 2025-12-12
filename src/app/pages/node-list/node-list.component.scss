@@ -1,77 +1,142 @@
+// Variables LBP
+$lbp-blue: #004192;
+$lbp-yellow: #fecb00;
+$lbp-red: #dc2626;
+$lbp-green: #15803d;
+$lbp-bg-light: #f8fafc;
+
 .node-list-container {
   padding: 2rem;
+  background-color: $lbp-bg-light;
+  min-height: 100%;
+}
+
+mat-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+mat-card-header {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+
+  mat-card-title {
+    color: $lbp-blue;
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  mat-card-subtitle {
+    margin-top: 4px;
+    font-size: 0.9rem;
+  }
+}
+
+// Zone de filtres
+.filters-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  padding: 0 16px; // Alignement visuel
 }
 
 table {
   width: 100%;
   background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  border-radius: 8px;
-  overflow: hidden;
 
-  th {
-    color: #004192; // En-têtes bleus
+  th.mat-header-cell {
+    background-color: #f8fafc;
+    color: $lbp-blue;
     font-weight: 600;
-  }
-}
-
-.usage-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  mat-progress-bar {
-    flex-grow: 1;
-    height: 6px; // Plus fin
-    border-radius: 3px;
-
-    &.usage-low .mat-progress-bar-fill::after {
-      background-color: #16a34a; // Vert standard
-    }
-
-    &.usage-medium .mat-progress-bar-fill::after {
-      background-color: #fecb00; // Jaune/Ambre thème LBP
-    }
-
-    &.usage-high .mat-progress-bar-fill::after {
-      background-color: #dc2626; // Rouge
-    }
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 16px;
+    border-bottom: 2px solid #e2e8f0;
   }
 
-  span {
-    font-weight: 600;
-    min-width: 45px;
-    font-size: 0.9rem;
+  td.mat-cell {
+    padding: 12px 16px;
     color: #334155;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  tr.mat-row:hover {
+    background-color: #f8fafc;
   }
 }
 
+// --- Styles des Badges ---
 .status-badge {
   padding: 6px 12px;
-  border-radius: 20px; // Forme "pilule" plus moderne
+  border-radius: 20px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  min-width: 100px;
   justify-content: center;
 
-  &.status-en-ligne {
-    background-color: #dcfce7; // Vert très clair
-    color: #15803d;
-    border: 1px solid transparent;
+  // Variantes basées sur les slugs générés dans le TS (en-ligne, maintenance, etc.)
+  &.status-en-line, &.status-en-ligne, &.status-online {
+    background-color: #dcfce7;
+    color: $lbp-green;
   }
 
   &.status-maintenance {
-    background-color: #fef9c3; // Jaune clair
-    color: #a16207;
-    border: 1px solid transparent;
+    background-color: #fef9c3;
+    color: #b45309; // Orange foncé
   }
 
-  &.status-bloqué, &.status-blocked {
-    background-color: #fee2e2; // Rouge clair
-    color: #b91c1c;
-    border: 1px solid transparent;
+  &.status-blocked, &.status-offline, &.status-error {
+    background-color: #fee2e2;
+    color: $lbp-red;
   }
 }
+
+// --- Texte stylisé pour les métriques ---
+.metrics-text {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #475569;
+  white-space: nowrap;
+}
+
+// --- Barre de progression ---
+.usage-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 140px;
+
+  mat-progress-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 35px;
+    text-align: right;
+  }
+}
+
+// Couleurs de la barre de progression selon la classe
+::ng-deep .usage-low .mdc-linear-progress__bar-inner { border-color: $lbp-green !important; }
+::ng-deep .usage-medium .mdc-linear-progress__bar-inner { border-color: $lbp-yellow !important; }
+::ng-deep .usage-high .mdc-linear-progress__bar-inner { border-color: $lbp-red !important; }

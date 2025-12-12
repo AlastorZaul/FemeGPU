@@ -23,7 +23,7 @@ $lbp-blue: #004192;
   form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem; // Un peu plus d'espace
+    gap: 1.25rem; // Un peu moins d'espace
   }
 
   mat-form-field {
@@ -31,29 +31,26 @@ $lbp-blue: #004192;
   }
 
   .section-divider {
-    margin: 1rem 0;
+    margin: 0.5rem 0; // Réduit
     border-top-color: #e2e8f0;
   }
 
   .quota-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
+    gap: 1rem; // Réduit
   }
 
   .form-actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 
     button {
       padding: 0.5rem 2rem;
       min-width: 150px;
       min-height: 48px;
       border-radius: 8px;
-
-      // Si c'est un bouton "flat" ou "raised" primary, il prendra la couleur globale.
-      // Assurez-vous d'utiliser color="primary" dans le HTML.
 
       mat-spinner {
         display: inline-block;
@@ -67,33 +64,40 @@ $lbp-blue: #004192;
     }
   }
 
+  // --- Style compacté pour la calculatrice ---
   .resource-calculator {
     grid-column: 1 / -1;
-    background-color: #f8fafc; // Très clair
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-top: 1rem;
+    background-color: #f8fafc;
+    border-radius: 8px; // Coins un peu moins ronds
+    padding: 1rem;      // Padding réduit (était 1.5rem)
+    margin-top: 0.5rem;
     border: 1px solid #e2e8f0;
 
     .resource-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1rem;
+      gap: 8px;
+      font-size: 0.95rem; // Texte un peu plus petit
       font-weight: 600;
       color: #334155;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem; // Marge réduite
 
       mat-icon {
-        color: $lbp-blue; // Icône calculatrice en bleu
+        font-size: 20px; // Icône plus petite
+        width: 20px;
+        height: 20px;
+        color: $lbp-blue;
       }
     }
 
     .resource-details {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(3, 1fr); // Force 3 colonnes
+      gap: 1rem;
       text-align: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed #e2e8f0; // Séparation visuelle légère
     }
 
     .resource-item {
@@ -103,26 +107,34 @@ $lbp-blue: #004192;
     }
 
     .resource-label {
-      font-size: 0.85rem;
+      font-size: 0.75rem; // Plus petit
       color: #64748b;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .resource-value {
-      font-size: 1.5rem;
+      font-size: 1.1rem; // Beaucoup plus petit (était 1.5rem)
       font-weight: 700;
-      color: $lbp-blue; // CHANGEMENT : Bleu Banque Postale
+      color: $lbp-blue;
     }
   }
 }
 
+// --- Jauges compactes ---
 .gauges-row {
   display: flex;
-  justify-content: space-around;
+  justify-content: center; // Centré
   align-items: center;
-  margin-top: 2rem;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 2rem; // Espacement entre les jauges
+
+  // Cible le composant gauge pour le réduire
+  app-custom-gauge {
+    width: 90px;  // Largeur forcée
+    height: 90px; // Hauteur forcée
+    font-size: 12px; // Réduit la taille du texte à l'intérieur (grâce aux em)
+    display: block;
+  }
 }

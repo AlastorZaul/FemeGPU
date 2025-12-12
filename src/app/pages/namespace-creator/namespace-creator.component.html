@@ -53,10 +53,14 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Nom de l'Application</mat-label>
-          <input matInput formControlName="application" placeholder="mon-app-IA">
+          <mat-label>Application</mat-label>
+          <mat-select formControlName="application">
+            @for (app of availableApplications(); track app) {
+              <mat-option [value]="app">{{ app }}</mat-option>
+            }
+          </mat-select>
           @if (reservationForm.get('application')?.hasError('required') && reservationForm.get('application')?.touched) {
-            <mat-error>Le nom de l'application est requis.</mat-error>
+            <mat-error>Veuillez sélectionner une application.</mat-error>
           }
         </mat-form-field>
 
@@ -71,10 +75,10 @@
               <mat-error>Nombre de GPUs requis.</mat-error>
             }
             @if (reservationForm.get('gpusRequested')?.hasError('min') && reservationForm.get('gpusRequested')?.touched) {
-              <mat-error>Au moins 1 GPU doit être demandé.</mat-error>
+              <mat-error>Au moins 1 GPU.</mat-error>
             }
             @if (reservationForm.get('gpusRequested')?.hasError('max') && reservationForm.get('gpusRequested')?.touched) {
-              <mat-error>Pas assez de GPUs disponibles (max: {{ gpusAvailable() }}).</mat-error>
+              <mat-error>Max disponible : {{ rawGpusAvailable() }}.</mat-error>
             }
           </mat-form-field>
 
@@ -85,10 +89,10 @@
               <mat-error>Mémoire requise.</mat-error>
             }
             @if (reservationForm.get('memoryRequest')?.hasError('min') && reservationForm.get('memoryRequest')?.touched) {
-              <mat-error>Au moins 1 Go requis.</mat-error>
+              <mat-error>Au moins 1 Go.</mat-error>
             }
             @if (reservationForm.get('memoryRequest')?.hasError('max') && reservationForm.get('memoryRequest')?.touched) {
-              <mat-error>Pas assez de mémoire disponible (max: {{ memoryAvailable() }} Go).</mat-error>
+              <mat-error>Max disponible : {{ rawMemoryAvailable() }} Go.</mat-error>
             }
           </mat-form-field>
 
@@ -99,54 +103,55 @@
               <mat-error>CPU requis.</mat-error>
             }
             @if (reservationForm.get('cpuRequest')?.hasError('min') && reservationForm.get('cpuRequest')?.touched) {
-              <mat-error>Au moins 1 Core requis.</mat-error>
+              <mat-error>Au moins 1 Core.</mat-error>
             }
             @if (reservationForm.get('cpuRequest')?.hasError('max') && reservationForm.get('cpuRequest')?.touched) {
-              <mat-error>Pas assez de CPU disponibles (max: {{ cpuAvailable() }} Cores).</mat-error>
+              <mat-error>Max disponible : {{ rawCpuAvailable() }} Cores.</mat-error>
             }
           </mat-form-field>
         </div>
 
-        <!-- Section Calculatrice de Ressources -->
         @if (selectedNodeMetrics(); as metrics) {
           <div class="resource-calculator">
             <div class="resource-header">
-              <mat-icon>info_outline</mat-icon>
-              <span>Ressources disponibles sur <strong>{{ reservationForm.get('node')?.value }}</strong></span>
+              <mat-icon>calculate</mat-icon>
+              <span>Estimation restante sur <strong>{{ reservationForm.get('node')?.value }}</strong></span>
             </div>
+
             <div class="resource-details">
               <div class="resource-item">
-                <span class="resource-label">GPUs:</span>
-                <span class="resource-value">{{ gpusAvailable() }} / {{ metrics.physical_gpus }}</span>
+                <span class="resource-label">GPUs Restants</span>
+                <span class="resource-value">{{ projectedGpus() }} / {{ metrics.physical_gpus }}</span>
               </div>
               <div class="resource-item">
-                <span class="resource-label">Mémoire:</span>
-                <span class="resource-value">{{ memoryAvailable() }} / {{ metrics.total_memory_gb }} Go</span>
+                <span class="resource-label">RAM Restante</span>
+                <span class="resource-value">{{ projectedMemory() }} / {{ metrics.total_memory_gb }} Go</span>
               </div>
               <div class="resource-item">
-                <span class="resource-label">CPU:</span>
-                <span class="resource-value">{{ cpuAvailable() }} / {{ metrics.total_cpu_cores }} Cores</span>
+                <span class="resource-label">CPU Restants</span>
+                <span class="resource-value">{{ projectedCpu() }} / {{ metrics.total_cpu_cores }} C</span>
               </div>
             </div>
+
             <div class="gauges-row">
               <app-custom-gauge
-                [value]="gpusAvailable()"
+                [value]="projectedGpus()"
                 [max]="metrics.physical_gpus"
-                label="GPU"
+                label="GPU Restants"
                 append="">
               </app-custom-gauge>
 
               <app-custom-gauge
-                [value]="memoryAvailable()"
+                [value]="projectedMemory()"
                 [max]="metrics.total_memory_gb"
-                label="RAM"
+                label="RAM Restante"
                 append="Go">
               </app-custom-gauge>
 
               <app-custom-gauge
-                [value]="cpuAvailable()"
+                [value]="projectedCpu()"
                 [max]="metrics.total_cpu_cores"
-                label="CPU"
+                label="CPU Restants"
                 append="C">
               </app-custom-gauge>
             </div>

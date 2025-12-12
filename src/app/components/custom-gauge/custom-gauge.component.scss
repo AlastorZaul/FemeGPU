@@ -4,6 +4,8 @@
   --color-warning: #f59e0b;
   --color-critical: #dc2626;
   --track-color: #e5e7eb;
+  // Taille de police de base par défaut (permettra le redimensionnement)
+  font-size: 16px;
 }
 
 .gauge-container {
@@ -11,9 +13,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 100%;
 
-  // CORRECTION : Les sélecteurs `&` doivent être à l'intérieur de leur parent.
-  // Ils appliquent la couleur au .gauge-progress lorsque le .gauge-container a la classe correspondante.
   &.color-normal .gauge-progress { stroke: var(--color-normal); }
   &.color-warning .gauge-progress { stroke: var(--color-warning); }
   &.color-critical .gauge-progress { stroke: var(--color-critical); }
@@ -22,7 +24,7 @@
 svg {
   width: 100%;
   height: 100%;
-  transform: rotate(-90deg); // Fait commencer le cercle en haut
+  transform: rotate(-90deg);
   overflow: visible;
 }
 
@@ -36,8 +38,6 @@ circle {
 
 .gauge-progress {
   stroke-linecap: round;
-  // C'est cette ligne qui crée l'animation fluide de la jauge.
-  // Elle anime le changement sur 0.5s avec un effet d'accélération/décélération.
   transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -49,21 +49,31 @@ circle {
   justify-content: center;
   align-items: center;
   color: var(--text-color);
+  // Empêche la sélection de texte accidentelle
+  user-select: none;
+  pointer-events: none;
 
   .value {
-    font-size: 2rem;
+    // Utilisation de 'em' pour être relatif à la font-size du host
+    font-size: 1.8em;
     font-weight: 700;
     line-height: 1;
+
     small {
-      font-size: 1rem;
+      font-size: 0.5em; // Relatif à la taille de .value
       font-weight: 500;
       margin-left: 2px;
+      opacity: 0.7;
     }
   }
+
   .label {
-    font-size: 0.8rem;
+    // Relatif à la font-size du host
+    font-size: 0.75em;
     font-weight: 500;
     color: var(--text-color-secondary);
-    margin-top: 0.25rem;
+    margin-top: 0.2em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 }

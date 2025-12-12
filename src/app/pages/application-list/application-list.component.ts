@@ -1,28 +1,26 @@
-import { Component, computed, inject, Signal } from '@angular/core';
+import { Component, computed, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatExpansionModule } from '@angular/material/expansion'; // Pour un affichage "accordéon"
-import { MatTooltipModule } from '@angular/material/tooltip'; // Pour les infobulles
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
-// Importer le service et les types de données
 import { GpuDataServiceMock } from '../../services/gpu-data-mock.service';
 import { ClusterApiResponse, ReservationDetail } from '../../models/gpu.model';
 import { RouterLink } from '@angular/router';
 
-// L'interface pour une réservation plate (copiée de reservation-list)
 export interface FlatReservation extends ReservationDetail {
   clusterName: string;
   nodeName: string;
 }
 
-// NOTRE NOUVELLE INTERFACE pour les données regroupées
 export interface ApplicationGroup {
   applicationName: string;
   totalGpus: number;
-  // La liste des namespaces liés à cette application
   namespaces: {
     namespace: string;
     clusterName: string;
@@ -37,12 +35,8 @@ export interface ApplicationGroup {
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatIconModule,
-    MatChipsModule,
-    MatExpansionModule, // Important
-    MatTooltipModule,  // Important
-    RouterLink
+    MatCardModule, MatIconModule, MatExpansionModule, MatTooltipModule,
+    RouterLink, FormsModule, MatFormFieldModule, MatInputModule
   ],
   templateUrl: './application-list.component.html',
   styleUrls: ['./application-list.component.scss']
@@ -50,10 +44,11 @@ export interface ApplicationGroup {
 export class ApplicationListComponent {
   private gpuDataService = inject(GpuDataServiceMock);
 
-  // 1. Obtenir les données brutes des clusters
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
 
-  // 2. Créer la même liste plate que 'reservation-list'
+  // Signal pour la recherche
+  public searchText = signal('');
+
   public allReservations: Signal<FlatReservation[]> = computed(() => {
     const flatList: FlatReservation[] = [];
     const allClusters = this.clusters();
@@ -74,28 +69,19 @@ export class ApplicationListComponent {
     return flatList;
   });
 
-  // 3. LA MAGIE : Transformer la liste plate en liste groupée par application
   public applicationsList: Signal<ApplicationGroup[]> = computed(() => {
     const allRes = this.allReservations();
+    const search = this.searchText().toLowerCase();
 
-    // Utiliser un Map pour regrouper efficacement
     const groups = allRes.reduce((acc, res) => {
       const appName = res.application;
-
-      // Chercher si on a déjà un groupe pour cette app
       let group = acc.get(appName);
 
-      // Si non, le créer
       if (!group) {
-        group = {
-          applicationName: appName,
-          totalGpus: 0,
-          namespaces: []
-        };
+        group = { applicationName: appName, totalGpus: 0, namespaces: [] };
         acc.set(appName, group);
       }
 
-      // Ajouter les détails du namespace au groupe
       group.totalGpus += res.gpusRequested;
       group.namespaces.push({
         namespace: res.namespace,
@@ -108,9 +94,13 @@ export class ApplicationListComponent {
       return acc;
     }, new Map<string, ApplicationGroup>());
 
-    // Convertir le Map en tableau et le trier par nom
-    return Array.from(groups.values())
-      .sort((a, b) => a.applicationName.localeCompare(b.applicationName));
-  });
+    let result = Array.from(groups.values());
 
+    // Filtrage par nom d'application
+    if (search) {
+      result = result.filter(g => g.applicationName.toLowerCase().includes(search));
+    }
+
+    return result.sort((a, b) => a.applicationName.localeCompare(b.applicationName));
+  });
 }

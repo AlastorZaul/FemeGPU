@@ -1,5 +1,7 @@
-// Variables Banque Postale
+// Variables LBP
 $lbp-blue: #004192;
+$lbp-green: #15803d;
+$lbp-red: #dc2626;
 $lbp-bg-light: #f8fafc;
 
 .list-container {
@@ -8,76 +10,165 @@ $lbp-bg-light: #f8fafc;
   min-height: 100%;
 }
 
+mat-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+mat-card-header {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+
+  mat-card-title {
+    color: $lbp-blue;
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  mat-card-subtitle {
+    margin-top: 4px;
+  }
+}
+
+.filters-container {
+  padding: 0 16px;
+  margin-bottom: 1rem;
+}
+
+// --- Style Accordéon ---
+mat-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; // Espacement entre les panneaux
+}
+
+.app-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px !important; // Force l'arrondi
+  box-shadow: none !important; // Retire l'ombre par défaut Material
+  transition: all 0.2s ease;
+  background: white;
+
+  &:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  // Header de l'accordéon
+  .mat-expansion-panel-header {
+    background-color: #fff;
+    border-radius: 8px;
+    height: 64px;
+    padding: 0 24px;
+
+    &.mat-expanded {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+  }
+
+  .app-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    color: #334155;
+    font-size: 1rem;
+
+    mat-icon {
+      color: $lbp-blue;
+    }
+  }
+
+  .app-stats {
+    font-size: 0.85rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+}
+
+// --- Contenu de l'accordéon (Liste des badges) ---
+.namespace-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 8px;
+}
+
+// --- Nouveaux Badges (Remplacement des Chips) ---
+.namespace-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  cursor: default;
+
+  // Icône de statut
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .ns-name {
+    font-weight: 600;
+  }
+
+  .ns-details {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-left: 4px;
+    padding-left: 8px;
+    border-left: 1px solid currentColor;
+  }
+
+  // Styles Active / Inactive
+  &.status-active {
+    background-color: #f0fdf4; // Vert très clair
+    border-color: #dcfce7;
+    color: #166534; // Vert foncé
+
+    mat-icon { color: $lbp-green; }
+  }
+
+  &.status-inactive {
+    background-color: #fef2f2; // Rouge très clair
+    border-color: #fee2e2;
+    color: #991b1b; // Rouge foncé
+
+    mat-icon { color: $lbp-red; }
+  }
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
-  color: #64748b; // Gris plus doux
+  padding: 4rem;
+  color: #94a3b8;
 
   mat-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
     margin-bottom: 1rem;
-    color: #cbd5e1; // Gris clair pour l'icône vide
-  }
-}
-
-// Style pour le panneau d'application
-.app-panel {
-  margin-bottom: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px !important;
-  transition: all 0.2s ease;
-
-  // Bordure bleue au survol
-  &:hover {
-    border-color: $lbp-blue;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 65, 146, 0.05);
-  }
-}
-
-.app-panel-title {
-  font-weight: 600;
-  gap: 12px;
-  color: #334155;
-  font-size: 1rem;
-
-  mat-icon {
-    color: $lbp-blue; // Icône en bleu LBP
-  }
-}
-
-// Conteneur pour les namespaces
-.namespace-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 16px 0;
-}
-
-// Style pour les chips de namespace
-.mat-mdc-chip {
-  background-color: #f1f5f9 !important; // Fond gris très léger par défaut
-  border: 1px solid #e2e8f0;
-
-  mat-icon {
-    margin-right: 6px !important;
-    color: $lbp-blue; // Icône en bleu
+    color: #cbd5e1;
   }
 
-  .namespace-name {
-    font-weight: 500;
-    color: #334155;
-  }
-
-  .namespace-gpus {
-    font-size: 0.8em;
-    margin-left: 6px;
-    opacity: 0.8;
-    color: #64748b;
-  }
+  p { font-size: 1.1rem; font-style: italic; }
 }
