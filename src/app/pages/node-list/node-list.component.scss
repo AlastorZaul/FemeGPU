@@ -34,30 +34,41 @@ mat-card-header {
   display: flex; gap: 16px; flex-wrap: wrap;
 }
 
+// Le conteneur qui permet le scroll
+.table-responsive {
+  width: 100%;
+  overflow-x: auto; // Active le scroll horizontal
+  -webkit-overflow-scrolling: touch; // Scroll fluide sur iOS
+}
+
 table {
   width: 100%;
   background: white;
+  // IMPORTANT : Force une largeur minimale au tableau.
+  // Si l'écran est plus petit que 1000px, le scroll apparaîtra.
+  min-width: 1000px;
 
-  // --- ALIGNEMENT VERTICAL ---
+  // ... (Vos styles de th/td existants)
   th.mat-header-cell, td.mat-cell {
-    vertical-align: middle; // Centre verticalement tout le contenu
+    white-space: nowrap; // Empêche le texte de passer à la ligne et de casser la hauteur
     padding: 12px 16px;
-    border-bottom: 1px solid #f1f5f9;
+    // ...
+  }
+}
+
+// Optionnel : Ajustements spécifiques pour très petits écrans si nécessaire
+@media (max-width: 600px) {
+  .node-list-container {
+    padding: 1rem; // Réduit le padding général de la page
   }
 
-  th.mat-header-cell {
-    background-color: #f8fafc;
-    color: $lbp-blue;
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 2px solid #e2e8f0;
-    white-space: nowrap;
-  }
+  .filters-container {
+    flex-direction: column; // Empile les filtres verticalement
+    align-items: stretch;
 
-  tr.mat-row:hover {
-    background-color: #f8fafc;
+    mat-form-field {
+      width: 100% !important; // Filtres en pleine largeur
+    }
   }
 }
 
@@ -135,3 +146,45 @@ table {
 ::ng-deep .usage-low .mdc-linear-progress__bar-inner { border-color: $lbp-green !important; }
 ::ng-deep .usage-medium .mdc-linear-progress__bar-inner { border-color: #fecb00 !important; }
 ::ng-deep .usage-high .mdc-linear-progress__bar-inner { border-color: $lbp-red !important; }
+
+
+// --- MODE "ALLÉGÉ" POUR ÉCRANS VERTICAUX / MOBILES ---
+@media (max-width: 1200px) {
+
+  // 1. On masque les colonnes secondaires pour alléger la vue
+  .mat-column-owner,         // Propriétaire
+  .mat-column-virtual_gpus,  // vGPUs
+  .mat-column-used_gpus,     // GPUs utilisés
+  .mat-column-memory,        // Mémoire détaillée
+  .mat-column-cpu {          // CPU détaillé
+    display: none !important;
+  }
+
+  // 2. On ajuste la largeur du tableau
+  // Comme on a moins de colonnes, on peut retirer la largeur forcée
+  table {
+    min-width: 100% !important;
+  }
+
+  // 3. Ajustements optionnels pour gagner de la place
+  th.mat-header-cell, td.mat-cell {
+    padding: 8px 8px; // Réduit un peu le padding
+    font-size: 0.85rem; // Réduit légèrement la police
+  }
+
+  // Réduire la taille de la barre de progression sur mobile
+  .usage-cell {
+    min-width: 80px;
+    gap: 6px;
+
+    span { font-size: 0.8rem; }
+  }
+
+  // Réduire la taille des badges
+  .status-badge {
+    min-width: auto; // Largeur automatique
+    padding: 4px 8px;
+
+    mat-icon { display: none; } // Cache l'icône dans le badge pour gagner de la place
+  }
+}

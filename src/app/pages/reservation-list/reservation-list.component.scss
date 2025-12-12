@@ -82,4 +82,39 @@ $lbp-blue: #004192;
     --mdc-chip-elevated-container-color: #fee2e2;
     --mdc-chip-label-text-color: #dc2626;
   }
+
+  // Style pour "Terminé" (accent)
+  &.mat-accent {
+    background-color: #e0f7fa !important; // Bleu très clair, presque blanc
+    color: #00796b !important; // Vert-bleu foncé
+
+    // On force les variables CSS locales si Material utilise celles-ci
+    --mdc-chip-elevated-container-color: #e0f7fa;
+    --mdc-chip-label-text-color: #00796b;
+  }
+}
+
+@media (max-width: 1200px) {
+
+  // 1. Masquer les colonnes de détails techniques
+  .mat-column-clusterName,    // Cluster
+  .mat-column-nodeName,       // Nœud
+  .mat-column-memoryRequest,  // RAM demandée
+  .mat-column-cpuRequest,     // CPU demandé
+  .mat-column-createdAt {     // Date de création
+    display: none !important;
+  }
+
+  // 2. Adapter le tableau
+  table {
+    min-width: 100% !important;
+  }
+
+  th.mat-header-cell, td.mat-cell {
+    padding: 0 10px;
+  }
+
+  // 3. Garder l'essentiel visible et lisible
+  .mat-column-status { width: 80px; } // Fixe la largeur du switch
+  .mat-column-actions { width: 60px; text-align: right; }
 }
