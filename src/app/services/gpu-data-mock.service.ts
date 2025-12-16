@@ -384,4 +384,25 @@ export class GpuDataServiceMock {
     }
     return of({success: false});
   }
+
+  updateReservationModel(reservation: FlatReservation, newModelName: string): Observable<any> {
+    const cluster = this.mockClusters.find(c => c.cluster_name === reservation.clusterName);
+    if (!cluster) return of({success: false, message: 'Cluster non trouvé'});
+
+    const node = cluster.nodes[reservation.nodeName];
+    if (!node) return of({success: false, message: 'Nœud non trouvé'});
+
+    const targetReservation = node.reservations.find(
+      res => new Date(res.createdAt).getTime() === new Date(reservation.createdAt).getTime()
+    );
+
+    if (targetReservation) {
+      targetReservation.modelName = newModelName; // Mise à jour du champ
+      this.saveDataToLocalStorage();
+      console.log(`[Mock Service] Modèle mis à jour pour ${reservation.namespace} : ${newModelName}`);
+      return of({success: true, message: 'Modèle attaché avec succès.'});
+    }
+
+    return of({success: false, message: 'Réservation introuvable.'});
+  }
 }

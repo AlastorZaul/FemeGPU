@@ -11,7 +11,7 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatIconButton} from '@angular/material/button';
-// NOUVEAUX IMPORTS
+import {AiModel} from '../../models/aimodel.model';
 import {MatDialog} from '@angular/material/dialog';
 import {
   ReservationActionsModalComponent,
@@ -46,6 +46,7 @@ export class ReservationListComponent {
   private dialog = inject(MatDialog); // NOUVELLE INJECTION
 
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
+  private models: Signal<AiModel[]> = toSignal(this.gpuDataService.getAvailableModels(), {initialValue: []});
 
   public searchText = signal('');
   public selectedNodeFilter = signal<string | null>(null);
@@ -121,24 +122,42 @@ export class ReservationListComponent {
 
     const dialogData: ReservationActionsModalData = {
       reservation: reservation,
-      allNodes: sameClusterNodes // On passe la liste filtrée
+      allNodes: sameClusterNodes,
+      availableModels: this.models()// On passe la liste filtrée
     };
 
     const dialogRef = this.dialog.open<ReservationActionsModalComponent, ReservationActionsModalData, ReservationActionsModalResult>(
       ReservationActionsModalComponent,
       {
         data: dialogData,
-        width: '450px'
+        width: '500px' // Un peu plus large pour accommoder le select
       }
     );
-
     dialogRef.afterClosed().subscribe(result => {
       if (!result) return;
+
       if (result.action === 'delete') {
         this.onDeleteReservation(reservation);
       } else if (result.action === 'move' && result.targetNodeName) {
         this.onMoveReservation(reservation, result.targetNodeName);
       }
+      // 3. Gérer la nouvelle action 'updateModel'
+      else if (result.action === 'updateModel') {
+        this.onUpdateModel(reservation, result.modelName || '');
+      }
+    });
+  }
+
+  onUpdateModel(reservation: FlatReservation, newModelName: string) {
+    this.gpuDataService.updateReservationModel(reservation, newModelName).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.snackBar.open(`Modèle mis à jour : ${newModelName || 'Aucun'}`, 'OK', {duration: 3000});
+        } else {
+          this.snackBar.open(`Erreur : ${res.message}`, 'Fermer');
+        }
+      },
+      error: (err) => this.snackBar.open('Erreur lors de la mise à jour', 'Fermer')
     });
   }
 
