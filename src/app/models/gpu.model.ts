@@ -1,6 +1,7 @@
 export interface ReservationDetail {
   namespace: string;
   application: string;
+  modelName?: string;
   gpusRequested: number;
   memoryRequest: number; // NOUVEAU (ex: en Go)
   cpuRequest: number;    // NOUVEAU (ex: en Cores)

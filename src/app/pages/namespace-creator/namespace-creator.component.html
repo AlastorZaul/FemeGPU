@@ -71,6 +71,23 @@
           }
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-label>Modèle IA (Optionnel)</mat-label>
+          <input type="text" matInput formControlName="modelName" [matAutocomplete]="autoModel"
+                 placeholder="Ex: Llama 3 70B">
+          <mat-icon matSuffix>model_training</mat-icon>
+          <mat-autocomplete #autoModel="matAutocomplete">
+            @for (model of filteredModels(); track model.id) {
+              <mat-option [value]="model.name">
+                <span style="font-weight: 500;">{{ model.name }}</span>
+                <span style="font-size: 0.8em; color: gray; margin-left: 8px;">({{ model.vramRequiredGb }}
+                  Go VRAM)</span>
+              </mat-option>
+            }
+          </mat-autocomplete>
+          <mat-hint>Si vous utilisez un modèle spécifique, précisez-le ici.</mat-hint>
+        </mat-form-field>
+
         <mat-divider class="section-divider"></mat-divider>
 
         <div class="quota-grid">

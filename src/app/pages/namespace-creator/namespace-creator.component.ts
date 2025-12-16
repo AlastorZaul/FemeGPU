@@ -2,7 +2,7 @@ import {Component, computed, effect, inject, OnInit, signal, Signal} from '@angu
 import {CommonModule} from '@angular/common';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, Router} from '@angular/router'; // Ajout de ActivatedRoute
+import {ActivatedRoute, Router} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -14,7 +14,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {startWith} from 'rxjs/operators';
-import {MatAutocompleteModule} from '@angular/material/autocomplete'; // N'oubliez pas l'autocomplete
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+
 import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
 import {GpuDataServiceMock, NamespaceReservation} from '../../services/gpu-data-mock.service';
 import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.component';
@@ -32,58 +33,67 @@ import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.c
   styleUrls: ['./namespace-creator.component.scss']
 })
 export class NamespaceCreatorComponent implements OnInit {
-  // 1. Injections
   private fb = inject(FormBuilder);
   private gpuDataService = inject(GpuDataServiceMock);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
-  private route = inject(ActivatedRoute); // Nécessaire pour les queryParams
+  private route = inject(ActivatedRoute);
 
-  // 2. Propriétés simples
   public isSubmitting = signal(false);
   public showGauges = signal(true);
 
-  // 3. Chargement des données (Indépendant du formulaire)
+  // Données
   clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
   availableApplications = toSignal(this.gpuDataService.getAvailableApplications(), { initialValue: [] });
 
-  // 4. Formulaire (DOIT ÊTRE DÉFINI AVANT LES SIGNAUX QUI L'UTILISENT)
+  // NOUVEAU : On charge aussi la liste des modèles pour l'autocomplétion
+  availableModels = toSignal(this.gpuDataService.getAvailableModels(), {initialValue: []});
+
+  // Formulaire
   reservationForm = this.fb.group({
     cluster: ['', Validators.required],
     node: [{ value: '', disabled: true }, Validators.required],
     namespace: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
     application: ['', Validators.required],
+    modelName: [''], // <--- NOUVEAU CHAMP (Optionnel)
     gpusRequested: [1, [Validators.required, Validators.min(1)]],
     memoryRequest: [1, [Validators.required, Validators.min(1)]],
     cpuRequest: [1, [Validators.required, Validators.min(1)]]
   });
 
-  // 5. Signaux dépendants du formulaire (Définis APRES le formulaire)
-
-  // -- Autocomplete Application --
+  // --- AUTOCOMPLETE : APPLICATION ---
   currentApplicationInput = toSignal(
     this.reservationForm.get('application')!.valueChanges.pipe(startWith('')),
     {initialValue: ''}
   );
-
   filteredApplications = computed(() => {
     const filterValue = (this.currentApplicationInput() || '').toLowerCase();
-    const apps = this.availableApplications();
-    return apps.filter(app => app.toLowerCase().includes(filterValue));
+    return this.availableApplications().filter(app => app.toLowerCase().includes(filterValue));
   });
 
-  // -- Sélection Cluster & Node --
+  // --- NOUVEAU : AUTOCOMPLETE : MODÈLE ---
+  currentModelInput = toSignal(
+    this.reservationForm.get('modelName')!.valueChanges.pipe(startWith('')),
+    {initialValue: ''}
+  );
+  filteredModels = computed(() => {
+    const filterValue = (this.currentModelInput() || '').toLowerCase();
+    // On filtre la liste des modèles IA (AiModel) par leur nom
+    return this.availableModels().filter(m => m.name.toLowerCase().includes(filterValue));
+  });
+
+
+  // --- SÉLECTION CLUSTER & NODE ---
   selectedClusterName = toSignal(
     this.reservationForm.get('cluster')!.valueChanges.pipe(startWith('')),
     { initialValue: '' }
   );
-
   selectedNodeName = toSignal(
     this.reservationForm.get('node')!.valueChanges.pipe(startWith('')),
     { initialValue: '' }
   );
 
-  // -- Valeurs demandées (pour les calculs de jauge) --
+  // --- VALEURS DEMANDÉES ---
   requestedGpus = toSignal(
     this.reservationForm.get('gpusRequested')!.valueChanges.pipe(startWith(1)),
     { initialValue: 1 }
@@ -97,11 +107,10 @@ export class NamespaceCreatorComponent implements OnInit {
     { initialValue: 1 }
   );
 
-  // 6. Calculs (Computed)
+  // --- CALCULS (COMPUTED) ---
   selectedCluster = computed(() =>
     this.clusters().find(c => c.cluster_name === this.selectedClusterName())
   );
-
   availableNodes = computed(() => {
     const cluster = this.selectedCluster();
     return cluster ? Object.entries(cluster.nodes).map(([name, metrics]) => ({
@@ -109,7 +118,6 @@ export class NamespaceCreatorComponent implements OnInit {
       metrics: metrics as NodeMetrics
     })) : [];
   });
-
   selectedNodeMetrics = computed(() => {
     const cluster = this.selectedCluster();
     const nodeName = this.selectedNodeName();
@@ -119,29 +127,26 @@ export class NamespaceCreatorComponent implements OnInit {
     return null;
   });
 
-  // -- Disponibilité Brute --
+  // Disponibilité
   rawGpusAvailable = computed(() => {
     const metrics = this.selectedNodeMetrics();
     return metrics ? Math.max(0, metrics.physical_gpus - metrics.reserved_gpus) : 0;
   });
-
   rawMemoryAvailable = computed(() => {
     const metrics = this.selectedNodeMetrics();
     return metrics ? Math.max(0, metrics.total_memory_gb - metrics.reserved_memory_gb) : 0;
   });
-
   rawCpuAvailable = computed(() => {
     const metrics = this.selectedNodeMetrics();
     return metrics ? Math.max(0, metrics.total_cpu_cores - metrics.reserved_cpu_cores) : 0;
   });
 
-  // -- Disponibilité Projetée (Restante après réservation) --
+  // Projeté
   projectedGpus = computed(() => Math.max(0, this.rawGpusAvailable() - (this.requestedGpus() || 0)));
   projectedMemory = computed(() => Math.max(0, this.rawMemoryAvailable() - (this.requestedMemory() || 0)));
   projectedCpu = computed(() => Math.max(0, this.rawCpuAvailable() - (this.requestedCpu() || 0)));
 
   constructor() {
-    // Gestion activation/désactivation champ Node
     effect(() => {
       const clusterName = this.selectedClusterName();
       const nodeControl = this.reservationForm.get('node');
@@ -153,7 +158,6 @@ export class NamespaceCreatorComponent implements OnInit {
       }
     }, { allowSignalWrites: true });
 
-    // Validation dynamique des quotas
     effect(() => {
       this.updateValidation('gpusRequested', this.rawGpusAvailable());
       this.updateValidation('memoryRequest', this.rawMemoryAvailable());
@@ -161,26 +165,31 @@ export class NamespaceCreatorComponent implements OnInit {
     });
   }
 
-  // Initialisation : Récupération des paramètres d'URL (Provisionnement depuis Catalogue)
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      const appName = params['app'];
+      const appName = params['app']; // Nom du modèle venant du catalogue
       const vram = params['vram'];
+      const type = params['type'];
 
       if (appName) {
-        this.reservationForm.patchValue({application: appName});
+        // Logique intelligente :
+        // 1. On met le nom du modèle dans le champ "Modèle"
+        this.reservationForm.patchValue({modelName: appName});
 
-        // Logique : Si le modèle a besoin de VRAM, on suggère de la RAM système (x1.5)
+        // 2. On essaie de deviner l'Application générique selon le type
+        let genericApp = 'Autre';
+        if (type === 'IDE') genericApp = 'Jupyter Lab';
+        else if (type === 'LLM') genericApp = 'Triton Inference Server';
+        else if (type === 'Vision') genericApp = 'Stable Diffusion';
+
+        this.reservationForm.patchValue({application: genericApp});
+
+        // 3. Ajustement RAM
         if (vram) {
           const vramNum = Number(vram);
           const suggestedRam = Math.ceil(vramNum * 1.5);
           this.reservationForm.patchValue({memoryRequest: suggestedRam});
-
-          this.snackBar.open(
-            `Modèle sélectionné : ${appName} (RAM ajustée à ${suggestedRam} Go)`,
-            'Ok',
-            {duration: 4000}
-          );
+          this.snackBar.open(`Modèle ${appName} sélectionné. RAM ajustée.`, 'Ok', {duration: 3000});
         }
       }
     });
@@ -189,7 +198,6 @@ export class NamespaceCreatorComponent implements OnInit {
   private updateValidation(controlName: string, max: number) {
     const control = this.reservationForm.get(controlName);
     if (control) {
-      // On garde min(1) mais on met à jour le max dynamiquement
       control.setValidators([Validators.required, Validators.min(1), Validators.max(max)]);
       control.updateValueAndValidity({ emitEvent: false });
     }

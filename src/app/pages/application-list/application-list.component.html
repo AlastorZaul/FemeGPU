@@ -3,7 +3,7 @@
     <mat-card-header>
       <mat-icon mat-card-avatar style="color: #004192">apps</mat-icon>
       <mat-card-title>Liste des Applications</mat-card-title>
-      <mat-card-subtitle>Vue regroupée par application</mat-card-subtitle>
+      <mat-card-subtitle>Vue regroupée par type d'application</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -11,7 +11,7 @@
       <div class="filters-container" style="margin-bottom: 16px;">
         <mat-form-field appearance="outline" style="width: 100%;">
           <mat-label>Rechercher une application...</mat-label>
-          <input (ngModelChange)="searchText.set($event)" [ngModel]="searchText()" matInput placeholder="Ex: Llama">
+          <input matInput [ngModel]="searchText()" (ngModelChange)="searchText.set($event)" placeholder="Ex: Jupyter">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </div>
@@ -26,24 +26,9 @@
 
                   <div class="title-section">
                     <mat-panel-title class="app-panel-title">
-                      @if (app.modelDetails?.type === 'IDE') {
-                        <mat-icon class="type-icon ide">code</mat-icon>
-                      } @else if (app.modelDetails?.type === 'LLM') {
-                        <mat-icon class="type-icon llm">chat</mat-icon>
-                      } @else {
-                        <mat-icon class="type-icon default">folder_special</mat-icon>
-                      }
-
+                      <mat-icon style="color: #64748b; margin-right: 8px;">folder_special</mat-icon>
                       <span>{{ app.applicationName }}</span>
-
-                      @if (app.modelDetails) {
-                        <span class="type-badge">{{ app.modelDetails.type }}</span>
-                      }
                     </mat-panel-title>
-
-                    @if (app.modelDetails?.description) {
-                      <div class="app-desc">{{ app.modelDetails?.description }}</div>
-                    }
                   </div>
 
                   <div class="stats-section">
@@ -62,9 +47,19 @@
                        [class.status-active]="ns.isActive"
                        [class.status-inactive]="!ns.isActive"
                        [matTooltip]="'Cluster: ' + ns.clusterName + ' | Nœud: ' + ns.nodeName">
+
                     <mat-icon>{{ ns.isActive ? 'check_circle' : 'highlight_off' }}</mat-icon>
-                    <span class="ns-name">{{ ns.namespace }}</span>
+
+                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                      <span class="ns-name">{{ ns.namespace }}</span>
+
+                      @if (ns.modelName) {
+                        <span class="model-name">Model: {{ ns.modelName }}</span>
+                      }
+                    </div>
+
                     <span class="ns-details">{{ ns.gpusRequested }} GPU</span>
+
                   </div>
                 }
               </div>

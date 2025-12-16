@@ -181,3 +181,22 @@ mat-accordion {
   display: flex; flex-direction: column; align-items: center; padding: 4rem; color: #94a3b8;
   mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 1rem; color: #cbd5e1; }
 }
+
+.namespace-badge {
+  // Ajustement pour permettre le texte sur deux lignes
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  // ...
+
+  .ns-name {
+    font-weight: 500;
+  }
+
+  // Style pour le nom du modèle
+  .model-name {
+    font-size: 0.75rem;
+    color: #64748b; // Gris ardoise
+    font-style: italic;
+  }
+}

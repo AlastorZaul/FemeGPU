@@ -11,7 +11,6 @@ import {MatInputModule} from '@angular/material/input';
 
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
 import {ClusterApiResponse, ReservationDetail} from '../../models/gpu.model';
-import {AiModel} from '../../models/aimodel.model';
 
 export interface FlatReservation extends ReservationDetail {
   clusterName: string;
@@ -21,13 +20,13 @@ export interface FlatReservation extends ReservationDetail {
 export interface ApplicationGroup {
   applicationName: string;
   totalGpus: number;
-  modelDetails?: AiModel; // <--- AJOUT : Pour stocker les infos du catalogue
   namespaces: {
     namespace: string;
     clusterName: string;
     nodeName: string;
     isActive: boolean;
     gpusRequested: number;
+    modelName?: string;
   }[];
 }
 
@@ -46,9 +45,7 @@ export class ApplicationListComponent {
   private gpuDataService = inject(GpuDataServiceMock);
 
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
-  private models: Signal<AiModel[]> = toSignal(this.gpuDataService.getAvailableModels(), {initialValue: []});
 
-  // Signal pour la recherche
   public searchText = signal('');
 
   public allReservations: Signal<FlatReservation[]> = computed(() => {
@@ -73,19 +70,17 @@ export class ApplicationListComponent {
 
   public applicationsList: Signal<ApplicationGroup[]> = computed(() => {
     const allRes = this.allReservations();
-    const availableModels = this.models();
     const search = this.searchText().toLowerCase();
 
+    // Groupement simple par nom d'application (qui est maintenant générique)
     const groups = allRes.reduce((acc, res) => {
-      const appName = res.application;
+      const appName = res.application; // Ex: "Jupyter Lab"
       let group = acc.get(appName);
 
       if (!group) {
-        const foundModel = availableModels.find(m => m.name === appName);
         group = {
           applicationName: appName,
           totalGpus: 0,
-          modelDetails: foundModel,
           namespaces: []
         };
         acc.set(appName, group);
@@ -97,7 +92,8 @@ export class ApplicationListComponent {
         clusterName: res.clusterName,
         nodeName: res.nodeName,
         isActive: res.isActive,
-        gpusRequested: res.gpusRequested
+        gpusRequested: res.gpusRequested,
+        modelName: res.modelName,
       });
 
       return acc;
@@ -105,12 +101,8 @@ export class ApplicationListComponent {
 
     let result = Array.from(groups.values());
 
-    // Filtrage par nom d'application
     if (search) {
-      result = result.filter(g =>
-        g.applicationName.toLowerCase().includes(search) ||
-        g.modelDetails?.type.toLowerCase().includes(search)
-      );
+      result = result.filter(g => g.applicationName.toLowerCase().includes(search));
     }
 
     return result.sort((a, b) => a.applicationName.localeCompare(b.applicationName));
