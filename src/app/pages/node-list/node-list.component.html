@@ -53,15 +53,19 @@
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef> Statut</th>
             <td mat-cell *matCellDef="let node">
-            <span class="status-badge" [ngClass]="node.statusClass">
+              <span [ngClass]="node.statusClass" class="status-badge">
+
                @if (node.statusClass.includes('en-ligne') || node.statusClass.includes('online')) {
                  <mat-icon>check_circle</mat-icon>
                } @else if (node.statusClass.includes('maintenance')) {
                  <mat-icon>build</mat-icon>
+               } @else if (node.statusClass.includes('blocked') || node.statusClass.includes('bloqué')) {
+                 <mat-icon>lock</mat-icon>
                } @else {
-                 <mat-icon>block</mat-icon>
+                 <mat-icon>help_outline</mat-icon>
                }
-              {{ node.metrics.status }}
+
+                {{ node.metrics.status }}
             </span>
             </td>
           </ng-container>

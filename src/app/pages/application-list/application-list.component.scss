@@ -70,6 +70,82 @@ mat-accordion {
   display: flex; flex-wrap: wrap; gap: 12px; padding: 16px 8px;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-right: 16px;
+}
+
+.title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0; // Reset
+}
+
+// Icônes colorées
+.type-icon {
+  &.ide {
+    color: #eca516;
+  }
+
+  // Orange pour Dev
+  &.llm {
+    color: #004192;
+  }
+
+  // Bleu pour LLM
+  &.default {
+    color: #64748b;
+  }
+}
+
+// Petit badge "LLM", "IDE" à côté du titre
+.type-badge {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+// Description sous le titre
+.app-desc {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-left: 36px; // Pour s'aligner sous le texte du titre (24px icone + 12px gap)
+  max-width: 500px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stats-section {
+  text-align: right;
+}
+
+.app-stats {
+  font-weight: 600;
+  color: #004192;
+  background-color: #e3f2fd;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+}
+
 // --- STYLE BADGE UNIFIÉ (Style Pilule) ---
 .namespace-badge {
   display: inline-flex;

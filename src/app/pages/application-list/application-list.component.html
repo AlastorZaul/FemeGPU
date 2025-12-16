@@ -8,35 +8,63 @@
 
     <mat-card-content>
 
+      <div class="filters-container" style="margin-bottom: 16px;">
+        <mat-form-field appearance="outline" style="width: 100%;">
+          <mat-label>Rechercher une application...</mat-label>
+          <input (ngModelChange)="searchText.set($event)" [ngModel]="searchText()" matInput placeholder="Ex: Llama">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+
       @if (applicationsList().length > 0) {
         <mat-accordion multi>
           @for (app of applicationsList(); track app.applicationName) {
 
             <mat-expansion-panel class="app-panel" hideToggle>
               <mat-expansion-panel-header>
-                <mat-panel-title class="app-panel-title">
-                  <mat-icon>folder_special</mat-icon>
-                  {{ app.applicationName }}
-                </mat-panel-title>
-                <mat-panel-description style="justify-content: flex-end;">
-                  <span class="app-stats">
-                    {{ app.totalGpus }} GPU • {{ app.namespaces.length }} Namespace{{ app.namespaces.length > 1 ? 's' : '' }}
-                  </span>
-                </mat-panel-description>
+                <div class="header-content">
+
+                  <div class="title-section">
+                    <mat-panel-title class="app-panel-title">
+                      @if (app.modelDetails?.type === 'IDE') {
+                        <mat-icon class="type-icon ide">code</mat-icon>
+                      } @else if (app.modelDetails?.type === 'LLM') {
+                        <mat-icon class="type-icon llm">chat</mat-icon>
+                      } @else {
+                        <mat-icon class="type-icon default">folder_special</mat-icon>
+                      }
+
+                      <span>{{ app.applicationName }}</span>
+
+                      @if (app.modelDetails) {
+                        <span class="type-badge">{{ app.modelDetails.type }}</span>
+                      }
+                    </mat-panel-title>
+
+                    @if (app.modelDetails?.description) {
+                      <div class="app-desc">{{ app.modelDetails?.description }}</div>
+                    }
+                  </div>
+
+                  <div class="stats-section">
+                     <span class="app-stats">
+                      {{ app.totalGpus }} GPU • {{ app.namespaces.length }}
+                       Namespace{{ app.namespaces.length > 1 ? 's' : '' }}
+                    </span>
+                  </div>
+
+                </div>
               </mat-expansion-panel-header>
 
               <div class="namespace-list">
                 @for (ns of app.namespaces; track ns.namespace) {
-
                   <div class="namespace-badge"
                        [class.status-active]="ns.isActive"
                        [class.status-inactive]="!ns.isActive"
                        [matTooltip]="'Cluster: ' + ns.clusterName + ' | Nœud: ' + ns.nodeName">
-
                     <mat-icon>{{ ns.isActive ? 'check_circle' : 'highlight_off' }}</mat-icon>
-                    <span>{{ ns.namespace }}</span>
+                    <span class="ns-name">{{ ns.namespace }}</span>
                     <span class="ns-details">{{ ns.gpusRequested }} GPU</span>
-
                   </div>
                 }
               </div>

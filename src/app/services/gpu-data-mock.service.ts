@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable, of, timer} from 'rxjs';
 import {delay, map, shareReplay} from 'rxjs/operators';
 import {ClusterApiResponse, NodeMetrics, ReservationDetail} from '../models/gpu.model';
+import {AiModel} from '../models/aimodel.model';
 
 // Interface pour le formulaire de réservation (MISE À JOUR)
 export interface NamespaceReservation {
@@ -38,121 +39,165 @@ const INITIAL_MOCK_DATA: ClusterApiResponse[] = [
   {
     total_physical_gpus: 12,
     cluster_name: 'HPI A',
-    total_virtual_gpus: 12,
-    total_used_gpus: 0,
-    global_gpu_usage_percent: 0,
-    total_memory_gb: 512,
-    total_cpu_cores: 128,
-    total_used_memory_gb: 0,
-    total_used_cpu_cores: 0,
+    // ... (autres champs inchangés)
+    total_virtual_gpus: 12, total_used_gpus: 0, global_gpu_usage_percent: 0,
+    total_memory_gb: 512, total_cpu_cores: 128, total_used_memory_gb: 0, total_used_cpu_cores: 0,
     nodes: {
       "A100": {
-        owner: 'Équipe IA',
-        status: 'En ligne',
+        owner: 'Équipe IA', status: 'En ligne',
         physical_gpus: 4, virtual_gpus: 4, reserved_gpus: 3, used_gpus: 3,
         used_mig_units: 0, gpu_usage_percent: 88,
-        total_memory_gb: 128,
-        reserved_memory_gb: 48,
-        total_cpu_cores: 32,
-        reserved_cpu_cores: 12,
+        total_memory_gb: 128, reserved_memory_gb: 48, total_cpu_cores: 32, reserved_cpu_cores: 12,
         reservations: [
           {
             namespace: 'alpha-train',
-            application: 'Jupyter Notebook', // Mis à jour
-            gpusRequested: 2,
-            memoryRequest: 32,
-            cpuRequest: 8,
-            createdAt: new Date(Date.now() - 3600000),
-            isActive: true
-          },
-          {
-            namespace: 'alpha-train',
-            application: 'PyTorch Job', // Mis à jour
-            gpusRequested: 1,
-            memoryRequest: 16,
-            cpuRequest: 4,
-            createdAt: new Date(Date.now() - 7200000),
-            isActive: true
+            application: 'Jupyter + PyTorch 2.0', // Nom mis à jour
+            gpusRequested: 2, memoryRequest: 32, cpuRequest: 8,
+            createdAt: new Date(Date.now() - 3600000), isActive: true
           }
         ]
       },
       "H200": {
-        owner: 'Infrastructure',
-        status: 'Maintenance',
+        owner: 'Infrastructure', status: 'Maintenance',
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 2, used_gpus: 1,
         used_mig_units: 0, gpu_usage_percent: 13,
-        total_memory_gb: 256,
-        reserved_memory_gb: 64,
-        total_cpu_cores: 64,
-        reserved_cpu_cores: 16,
+        total_memory_gb: 256, reserved_memory_gb: 64, total_cpu_cores: 64, reserved_cpu_cores: 16,
         reservations: [
           {
             namespace: 'beta-inference',
-            application: 'Triton Inference Server', // Mis à jour
-            gpusRequested: 2,
-            memoryRequest: 64,
-            cpuRequest: 16,
-            createdAt: new Date(Date.now() - 86400000),
-            isActive: false
+            application: 'Llama 3 70B Instruct', // Nom mis à jour
+            gpusRequested: 2, memoryRequest: 64, cpuRequest: 16,
+            createdAt: new Date(Date.now() - 86400000), isActive: false
           }
         ]
       },
     }
   },
-  // ... (Le reste du cluster HPI B peut rester inchangé ou être mis à jour de la même façon) ...
   {
     total_physical_gpus: 16,
     cluster_name: 'HPI B',
-    total_virtual_gpus: 16,
-    total_used_gpus: 0,
-    global_gpu_usage_percent: 0,
-    total_memory_gb: 1024,
-    total_cpu_cores: 256,
-    total_used_memory_gb: 0,
-    total_used_cpu_cores: 0,
+    // ... (autres champs inchangés)
+    total_virtual_gpus: 16, total_used_gpus: 0, global_gpu_usage_percent: 0,
+    total_memory_gb: 1024, total_cpu_cores: 256, total_used_memory_gb: 0, total_used_cpu_cores: 0,
     nodes: {
       "H200": {
-        owner: 'Mistral',
-        status: 'Blocked',
+        owner: 'Mistral', status: 'Blocked',
         physical_gpus: 8, virtual_gpus: 8, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
-        total_memory_gb: 512,
-        reserved_memory_gb: 80,
-        total_cpu_cores: 128,
-        reserved_cpu_cores: 32,
+        total_memory_gb: 512, reserved_memory_gb: 80, total_cpu_cores: 128, reserved_cpu_cores: 32,
         reservations: [
           {
             namespace: 'data-science',
-            application: 'LLM Training', // Mis à jour
-            gpusRequested: 4,
-            memoryRequest: 64,
-            cpuRequest: 24,
-            createdAt: new Date(Date.now() - 1800000),
-            isActive: true
-          },
-          {
-            namespace: 'data-science',
-            application: 'TensorFlow Job', // Mis à jour
-            gpusRequested: 1,
-            memoryRequest: 16,
-            cpuRequest: 8,
-            createdAt: new Date(Date.now() - 3600000),
-            isActive: true
+            application: 'Mixtral 8x7B (MoE)', // Nom mis à jour
+            gpusRequested: 4, memoryRequest: 64, cpuRequest: 24,
+            createdAt: new Date(Date.now() - 1800000), isActive: true
           }
         ]
       },
       "L40S": {
-        owner: 'Data Science',
-        status: 'En Ligne',
+        owner: 'Data Science', status: 'En Ligne',
         physical_gpus: 4, virtual_gpus: 4, reserved_gpus: 0, used_gpus: 0,
         used_mig_units: 0, gpu_usage_percent: 0,
-        total_memory_gb: 512,
-        reserved_memory_gb: 0,
-        total_cpu_cores: 128,
-        reserved_cpu_cores: 0,
+        total_memory_gb: 512, reserved_memory_gb: 0, total_cpu_cores: 128, reserved_cpu_cores: 0,
         reservations: []
       }
     }
+  }
+];
+
+export const MOCK_AI_MODELS: AiModel[] = [
+  // --- Environnements de Développement (IDE) ---
+  {
+    id: 'jupyter-lab-std',
+    name: 'Jupyter Lab Standard',
+    type: 'IDE',
+    description: 'Environnement Python générique (NumPy, Pandas).',
+    vramRequiredGb: 2,
+    source: 'Interne',
+    tags: ['Dev', 'Python', 'CPU']
+  },
+  {
+    id: 'jupyter-pytorch',
+    name: 'Jupyter + PyTorch 2.0',
+    type: 'IDE',
+    description: 'Notebook optimisé pour le Deep Learning avec CUDA 12.',
+    vramRequiredGb: 8,
+    source: 'NVIDIA NGC',
+    tags: ['Dev', 'AI', 'PyTorch']
+  },
+  {
+    id: 'jupyter-tensorflow',
+    name: 'Jupyter + TensorFlow',
+    type: 'IDE',
+    description: 'Environnement complet pour TensorFlow / Keras.',
+    vramRequiredGb: 8,
+    source: 'Google',
+    tags: ['Dev', 'AI', 'TensorFlow']
+  },
+  {
+    id: 'vscode-server',
+    name: 'VS Code Server',
+    type: 'IDE',
+    description: 'IDE complet accessible via navigateur.',
+    vramRequiredGb: 4,
+    source: 'Microsoft',
+    tags: ['Dev', 'IDE', 'Code']
+  },
+
+  // --- Modèles LLM & IA ---
+  {
+    id: 'llama-3-8b',
+    name: 'Llama 3 8B Instruct',
+    type: 'LLM',
+    description: 'Modèle rapide pour assistants et tâches simples.',
+    vramRequiredGb: 16,
+    source: 'Meta',
+    tags: ['NLP', 'Chat', 'Fast']
+  },
+  {
+    id: 'llama-3-70b',
+    name: 'Llama 3 70B Instruct',
+    type: 'LLM',
+    description: 'Modèle haute performance pour raisonnement complexe.',
+    vramRequiredGb: 48,
+    source: 'Meta',
+    tags: ['NLP', 'Reasoning', 'High-VRAM']
+  },
+  {
+    id: 'mistral-7b',
+    name: 'Mistral 7B v0.3',
+    type: 'LLM',
+    description: 'Modèle très efficient avec fenêtre de contexte étendue.',
+    vramRequiredGb: 14,
+    source: 'Mistral AI',
+    tags: ['NLP', 'Efficient']
+  },
+  {
+    id: 'mixtral-8x7b',
+    name: 'Mixtral 8x7B (MoE)',
+    type: 'LLM',
+    description: 'Mixture of Experts, rivalise avec GPT-3.5.',
+    vramRequiredGb: 32,
+    source: 'Mistral AI',
+    tags: ['NLP', 'MoE', 'Advanced']
+  },
+  {
+    id: 'stable-diffusion-xl',
+    name: 'Stable Diffusion XL',
+    type: 'Vision',
+    description: 'Génération d\'images photoréalistes.',
+    vramRequiredGb: 12,
+    source: 'Stability AI',
+    tags: ['Image', 'GenAI']
+  },
+  {
+    id: 'whisper-large',
+    name: 'Whisper Large v3',
+    type: 'Audio',
+    description: 'Transcription audio multilingue précise.',
+    vramRequiredGb: 10,
+    source: 'OpenAI',
+    tags: ['Audio', 'ASR']
   }
 ];
 
@@ -165,6 +210,10 @@ export class GpuDataServiceMock {
 
   getAvailableApplications(): Observable<string[]> {
     return of(MOCK_APPLICATIONS_LIST);
+  }
+
+  getAvailableModels(): Observable<AiModel[]> {
+    return of(MOCK_AI_MODELS).pipe(delay(500)); // Simule un petit délai réseau
   }
 
   private saveDataToLocalStorage(): void {

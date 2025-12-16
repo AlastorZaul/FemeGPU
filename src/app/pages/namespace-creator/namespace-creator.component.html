@@ -54,13 +54,20 @@
 
         <mat-form-field appearance="outline">
           <mat-label>Application</mat-label>
-          <mat-select formControlName="application">
-            @for (app of availableApplications(); track app) {
+          <input [matAutocomplete]="auto"
+                 formControlName="application"
+                 matInput
+                 placeholder="Rechercher une application..."
+                 type="text">
+
+          <mat-autocomplete #auto="matAutocomplete">
+            @for (app of filteredApplications(); track app) {
               <mat-option [value]="app">{{ app }}</mat-option>
             }
-          </mat-select>
+          </mat-autocomplete>
+
           @if (reservationForm.get('application')?.hasError('required') && reservationForm.get('application')?.touched) {
-            <mat-error>Veuillez sélectionner une application.</mat-error>
+            <mat-error>Veuillez sélectionner ou saisir une application.</mat-error>
           }
         </mat-form-field>
 

@@ -1,4 +1,4 @@
-import {Component, computed, inject, Signal, ChangeDetectionStrategy, signal} from '@angular/core'; // 1. Import ChangeDetectionStrategy
+import {ChangeDetectionStrategy, Component, computed, inject, Signal, signal} from '@angular/core'; // 1. Import ChangeDetectionStrategy
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
@@ -49,7 +49,7 @@ export class NodeListComponent {
         if (metrics.gpu_usage_percent > 90) cssClass = 'usage-high';
         else if (metrics.gpu_usage_percent > 70) cssClass = 'usage-medium';
 
-        const statusSlug = (metrics.status || 'En ligne').toLowerCase().replace('', '-');
+        const statusSlug = (metrics.status || 'En ligne').toLowerCase().replace(' ', '-');
         const statusClass = `status-${statusSlug}`;
 
         nodes.push({

@@ -1,17 +1,17 @@
-import { Component, computed, inject, Signal, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import {Component, computed, inject, Signal, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {toSignal} from '@angular/core/rxjs-interop';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {FormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 
-import { GpuDataServiceMock } from '../../services/gpu-data-mock.service';
-import { ClusterApiResponse, ReservationDetail } from '../../models/gpu.model';
-import { RouterLink } from '@angular/router';
+import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+import {ClusterApiResponse, ReservationDetail} from '../../models/gpu.model';
+import {AiModel} from '../../models/aimodel.model';
 
 export interface FlatReservation extends ReservationDetail {
   clusterName: string;
@@ -21,6 +21,7 @@ export interface FlatReservation extends ReservationDetail {
 export interface ApplicationGroup {
   applicationName: string;
   totalGpus: number;
+  modelDetails?: AiModel; // <--- AJOUT : Pour stocker les infos du catalogue
   namespaces: {
     namespace: string;
     clusterName: string;
@@ -36,7 +37,7 @@ export interface ApplicationGroup {
   imports: [
     CommonModule,
     MatCardModule, MatIconModule, MatExpansionModule, MatTooltipModule,
-    RouterLink, FormsModule, MatFormFieldModule, MatInputModule
+    FormsModule, MatFormFieldModule, MatInputModule
   ],
   templateUrl: './application-list.component.html',
   styleUrls: ['./application-list.component.scss']
@@ -45,6 +46,7 @@ export class ApplicationListComponent {
   private gpuDataService = inject(GpuDataServiceMock);
 
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
+  private models: Signal<AiModel[]> = toSignal(this.gpuDataService.getAvailableModels(), {initialValue: []});
 
   // Signal pour la recherche
   public searchText = signal('');
@@ -71,6 +73,7 @@ export class ApplicationListComponent {
 
   public applicationsList: Signal<ApplicationGroup[]> = computed(() => {
     const allRes = this.allReservations();
+    const availableModels = this.models();
     const search = this.searchText().toLowerCase();
 
     const groups = allRes.reduce((acc, res) => {
@@ -78,7 +81,13 @@ export class ApplicationListComponent {
       let group = acc.get(appName);
 
       if (!group) {
-        group = { applicationName: appName, totalGpus: 0, namespaces: [] };
+        const foundModel = availableModels.find(m => m.name === appName);
+        group = {
+          applicationName: appName,
+          totalGpus: 0,
+          modelDetails: foundModel,
+          namespaces: []
+        };
         acc.set(appName, group);
       }
 
@@ -98,7 +107,10 @@ export class ApplicationListComponent {
 
     // Filtrage par nom d'application
     if (search) {
-      result = result.filter(g => g.applicationName.toLowerCase().includes(search));
+      result = result.filter(g =>
+        g.applicationName.toLowerCase().includes(search) ||
+        g.modelDetails?.type.toLowerCase().includes(search)
+      );
     }
 
     return result.sort((a, b) => a.applicationName.localeCompare(b.applicationName));

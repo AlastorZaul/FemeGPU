@@ -8,6 +8,7 @@ import {NamespaceCreatorComponent} from './pages/namespace-creator/namespace-cre
 import {ReservationListComponent} from './pages/reservation-list/reservation-list.component';
 import {ApplicationListComponent} from './pages/application-list/application-list.component';
 import {roleGuard} from './services/role.guard';
+import {ModelListComponent} from './pages/model-list/model-list.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -48,6 +49,15 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: {
           breadcrumb: 'Créer un Namespace',
+          roles: ['ADMIN', 'USER']
+        }
+      },
+      {
+        path: 'models',
+        component: ModelListComponent,
+        canActivate: [roleGuard], // Protection activée
+        data: {
+          breadcrumb: 'Catalogue Modèles',
           roles: ['ADMIN', 'USER']
         }
       },

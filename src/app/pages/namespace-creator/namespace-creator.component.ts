@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, signal, Signal} from '@angular/core';
+import {Component, computed, effect, inject, OnInit, signal, Signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {toSignal} from '@angular/core/rxjs-interop';
@@ -9,8 +9,8 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
-import {Router} from '@angular/router';
-import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ClusterApiResponse} from '../../models/gpu.model';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatDividerModule} from '@angular/material/divider';
 import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
@@ -18,6 +18,7 @@ import {startWith} from 'rxjs/operators'; // IMPORTANT : pour initialiser les va
 import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.component';
 import {NamespaceReservation} from '../../services/gpu-data.service';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-namespace-creator',
@@ -26,16 +27,21 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatButtonModule, MatIconModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatDividerModule, CustomGaugeComponent,
-    MatSlideToggleModule
+    MatSlideToggleModule, MatAutocompleteModule
   ],
   templateUrl: './namespace-creator.component.html',
   styleUrls: ['./namespace-creator.component.scss']
 })
-export class NamespaceCreatorComponent {
+export class NamespaceCreatorComponent implements OnInit {
   private fb = inject(FormBuilder);
   private gpuDataService = inject(GpuDataServiceMock);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  // AJOUTER : Signal pour capter la saisie dans le champ Application
+  currentApplicationInput = toSignal(
+    this.reservationForm.get('application')!.valueChanges.pipe(startWith('')),
+    {initialValue: ''}
+  );
 
   public isSubmitting = signal(false);
   clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
@@ -77,6 +83,13 @@ export class NamespaceCreatorComponent {
     this.reservationForm.get('cpuRequest')!.valueChanges.pipe(startWith(1)),
     { initialValue: 1 }
   );
+  // AJOUTER : Signal calculé pour filtrer la liste des applications
+  filteredApplications = computed(() => {
+    const filterValue = (this.currentApplicationInput() || '').toLowerCase();
+    const apps = this.availableApplications();
+    return apps.filter(app => app.toLowerCase().includes(filterValue));
+  });
+  private route = inject(ActivatedRoute);
 
   // 5. Calculs des métriques du nœud sélectionné
   selectedCluster = computed(() =>
@@ -136,6 +149,38 @@ export class NamespaceCreatorComponent {
       this.updateValidation('gpusRequested', this.rawGpusAvailable());
       this.updateValidation('memoryRequest', this.rawMemoryAvailable());
       this.updateValidation('cpuRequest', this.rawCpuAvailable());
+    });
+  }
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const appName = params['app'];
+      const vram = params['vram'];
+
+      if (appName) {
+        // 1. Pré-remplir le nom de l'application
+        this.reservationForm.patchValue({application: appName});
+        this.reservationForm.get('application')?.markAsTouched(); // Pour valider visuellement
+
+        // 2. Logique intelligente pour la RAM système (Optionnel)
+        // Si le modèle demande beaucoup de VRAM (ex: 48Go), il aura besoin de RAM système conséquente.
+        if (vram) {
+          const vramNum = Number(vram);
+          // Règle arbitraire : On propose par défaut 1.5x la VRAM en RAM système
+          const suggestedRam = Math.ceil(vramNum * 1.5);
+
+          this.reservationForm.patchValue({
+            memoryRequest: suggestedRam
+          });
+
+          // Notification discrète pour l'utilisateur
+          this.snackBar.open(
+            `Modèle ${appName} détecté : RAM ajustée à ${suggestedRam} Go`,
+            'Ok',
+            {duration: 3000}
+          );
+        }
+      }
     });
   }
 

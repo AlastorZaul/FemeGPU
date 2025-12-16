@@ -1,0 +1,67 @@
+<div class="list-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-icon mat-card-avatar style="color: #004192">model_training</mat-icon>
+      <mat-card-title>Catalogue de Modèles IA</mat-card-title>
+      <mat-card-subtitle>Modèles validés prêts à être déployés</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (models().length > 0) {
+        <div class="table-responsive">
+          <table [dataSource]="models()" class="mat-elevation-z0" mat-table>
+
+            <ng-container matColumnDef="name">
+              <th *matHeaderCellDef mat-header-cell> Modèle</th>
+              <td *matCellDef="let element" mat-cell>
+                <div style="font-weight: 600; color: #004192;">{{ element.name }}</div>
+                <div style="font-size: 0.75em; color: gray;">{{ element.source }}</div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+              <th *matHeaderCellDef mat-header-cell> Type</th>
+              <td *matCellDef="let element" mat-cell>
+                <mat-chip-set>
+                  <mat-chip>{{ element.type }}</mat-chip>
+                </mat-chip-set>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="vram">
+              <th *matHeaderCellDef mat-header-cell> VRAM</th>
+              <td *matCellDef="let element" mat-cell>
+                <span style="font-weight: 700;">{{ element.vramRequiredGb }} Go</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="description">
+              <th *matHeaderCellDef mat-header-cell> Description</th>
+              <td *matCellDef="let element" mat-cell>
+                <span class="description-text">{{ element.description }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th *matHeaderCellDef align="end" mat-header-cell></th>
+              <td *matCellDef="let element" mat-cell>
+                <button (click)="onProvision(element)" class="action-button" mat-flat-button>
+                  <mat-icon>cloud_upload</mat-icon>
+                  Provisionner
+                </button>
+              </td>
+            </ng-container>
+
+            <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
+          </table>
+        </div>
+      } @else {
+        <div style="padding: 4rem; text-align: center; color: #94a3b8;">
+          <mat-spinner diameter="40" style="margin: 0 auto 1rem auto;"></mat-spinner>
+          <p>Chargement du catalogue...</p>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
