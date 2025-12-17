@@ -6,10 +6,9 @@ import {provideAnimations} from '@angular/platform-browser/animations';
 import {routes} from './app.routes';
 import {GpuDataService} from './services/gpu-data.service';
 import {GatewayDataService} from './services/gateway-data.service';
-import {gatewayDataServiceFactory, gpuDataServiceFactory} from './services/service-factory.service';
 
-console.log('🚀 [DEBUG] Le fichier app.config.ts est bien chargé !');
-
+// On importe les factories
+import {gatewayDataServiceFactory, gpuDataServiceFactory} from './services/service-factory';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,16 +17,14 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideAnimations(),
 
-    // --- C'EST ICI QUE TOUT SE JOUE ---
-
-    // 1. Configuration pour le service GPU
+    // --- CONFIGURATION DU GPU SERVICE ---
     {
-      provide: GpuDataService,
-      useFactory: gpuDataServiceFactory, // <-- Doit utiliser la Factory !
-      deps: [HttpClient]                 // <-- Nécessaire pour passer 'http'
+      provide: GpuDataService,        // Quand un composant demande "GpuDataService"
+      useFactory: gpuDataServiceFactory, // Angular exécute cette fonction
+      deps: [HttpClient]              // Avec cette dépendance
     },
 
-    // 2. Configuration pour le service Gateway
+    // --- CONFIGURATION DU GATEWAY SERVICE ---
     {
       provide: GatewayDataService,
       useFactory: gatewayDataServiceFactory,

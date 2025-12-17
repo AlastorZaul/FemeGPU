@@ -4,22 +4,24 @@ import {GpuDataServiceMock} from './gpu-data-mock.service';
 import {GatewayDataService} from './gateway-data.service';
 import {GatewayDataMockService} from './gateway-data-mock.service';
 
-function shouldUseMock(): boolean {
+export function shouldUseMock(): boolean {
   const localForce = localStorage.getItem('FORCE_MOCK');
-  console.log('[Factory] Valeur de FORCE_MOCK :', localForce); // <-- LOG DEBUG
+  console.log('%c[Factory] Vérification du mode...', 'color: blue; font-weight: bold;');
+  console.log(`[Factory] Valeur de FORCE_MOCK dans localStorage : "${localForce}"`);
 
   if (localForce === 'true') return true;
   if (localForce === 'false') return false;
 
-  return false; // Par défaut : Réel
+  // Par défaut : Mock (changez à false si vous voulez le Live par défaut)
+  return true;
 }
 
 export function gpuDataServiceFactory(http: HttpClient) {
   if (shouldUseMock()) {
-    console.log('🏭 [Factory] Création du service GPU : MOCK');
+    console.warn('⚡ [Factory] Retourne : MOCK Service (GPU)');
     return new GpuDataServiceMock();
   }
-  console.log('🏭 [Factory] Création du service GPU : LIVE API');
+  console.log('🌐 [Factory] Retourne : LIVE Service (GPU)');
   return new GpuDataService(http);
 }
 

@@ -29,6 +29,7 @@ export interface FlatReservation extends ReservationDetail {
 })
 export class GpuDataService implements IGpuDataService {
   constructor(private http: HttpClient) {
+    console.log('%c✅ SERVICE RÉEL (HTTP) INSTANCIÉ', 'background: green; color: white; padding: 4px; font-size: 14px');
   }
   // Préfixe de l'API (à configurer dans proxy.conf.json pour le dev)
   private readonly apiUrl = '/api';

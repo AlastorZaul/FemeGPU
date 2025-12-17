@@ -221,6 +221,7 @@ export class GpuDataServiceMock implements IGpuDataService {
 
   constructor() {
     this.mockClusters = this.loadDataFromLocalStorage();
+    console.log('%c⚠️ SERVICE MOCK INSTANCIÉ', 'background: orange; color: black; padding: 4px; font-size: 14px');
   }
 
   // 3. RETOUR ARRIÈRE : Retourne la liste simple des applications génériques
