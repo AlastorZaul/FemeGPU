@@ -1,120 +1,117 @@
+// Variables LBP (Thème commun)
 $lbp-blue: #004192;
+$lbp-green: #15803d;
+$lbp-red: #dc2626;
+$lbp-bg-light: #f8fafc;
 
 .list-container {
-  max-width: 1200px;
-  margin: 2rem auto;
+  padding: 2rem;
+  background-color: $lbp-bg-light;
+  min-height: 100%;
+}
 
-  table {
-    width: 100%;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+mat-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+mat-card-header {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 1rem;
+  margin-bottom: 0; // Reset pour coller au content
+
+  mat-card-title {
+    color: $lbp-blue;
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
+}
+
+.filters-container {
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 0; // Géré par le padding du container
+}
+
+// Conteneur pour le scroll horizontal du tableau
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  background: white;
+  min-width: 1000px; // Force le scroll si l'écran est trop petit
+  border-radius: 0;
+  box-shadow: none; // On retire l'ombre du tableau car la card en a une
 
   th.mat-header-cell {
     font-weight: 600;
-    color: $lbp-blue; // En-têtes bleus
+    color: $lbp-blue;
     padding: 16px;
+    white-space: nowrap;
+    border-bottom: 2px solid #f1f5f9;
+    background-color: #fff;
   }
 
   td.mat-cell {
     padding: 12px 16px;
     color: #334155;
-  }
-
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    color: #94a3b8;
-
-    mat-icon {
-      font-size: 4rem;
-      width: 4rem;
-      height: 4rem;
-      margin-bottom: 1.5rem;
-      color: #cbd5e1;
-    }
-
-    p {
-      font-size: 1.1rem;
-      margin: 0.25rem 0;
-    }
+    white-space: nowrap;
+    border-bottom: 1px solid #f1f5f9;
   }
 }
+
+// --- Styles spécifiques aux status (Switchs et Chips) ---
 
 .status-chip {
-  padding: 6px 12px !important;
-  border-radius: 6px !important;
-  font-weight: 600;
-  font-size: 0.85rem;
-  border: 1px solid transparent;
+  // Votre style existant peut être conservé ou simplifié ici
+  // Pour le switch dans le tableau, le style par défaut Material suffit souvent
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #94a3b8;
 
   mat-icon {
-    font-size: 18px;
-    height: 18px;
-    width: 18px;
-    margin-right: 6px;
-    margin-left: -2px;
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1.5rem;
+    color: #cbd5e1;
   }
 
-  // Style pour "Actif" (Remplacement du primary Indigo par le Bleu LBP)
-  &.mat-mdc-chip-highlighted.mat-primary {
-    background-color: rgba(0, 65, 146, 0.1) !important; // Bleu très clair
-    color: $lbp-blue !important;
-
-    // On force les variables CSS locales si Material utilise celles-ci
-    --mdc-chip-elevated-container-color: #e3f2fd;
-    --mdc-chip-label-text-color: #004192;
-
-    mat-icon {
-      color: $lbp-blue;
-    }
-  }
-
-  // Style pour "Inactif" (warn)
-  &.mat-warn {
-    background-color: #fee2e2 !important;
-    color: #dc2626 !important;
-
-    --mdc-chip-elevated-container-color: #fee2e2;
-    --mdc-chip-label-text-color: #dc2626;
-  }
-
-  // Style pour "Terminé" (accent)
-  &.mat-accent {
-    background-color: #e0f7fa !important; // Bleu très clair, presque blanc
-    color: #00796b !important; // Vert-bleu foncé
-
-    // On force les variables CSS locales si Material utilise celles-ci
-    --mdc-chip-elevated-container-color: #e0f7fa;
-    --mdc-chip-label-text-color: #00796b;
+  p {
+    font-size: 1.1rem;
+    margin: 0.25rem 0;
   }
 }
 
-@media (max-width: 1200px) {
-
-  // 1. Masquer les colonnes de détails techniques
-  .mat-column-clusterName,    // Cluster
-  .mat-column-nodeName,       // Nœud
-  .mat-column-memoryRequest,  // RAM demandée
-  .mat-column-cpuRequest,     // CPU demandé
-  .mat-column-createdAt {     // Date de création
-    display: none !important;
+// Responsive : Ajustements pour mobile
+@media (max-width: 600px) {
+  .list-container {
+    padding: 1rem;
   }
 
-  // 2. Adapter le tableau
-  table {
-    min-width: 100% !important;
-  }
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
 
-  th.mat-header-cell, td.mat-cell {
-    padding: 0 10px;
+    mat-form-field {
+      width: 100% !important;
+      min-width: unset !important;
+    }
   }
-
-  // 3. Garder l'essentiel visible et lisible
-  .mat-column-status { width: 80px; } // Fixe la largeur du switch
-  .mat-column-actions { width: 60px; text-align: right; }
 }

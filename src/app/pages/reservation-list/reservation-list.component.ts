@@ -157,6 +157,9 @@ export class ReservationListComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (!result) return;
+      if (result.action === 'deploy') {
+        this.onDeployReservation(reservation);
+      }
       if (result.action === 'delete') this.onDeleteReservation(reservation);
       else if (result.action === 'move' && result.targetNodeName) this.onMoveReservation(reservation, result.targetNodeName);
       else if (result.action === 'updateModel') this.onUpdateModel(reservation, result.modelName || '');
@@ -177,5 +180,10 @@ export class ReservationListComponent {
     this.gpuDataService.deleteReservation(reservation).subscribe(
       res => this.snackBar.open(res.message, 'Fermer')
     );
+  }
+
+  onDeployReservation(reservation: FlatReservation) {
+    this.snackBar.open(`🚀 Déploiement du namespace ${reservation.namespace} lancé !`, 'Fermer', {duration: 3000});
+    // Ici, vous appellerez plus tard : this.gpuDataService.deployNamespace(reservation)...
   }
 }

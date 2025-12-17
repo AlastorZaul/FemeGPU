@@ -1,1 +1,96 @@
-<p>reservation-actions-modal works!</p>
+<h2 mat-dialog-title>Actions sur la réservation</h2>
+
+<mat-dialog-content class="modal-content">
+  <p class="reservation-info">
+    Gérer la réservation : <strong>{{ data.reservation.namespace }}</strong>
+    <br>
+    <span class="sub-text">Application : {{ data.reservation.application }}</span>
+  </p>
+
+  <mat-divider></mat-divider>
+
+  <div class="action-section">
+    <h3>Déploiement</h3>
+    <p class="description">Lancer ou redéployer les ressources (Pods/Services) sur le cluster.</p>
+
+    <div class="control-row">
+      <span class="sub-text" style="flex: 1;">Version actuelle : <strong>Latest</strong></span>
+
+      <button mat-flat-button color="accent" (click)="confirmDeploy()">
+        <mat-icon>rocket_launch</mat-icon>
+        Déployer le Namespace
+      </button>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="action-section">
+    <h3>Déplacement</h3>
+    <p class="description">Déplacer cette charge de travail vers un autre nœud.</p>
+
+    <div class="control-row">
+      <mat-form-field appearance="outline" class="flex-grow">
+        <mat-label>Nœud de destination</mat-label>
+        <mat-select [(ngModel)]="selectedTargetNode">
+          @for (node of data.allNodes; track node.name) {
+            @if (node.name !== data.reservation.nodeName) {
+              <mat-option [value]="node.name">
+                {{ node.name }} <span class="cluster-hint">({{ node.cluster }})</span>
+              </mat-option>
+            }
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary"
+              (click)="confirmMove()"
+              [disabled]="!selectedTargetNode"
+              class="action-btn">
+        <mat-icon>drive_file_move</mat-icon>
+        Déplacer
+      </button>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="action-section">
+    <h3>Modèle IA</h3>
+    <div class="control-row">
+      <mat-form-field appearance="outline" class="flex-grow">
+        <mat-label>Modèle actif</mat-label>
+        <mat-select [(ngModel)]="selectedModel">
+          @for (model of data.availableModels; track model.name) {
+            <mat-option [value]="model.name">{{ model.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="primary"
+              (click)="confirmUpdateModel()"
+              [disabled]="selectedModel === data.reservation.modelName">
+        <mat-icon>system_update_alt</mat-icon>
+        Mettre à jour
+      </button>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="action-section danger-zone">
+    <h3>Zone de danger</h3>
+    <div class="control-row">
+      <span class="warning-text">Cette action est irréversible.</span>
+      <button mat-button color="warn" (click)="confirmDelete()">
+        <mat-icon>delete</mat-icon>
+        Supprimer
+      </button>
+    </div>
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Annuler</button>
+</mat-dialog-actions>

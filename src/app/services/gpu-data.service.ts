@@ -2,56 +2,117 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, timer} from 'rxjs';
 import {shareReplay, switchMap} from 'rxjs/operators';
-// Importer tous les modèles nécessaires
-import {ClusterApiResponse} from '../models/gpu.model';
+import {ClusterApiResponse, ReservationDetail} from '../models/gpu.model';
+import {AiModel} from '../models/aimodel.model';
 
-// Interface pour le formulaire de réservation
+// On réutilise les interfaces définies (ou importées depuis vos modèles si elles y sont)
 export interface NamespaceReservation {
   cluster: string;
   node: string;
   namespace: string;
   application: string;
+  modelName?: string;
   gpusRequested: number;
-  memoryRequest: number; // NOUVEAU
-  cpuRequest: number;    // NOUVEAU
+  memoryRequest: number;
+  cpuRequest: number;
 }
 
-// !! TOUTE LA LOGIQUE MOCK (INITIAL_MOCK_DATA, STORAGE_KEY, etc.) EST SUPPRIMÉE !!
+// On reprend l'interface FlatReservation utilisée dans les composants
+export interface FlatReservation extends ReservationDetail {
+  clusterName: string;
+  nodeName: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class GpuDataService {
-
-  // 1. Injecter HttpClient et définir l'URL de base de l'API
   private http = inject(HttpClient);
-  // L'URL de votre backend.
-  // Si vous utilisez le proxy (proxy.conf.json), '/api' est correct.
-  private apiUrl = '/api';
+  // Préfixe de l'API (à configurer dans proxy.conf.json pour le dev)
+  private readonly apiUrl = '/api';
 
-  // 2. Remplacer la simulation par un appel HTTP
-  // Nous gardons le timer pour "poller" (rafraîchir) les données toutes les 5 secondes.
-  public clusterData$: Observable<ClusterApiResponse[]> = timer(0, 5000).pipe( // 5000ms = 5 secondes
-    switchMap(() => {
-      // À chaque tick du timer, fait un nouvel appel HTTP GET
-      return this.http.get<ClusterApiResponse[]>(`${this.apiUrl}/clusters`);
-    }),
-    shareReplay(1) // Garde la dernière émission en cache pour les nouveaux abonnés
+  // 1. POLLING DES CLUSTERS
+  // Rafraîchit les données toutes les 5 secondes
+  public clusterData$: Observable<ClusterApiResponse[]> = timer(0, 5000).pipe(
+    switchMap(() => this.http.get<ClusterApiResponse[]>(`${this.apiUrl}/clusters`)),
+    shareReplay(1)
   );
 
+  // 2. DONNÉES STATIQUES (Applications & Modèles)
+  getAvailableApplications(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/config/applications`);
+  }
+
+  getAvailableModels(): Observable<AiModel[]> {
+    return this.http.get<AiModel[]>(`${this.apiUrl}/config/models`);
+  }
+
+  // 3. ACTIONS SUR LES RÉSERVATIONS
+
   /**
-   * Appelle le backend pour créer un namespace et réserver des GPUs.
+   * Créer une nouvelle réservation (Namespace)
    */
   createNamespaceReservation(data: NamespaceReservation): Observable<any> {
-    console.log('[GpuDataService] Appel API POST /namespaces/create');
-    return this.http.post(`${this.apiUrl}/namespaces/create`, data);
+    return this.http.post(`${this.apiUrl}/reservations`, data);
   }
 
   /**
-   * Appelle le backend pour réallouer (libérer) les GPUs d'un nœud.
+   * Activer / Désactiver une réservation
    */
-  reallocateGpus(nodeName: string): Observable<any> {
-    console.log(`[GGpuDataService] Appel API POST /nodes/${nodeName}/reallocate`);
-    return this.http.post(`${this.apiUrl}/nodes/${nodeName}/reallocate`, {});
+  toggleReservationStatus(reservation: FlatReservation): Observable<any> {
+    // On envoie un payload identifiant la réservation
+    return this.http.post(`${this.apiUrl}/reservations/toggle`, {
+      cluster: reservation.clusterName,
+      node: reservation.nodeName,
+      namespace: reservation.namespace
+    });
+  }
+
+  /**
+   * Déplacer une réservation vers un autre nœud
+   */
+  moveReservationToNode(reservation: FlatReservation, targetNodeName: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reservations/move`, {
+      cluster: reservation.clusterName,
+      sourceNode: reservation.nodeName,
+      targetNode: targetNodeName,
+      namespace: reservation.namespace
+    });
+  }
+
+  /**
+   * Supprimer une réservation
+   */
+  deleteReservation(reservation: FlatReservation): Observable<any> {
+    // Pour un DELETE avec body, on utilise l'option 'body'
+    return this.http.delete(`${this.apiUrl}/reservations`, {
+      body: {
+        cluster: reservation.clusterName,
+        node: reservation.nodeName,
+        namespace: reservation.namespace
+      }
+    });
+  }
+
+  /**
+   * Mettre à jour le modèle associé à une réservation
+   */
+  updateReservationModel(reservation: FlatReservation, newModelName: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/reservations/model`, {
+      cluster: reservation.clusterName,
+      node: reservation.nodeName,
+      namespace: reservation.namespace,
+      modelName: newModelName
+    });
+  }
+
+  /**
+   * (Nouveau) Déployer le namespace (Action que nous avons ajoutée à la modale)
+   */
+  deployNamespace(reservation: FlatReservation): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reservations/deploy`, {
+      cluster: reservation.clusterName,
+      namespace: reservation.namespace
+    });
   }
 }

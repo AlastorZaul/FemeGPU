@@ -1,27 +1,20 @@
-import {Component, computed, Inject, signal} from '@angular/core'; // Ajout de signal
+import {Component, Inject} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
-import {CommonModule} from '@angular/common';
-import {FlatReservation} from '../../services/gpu-data-mock.service';
 import {MatIconModule} from '@angular/material/icon';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatDividerModule} from '@angular/material/divider';
-// Nouveaux imports pour le select
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
+import {MatInputModule} from '@angular/material/input';
+import {MatDividerModule} from '@angular/material/divider';
 import {FormsModule} from '@angular/forms';
-import {AiModel} from '../../models/aimodel.model'; // Assurez-vous que ce chemin est bon
+import {FlatReservation} from '../../pages/reservation-list/reservation-list.component'; // Ajustez le chemin si besoin
+import {AiModel} from '../../models/aimodel.model';
 
 export interface ReservationActionsModalData {
   reservation: FlatReservation;
   allNodes: { name: string, cluster: string }[];
-  availableModels: AiModel[]; // <--- NOUVELLE DONNÉE REQUISE
-}
-
-export interface ReservationActionsModalResult {
-  action: 'delete' | 'move' | 'updateModel'; // <--- NOUVELLE ACTION
-  targetNodeName?: string;
-  modelName?: string; // <--- POUR LE RETOUR DE DONNÉE
+  availableModels: AiModel[];
 }
 
 @Component({
@@ -29,161 +22,103 @@ export interface ReservationActionsModalResult {
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule,
-    MatFormFieldModule, MatSelectModule, FormsModule // <--- Ajout des modules
+    MatDialogModule,
+    MatButtonModule,
+    MatIconModule,       // Indispensable pour <mat-icon>
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatDividerModule,
+    FormsModule
   ],
-  template: `
-    <h1 mat-dialog-title>
-      Actions pour {{ data.reservation.namespace }}
-    </h1>
-    <mat-divider></mat-divider>
-
-    <div mat-dialog-content class="modal-content">
-      <p>
-        <strong>Application :</strong> {{ data.reservation.application }} <br>
-        <strong>Nœud Actuel :</strong> {{ data.reservation.nodeName }} ({{ data.reservation.clusterName }})
-      </p>
-
-      <div class="model-section">
-        <h3>Configuration du Modèle</h3>
-        <div class="model-form">
-          <mat-form-field appearance="outline" style="flex: 1;">
-            <mat-label>Modèle associé</mat-label>
-            <mat-select [(ngModel)]="selectedModel" placeholder="Aucun modèle">
-              <mat-option [value]="null">-- Aucun --</mat-option>
-              @for (model of data.availableModels; track model.id) {
-                <mat-option [value]="model.name">
-                  {{ model.name }} <span class="vram-hint">({{ model.vramRequiredGb }} Go)</span>
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <button mat-stroked-button color="primary"
-                  [disabled]="selectedModel() === data.reservation.modelName"
-                  (click)="onUpdateModel()">
-            Enregistrer
-          </button>
-        </div>
-      </div>
-
-      <mat-divider></mat-divider>
-
-      <div class="action-buttons">
-        <button mat-flat-button color="primary"
-                [matMenuTriggerFor]="moveSubMenu"
-                [disabled]="availableNodesToMove().length === 0">
-          <mat-icon>move_item</mat-icon>
-          <span>Déplacer vers...</span>
-        </button>
-
-        <button mat-flat-button color="warn" (click)="onDelete()">
-          <mat-icon>delete</mat-icon>
-          <span>Supprimer</span>
-        </button>
-      </div>
-    </div>
-
-    <div mat-dialog-actions align="end">
-      <button mat-button (click)="onClose()">Fermer</button>
-    </div>
-
-    <mat-menu #moveSubMenu="matMenu">
-      <ng-template matMenuContent>
-        <div class="menu-header">Choisir un nœud :</div>
-        @for (node of availableNodesToMove(); track node.name) {
-          <button mat-menu-item (click)="onMove(node.name)">
-            <mat-icon>dns</mat-icon>
-            <span>{{ node.name }} ({{node.cluster}})</span>
-          </button>
-        }
-      </ng-template>
-    </mat-menu>
-  `,
+  templateUrl: './reservation-actions-modal.component.html', // Lien vers le fichier HTML
   styles: [`
     .modal-content {
-      padding-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      min-width: 400px;
     }
 
-    .model-section {
-      background-color: #f8fafc;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
+    .action-section {
+      padding: 16px 0;
     }
 
-    .model-section h3 {
+    .action-section h3 {
       margin-top: 0;
-      font-size: 0.95rem;
-      color: #475569;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      color: #334155;
     }
 
-    .model-form {
+    .description {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+
+    .control-row {
       display: flex;
-      gap: 10px;
       align-items: center;
+      gap: 12px;
+      justify-content: space-between;
     }
 
-    .vram-hint {
+    .flex-grow {
+      flex: 1;
+    }
+
+    .cluster-hint {
       font-size: 0.8em;
       color: gray;
-      margin-left: 5px;
     }
 
-    .action-buttons {
-      display: flex;
-      gap: 16px;
-      justify-content: flex-start;
-      margin-top: 10px;
+    .sub-text {
+      font-size: 0.85rem;
+      color: #64748b;
     }
 
-    .menu-header {
-      padding: 8px 16px;
-      font-weight: bold;
-      color: rgba(0, 0, 0, 0.6);
+    .danger-zone {
+      color: #dc2626;
     }
+
+    .warning-text {
+      font-size: 0.85rem;
+      font-style: italic;
+    }
+
+    .action-btn {
+      height: 56px;
+      margin-bottom: 22px;
+    }
+
+    /* Alignement avec le input */
   `]
 })
 export class ReservationActionsModalComponent {
-
-  // Signal pour gérer la sélection du modèle
-  selectedModel = signal<string | null>(null);
-
-  availableNodesToMove = computed(() => {
-    const currentNodeName = this.data.reservation.nodeName;
-    return this.data.allNodes.filter(node => node.name !== currentNodeName);
-  });
+  public selectedTargetNode: string | null = null;
+  public selectedModel: string | null = null;
 
   constructor(
-    public dialogRef: MatDialogRef<ReservationActionsModalComponent, ReservationActionsModalResult>,
+    public dialogRef: MatDialogRef<ReservationActionsModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ReservationActionsModalData
   ) {
-    // Initialiser la sélection avec la valeur actuelle de la réservation
-    this.selectedModel.set(this.data.reservation.modelName || null);
+    // Initialiser le modèle sélectionné avec le modèle actuel
+    this.selectedModel = data.reservation.modelName || null;
   }
 
-  onUpdateModel(): void {
-    const val = this.selectedModel();
-    if (val !== undefined) {
-      this.dialogRef.close({
-        action: 'updateModel',
-        modelName: val || '' // Si null, on envoie chaine vide pour effacer
-      });
+  confirmDeploy() {
+    this.dialogRef.close({action: 'deploy'});
+  }
+
+  confirmMove() {
+    if (this.selectedTargetNode) {
+      this.dialogRef.close({action: 'move', targetNodeName: this.selectedTargetNode});
     }
   }
 
-  onDelete(): void {
+  confirmUpdateModel() {
+    this.dialogRef.close({action: 'updateModel', modelName: this.selectedModel});
+  }
+
+  confirmDelete() {
     this.dialogRef.close({ action: 'delete' });
-  }
-
-  onMove(targetNodeName: string): void {
-    this.dialogRef.close({ action: 'move', targetNodeName: targetNodeName });
-  }
-
-  onClose(): void {
-    this.dialogRef.close();
   }
 }
