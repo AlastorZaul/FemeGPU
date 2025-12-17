@@ -1,15 +1,18 @@
-import {inject, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, timer} from 'rxjs';
 import {shareReplay, switchMap} from 'rxjs/operators';
 import {Gateway} from '../models/gpu.model';
+import {IGatewayDataService} from '../interfaces/gateway-data-service.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GatewayDataService {
-  private http = inject(HttpClient);
+export class GatewayDataService implements IGatewayDataService {
+  constructor(private http: HttpClient) {
+  }
   private readonly apiUrl = '/api';
+
 
   // POLLING DES GATEWAYS
   // Rafraîchit la liste toutes les 5 secondes

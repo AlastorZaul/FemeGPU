@@ -5,4 +5,6 @@ export interface UserProfile {
   email: string;
   roles: UserRole[]; // Un utilisateur peut avoir plusieurs rôles
   token: string;     // Le token simulé (JWT)
+  icon?: string;        // Pour l'avatar (ex: 'face', 'dns', etc.)
+  description?: string; // Pour le sous-titre ou le poste
 }

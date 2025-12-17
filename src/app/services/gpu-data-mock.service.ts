@@ -3,6 +3,7 @@ import {Observable, of, timer} from 'rxjs';
 import {delay, map, shareReplay} from 'rxjs/operators';
 import {ClusterApiResponse, ReservationDetail} from '../models/gpu.model';
 import {AiModel} from '../models/aimodel.model';
+import {IGpuDataService} from '../interfaces/gpu-data-service.interface';
 
 // Interface pour le formulaire de réservation (MISE À JOUR)
 export interface NamespaceReservation {
@@ -214,7 +215,7 @@ export const MOCK_AI_MODELS: AiModel[] = [
 @Injectable({
   providedIn: 'root'
 })
-export class GpuDataServiceMock {
+export class GpuDataServiceMock implements IGpuDataService {
 
   private readonly mockClusters: ClusterApiResponse[];
 
@@ -404,5 +405,10 @@ export class GpuDataServiceMock {
     }
 
     return of({success: false, message: 'Réservation introuvable.'});
+  }
+
+  deployNamespace(reservation: FlatReservation): Observable<any> {
+    console.log(`[Mock] Deploy namespace: ${reservation.namespace}`);
+    return of({success: true, message: 'Déploiement Mock OK'}).pipe(delay(800));
   }
 }

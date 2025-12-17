@@ -1,27 +1,37 @@
 import {ApplicationConfig, provideZoneChangeDetection} from '@angular/core';
 import {provideRouter} from '@angular/router';
-import {provideHttpClient} from '@angular/common/http';
+import {HttpClient, provideHttpClient} from '@angular/common/http';
+import {provideAnimations} from '@angular/platform-browser/animations';
 
 import {routes} from './app.routes';
-import {environment} from '../environments/environment'; // Import de l'environnement
 import {GpuDataService} from './services/gpu-data.service';
-import {GpuDataServiceMock} from './services/gpu-data-mock.service';
-import {GatewayDataMockService} from './services/gateway-data-mock.service';
 import {GatewayDataService} from './services/gateway-data.service';
+import {gatewayDataServiceFactory, gpuDataServiceFactory} from './services/service-factory.service';
+
+console.log('🚀 [DEBUG] Le fichier app.config.ts est bien chargé !');
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({eventCoalescing: true}),
     provideRouter(routes),
     provideHttpClient(),
+    provideAnimations(),
+
+    // --- C'EST ICI QUE TOUT SE JOUE ---
+
+    // 1. Configuration pour le service GPU
     {
       provide: GpuDataService,
-      // Si environment.useMock est vrai, on utilise le MockService, sinon le Service réel
-      useClass: environment.useMock ? GpuDataServiceMock : GpuDataService
+      useFactory: gpuDataServiceFactory, // <-- Doit utiliser la Factory !
+      deps: [HttpClient]                 // <-- Nécessaire pour passer 'http'
     },
+
+    // 2. Configuration pour le service Gateway
     {
       provide: GatewayDataService,
-      useClass: environment.useMock ? GatewayDataMockService : GatewayDataService
+      useFactory: gatewayDataServiceFactory,
+      deps: [HttpClient]
     }
   ]
 };

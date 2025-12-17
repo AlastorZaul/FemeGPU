@@ -1,5 +1,6 @@
 <mat-sidenav-container class="sidenav-container">
   <mat-sidenav #drawer mode="side" opened class="sidenav">
+
     <div class="logo-container">
       <mat-icon class="logo-icon">developer_board</mat-icon>
       <span class="logo-title">GPU Farm</span>
@@ -26,6 +27,7 @@
         <mat-icon>model_training</mat-icon>
         <span>Catalogue IA</span>
       </a>
+
       <mat-expansion-panel class="menu-expansion-panel">
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -40,22 +42,44 @@
           </a>
           <a mat-list-item routerLink="/create-namespace" routerLinkActive="active-link">
             <mat-icon>add_box</mat-icon>
-            <span>Réserver (Créer)</span>
+            <span>Réserver</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
     </mat-nav-list>
 
-    @if (authService.isLoggedIn()) {
-      <a mat-list-item (click)="authService.logout()" class="logout-button">
-        <mat-icon>logout</mat-icon>
-        <span>Déconnexion</span>
-      </a>
-      <div class="user-profile">
-        <mat-icon>account_circle</mat-icon>
-        <span class="username">{{ authService.currentUser()?.username }}</span>
-      </div>
-    }
+    <div class="sidenav-footer">
+
+      @if (authService.isLoggedIn()) {
+        <div class="user-card">
+          <div class="user-avatar">
+            <mat-icon>{{ authService.currentUser()?.icon || 'account_circle' }}</mat-icon>
+          </div>
+          <div class="user-details">
+            <span class="user-name">{{ authService.currentUser()?.username }}</span>
+            <span class="user-role">{{ authService.currentUser()?.roles?.join(', ') }}</span>
+          </div>
+        </div>
+
+        <div class="footer-actions">
+
+          <div class="debug-toggle-row" [class.mock-active]="isMockMode">
+            <mat-slide-toggle
+              [checked]="isMockMode"
+              (change)="onModeChange($event)"
+              color="warn">
+              <span class="toggle-label">{{ isMockMode ? 'Mode SIMULATION' : 'Mode LIVE API' }}</span>
+            </mat-slide-toggle>
+          </div>
+
+          <button mat-flat-button color="warn" class="logout-btn-wide" (click)="authService.logout()">
+            <mat-icon>logout</mat-icon>
+            Déconnexion
+          </button>
+        </div>
+      }
+    </div>
+
   </mat-sidenav>
 
   <mat-sidenav-content>

@@ -1,9 +1,10 @@
-import {inject, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, timer} from 'rxjs';
 import {shareReplay, switchMap} from 'rxjs/operators';
 import {ClusterApiResponse, ReservationDetail} from '../models/gpu.model';
 import {AiModel} from '../models/aimodel.model';
+import {IGpuDataService} from '../interfaces/gpu-data-service.interface';
 
 // On réutilise les interfaces définies (ou importées depuis vos modèles si elles y sont)
 export interface NamespaceReservation {
@@ -26,8 +27,9 @@ export interface FlatReservation extends ReservationDetail {
 @Injectable({
   providedIn: 'root'
 })
-export class GpuDataService {
-  private http = inject(HttpClient);
+export class GpuDataService implements IGpuDataService {
+  constructor(private http: HttpClient) {
+  }
   // Préfixe de l'API (à configurer dans proxy.conf.json pour le dev)
   private readonly apiUrl = '/api';
 

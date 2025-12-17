@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {delay, tap} from 'rxjs/operators';
-import {Gateway} from '../models/gpu.model'; // Nous importons le modèle
+import {Gateway} from '../models/gpu.model';
+import {IGatewayDataService} from '../interfaces/gateway-data-service.interface'; // Nous importons le modèle
 
 // Clé pour le stockage local
 const GATEWAY_STORAGE_KEY = 'gpuGatewayMockData';
@@ -17,7 +18,7 @@ const INITIAL_MOCK_GATEWAYS: Gateway[] = [
 @Injectable({
   providedIn: 'root'
 })
-export class GatewayDataMockService {
+export class GatewayDataMockService implements IGatewayDataService {
 
   private mockGateways: Gateway[] = this.loadGatewaysFromLocalStorage();
   private gateways = new BehaviorSubject<Gateway[]>(this.mockGateways);

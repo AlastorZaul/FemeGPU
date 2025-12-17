@@ -80,7 +80,6 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "buildTarget": "ferme-gpu:build",
             "proxyConfig": "proxy.conf.json"
           }
         },
