@@ -4,6 +4,14 @@
       <mat-icon mat-card-avatar style="color: #004192">event_note</mat-icon>
       <mat-card-title>Liste des Réservations</mat-card-title>
       <mat-card-subtitle>Gestion et suivi des allocations GPU</mat-card-subtitle>
+
+      <div style="margin-left: auto;">
+        <button mat-stroked-button color="primary" (click)="resetMockData()"
+                matTooltip="Recharger les données par défaut">
+          <mat-icon>refresh</mat-icon>
+          Réinitialiser
+        </button>
+      </div>
     </mat-card-header>
 
     <mat-card-content class="p-0">
@@ -20,9 +28,11 @@
           <mat-label>Filtrer par Nœud</mat-label>
           <mat-select [ngModel]="selectedNodeFilter()" (ngModelChange)="selectedNodeFilter.set($event)">
             <mat-option [value]="null">-- Tous les nœuds --</mat-option>
-            @for (node of allNodes(); track node.name) {
+
+            @for (node of allNodes(); track node.cluster + '_' + node.name) {
               <mat-option [value]="node.name">{{ node.name }} ({{ node.cluster }})</mat-option>
             }
+
           </mat-select>
         </mat-form-field>
 

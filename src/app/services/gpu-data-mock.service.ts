@@ -263,6 +263,13 @@ export class GpuDataServiceMock implements IGpuDataService {
 
   public clusterData$: Observable<ClusterApiResponse[]> = timer(0, 2000).pipe(
     map(() => {
+      console.log('Mock Loop - Clusters en mémoire:', this.mockClusters.length);
+      if (this.mockClusters.length > 0) {
+        console.log(' Premier Cluster Nodes:', Object.keys(this.mockClusters[0].nodes));
+        // Vérifions s'il y a des réservations dans le premier noeud trouvé
+        const firstNode = Object.values(this.mockClusters[0].nodes)[0];
+        console.log(' Réservations dans le 1er nœud:', firstNode?.reservations?.length);
+      }
       // Recalcul des totaux (logique identique)
       for (const cluster of this.mockClusters) {
         let clusterTotalUsedGpus = 0;
@@ -289,6 +296,10 @@ export class GpuDataServiceMock implements IGpuDataService {
             node.gpu_usage_percent = Math.round((node.used_gpus / node.physical_gpus) * 100);
           } else {
             node.gpu_usage_percent = 0;
+          }
+
+          if (!node.reservations) {
+            node.reservations = [];
           }
 
           clusterTotalUsedGpus += node.used_gpus;

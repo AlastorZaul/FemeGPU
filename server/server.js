@@ -82,10 +82,58 @@ app.post('/api/nodes/:nodeName/reallocate', (req, res) => {
   res.json({message: `Réallocation pour ${nodeName} initiée côté serveur.`});
 });
 
-// Ajout pour gérer les autres actions du service (évite les erreurs 404)
+// CORRECTION ICI : On enregistre vraiment la réservation dans MOCK_CLUSTERS
 app.post('/api/reservations', (req, res) => {
-  console.log('[POST] Création réservation reçue:', req.body);
-  res.json({message: 'Réservation enregistrée sur le serveur'});
+  const newReservation = req.body;
+  console.log('[POST] Création réservation reçue:', newReservation);
+
+  // 1. Trouver le cluster concerné dans nos données en mémoire
+  // Note: Dans votre mock, le nom est "Cluster BACKEND (Live)", assurez-vous que le front envoie bien ça
+  // ou on prend le premier cluster si on ne trouve pas (pour simplifier le test)
+  let cluster = MOCK_CLUSTERS.find(c => c.cluster_name === newReservation.cluster);
+
+  // Fallback pour le test si le nom ne matche pas exactement
+  if (!cluster && MOCK_CLUSTERS.length > 0) {
+    cluster = MOCK_CLUSTERS[0];
+  }
+
+  if (!cluster) {
+    return res.status(404).json({message: "Cluster introuvable"});
+  }
+
+  // 2. Trouver le nœud concerné
+  const targetNode = cluster.nodes[newReservation.node];
+  if (!targetNode) {
+    return res.status(404).json({message: "Nœud introuvable dans le cluster"});
+  }
+
+  // 3. Créer l'objet réservation complet (ajout des champs manquants comme la date)
+  const fullReservation = {
+    id: `res-${Date.now()}`, // ID unique temporaire
+    namespace: newReservation.namespace,
+    application: newReservation.application,
+    modelName: newReservation.modelName,
+    gpusRequested: newReservation.gpusRequested,
+    memoryRequest: newReservation.memoryRequest,
+    cpuRequest: newReservation.cpuRequest,
+    status: 'Running', // On simule qu'elle démarre tout de suite
+    isActive: true,
+    createdAt: new Date().toISOString()
+  };
+
+  // 4. Ajouter à la liste du nœud
+  if (!targetNode.reservations) {
+    targetNode.reservations = [];
+  }
+  targetNode.reservations.push(fullReservation);
+
+  // 5. (Optionnel) Mettre à jour les ressources utilisées pour le réalisme
+  targetNode.used_gpus += newReservation.gpusRequested;
+  targetNode.reserved_gpus += newReservation.gpusRequested;
+
+  console.log(`✅ Réservation ajoutée en mémoire sur ${newReservation.node}`);
+
+  res.json({message: 'Réservation enregistrée et active (Mémoire Serveur)'});
 });
 
 // --- DEMARRAGE ---

@@ -1,4 +1,4 @@
-import {Component, computed, inject, signal, Signal} from '@angular/core';
+import {Component, computed, effect, inject, Signal, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MatTableModule} from '@angular/material/table';
@@ -9,10 +9,9 @@ import {AiModel} from '../../models/aimodel.model';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatTooltip} from '@angular/material/tooltip';
-// CORRECTION : Import du service abstrait
 import {GpuDataService} from '../../services/gpu-data.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatIconButton} from '@angular/material/button';
+import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatDialog} from '@angular/material/dialog';
 import {
   ReservationActionsModalComponent,
@@ -37,13 +36,12 @@ export interface FlatReservation extends ReservationDetail {
     CommonModule, MatTableModule, MatCardModule, MatIconModule,
     MatChipsModule,
     MatSlideToggleModule, MatTooltip, MatIconButton,
-    MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule
+    MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule, MatButton
   ],
   templateUrl: './reservation-list.component.html',
   styleUrls: ['./reservation-list.component.scss']
 })
 export class ReservationListComponent {
-  // CORRECTION : Injection via la classe abstraite
   private gpuDataService = inject(GpuDataService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
@@ -60,20 +58,32 @@ export class ReservationListComponent {
     'gpusRequested', 'memoryRequest', 'cpuRequest', 'createdAt', 'actions'
   ];
 
+  constructor() {
+    // Debug : Vérifions si les données arrivent jusqu'au composant
+    effect(() => {
+      console.log('Component View - Clusters reçus:', this.clusters().length);
+      console.log('Component View - Réservations calculées:', this.allReservations().length);
+    });
+  }
+
+  // 1. Mise à plat de toutes les réservations
   public allReservations: Signal<FlatReservation[]> = computed(() => {
     const flatList: FlatReservation[] = [];
     const allClusters = this.clusters();
+
     for (const cluster of allClusters) {
-      for (const nodeName in cluster.nodes) {
-        const node = cluster.nodes[nodeName];
-        if (node.reservations && node.reservations.length > 0) {
-          for (const res of node.reservations) {
-            flatList.push({
-              ...res,
-              clusterName: cluster.cluster_name,
-              nodeName: nodeName,
-              owner: node.owner
-            });
+      if (cluster.nodes) {
+        for (const nodeName in cluster.nodes) {
+          const node = cluster.nodes[nodeName];
+          if (node.reservations && node.reservations.length > 0) {
+            for (const res of node.reservations) {
+              flatList.push({
+                ...res,
+                clusterName: cluster.cluster_name,
+                nodeName: nodeName,
+                owner: node.owner
+              });
+            }
           }
         }
       }
@@ -81,24 +91,23 @@ export class ReservationListComponent {
     return flatList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   });
 
+  // 2. Filtrage SANS restriction de propriétaire
   public filteredReservations = computed(() => {
     let data = this.allReservations();
     const search = this.searchText().toLowerCase();
     const nodeFilter = this.selectedNodeFilter();
 
-    const currentUser = this.authService.currentUser();
-    if (currentUser && !currentUser.roles.includes('ADMIN')) {
-      data = data.filter(res => res.owner === currentUser.username);
-    }
+    // --- ICI : J'ai supprimé le bloc "if (currentUser...)" qui cachait vos données ---
 
     if (nodeFilter) {
       data = data.filter(res => res.nodeName === nodeFilter);
     }
+
     if (search) {
       data = data.filter(res =>
         res.namespace.toLowerCase().includes(search) ||
         res.application.toLowerCase().includes(search) ||
-        res.owner.toLowerCase().includes(search)
+        (res.owner && res.owner.toLowerCase().includes(search))
       );
     }
     return data;
@@ -106,26 +115,32 @@ export class ReservationListComponent {
 
   public allNodes: Signal<{ name: string, cluster: string }[]> = computed(() => {
     const nodes: { name: string, cluster: string }[] = [];
-    for (const cluster of this.clusters()) {
-      for (const nodeName in cluster.nodes) {
-        nodes.push({ name: nodeName, cluster: cluster.cluster_name });
+    const allClusters = this.clusters();
+    for (const cluster of allClusters) {
+      if (cluster.nodes) {
+        for (const nodeName in cluster.nodes) {
+          nodes.push({name: nodeName, cluster: cluster.cluster_name});
+        }
       }
     }
     return nodes;
   });
 
+  // Garder la sécurité uniquement sur les clics (boutons d'action)
   private checkNodeAccess(clusterName: string, nodeName: string): boolean {
     const cluster = this.clusters().find(c => c.cluster_name === clusterName);
     const node = cluster?.nodes[nodeName];
     if (!node) return false;
-    const isBlocked = node.status.toLowerCase().includes('block') || node.status.toLowerCase().includes('bloqué');
+
+    const isBlocked = node.status?.toLowerCase().includes('block') || node.status?.toLowerCase().includes('bloqué');
     if (isBlocked) {
       const currentUser = this.authService.currentUser();
       const isOwner = currentUser?.username === node.owner;
       const isAdmin = currentUser?.roles.includes('ADMIN');
+
       if (!isOwner && !isAdmin) {
         this.snackBar.open(
-          `⛔ Action refusée : Le nœud est bloqué par "${node.owner}". Seuls le propriétaire ou un administrateur peuvent intervenir.`,
+          `⛔ Action refusée : Le nœud est bloqué.`,
           'Fermer', {duration: 5000, panelClass: ['error-snackbar']}
         );
         return false;
@@ -134,6 +149,7 @@ export class ReservationListComponent {
     return true;
   }
 
+  // --- Méthodes d'action ---
   onToggleStatus(reservation: FlatReservation) {
     if (!this.checkNodeAccess(reservation.clusterName, reservation.nodeName)) return;
     this.gpuDataService.toggleReservationStatus(reservation).subscribe();
@@ -152,9 +168,7 @@ export class ReservationListComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (!result) return;
-      if (result.action === 'deploy') {
-        this.onDeployReservation(reservation);
-      }
+      if (result.action === 'deploy') this.onDeployReservation(reservation);
       if (result.action === 'delete') this.onDeleteReservation(reservation);
       else if (result.action === 'move' && result.targetNodeName) this.onMoveReservation(reservation, result.targetNodeName);
       else if (result.action === 'updateModel') this.onUpdateModel(reservation, result.modelName || '');
@@ -176,9 +190,16 @@ export class ReservationListComponent {
       res => this.snackBar.open(res.message, 'Fermer')
     );
   }
-
   onDeployReservation(reservation: FlatReservation) {
     this.snackBar.open(`🚀 Déploiement du namespace ${reservation.namespace} lancé !`, 'Fermer', {duration: 3000});
     this.gpuDataService.deployNamespace(reservation).subscribe();
+  }
+
+  // Bouton de secours (vous pourrez le retirer plus tard)
+  resetMockData() {
+    if (confirm('Réinitialiser le Mock ?')) {
+      localStorage.removeItem('gpuFarmMockData');
+      window.location.reload();
+    }
   }
 }
