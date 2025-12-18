@@ -3,25 +3,45 @@ import {GpuDataService} from './gpu-data.service';
 import {GpuDataServiceMock} from './gpu-data-mock.service';
 import {GatewayDataService} from './gateway-data.service';
 import {GatewayDataMockService} from './gateway-data-mock.service';
+// Importez l'environnement pour la valeur par défaut
+import {environment} from '../../environments/environment';
 
 export function shouldUseMock(): boolean {
-  const localForce = localStorage.getItem('FORCE_MOCK');
-  console.log('%c[Factory] Vérification du mode...', 'color: blue; font-weight: bold;');
-  console.log(`[Factory] Valeur de FORCE_MOCK dans localStorage : "${localForce}"`);
+  const rawValue = localStorage.getItem('FORCE_MOCK');
 
-  if (localForce === 'true') return true;
-  if (localForce === 'false') return false;
+  // Nettoyage : suppression des espaces et mise en minuscule
+  const localForce = rawValue ? rawValue.trim().toLowerCase() : null;
 
-  // Par défaut : Mock (changez à false si vous voulez le Live par défaut)
-  return true;
+  console.groupCollapsed('[Factory] Debug Decision Mock/Live');
+  console.log(`1. Valeur brute localStorage (FORCE_MOCK) : "${rawValue}"`);
+  console.log(`2. Valeur nettoyée : "${localForce}"`);
+  console.log(`3. Valeur environment.useMock : ${environment.useMock}`);
+
+  // Vérification prioritaire sur le localStorage
+  if (localForce === 'true') {
+    console.log('=> Décision : MOCK (Forcé via localStorage)');
+    console.groupEnd();
+    return true;
+  }
+
+  if (localForce === 'false') {
+    console.log('=> Décision : LIVE (Forcé via localStorage)');
+    console.groupEnd();
+    return false;
+  }
+
+  // Fallback sur l'environnement
+  const defaultMode = environment.useMock;
+  console.log(`=> Décision : ${defaultMode ? 'MOCK' : 'LIVE'} (Via environment.ts)`);
+  console.groupEnd();
+
+  return defaultMode;
 }
 
 export function gpuDataServiceFactory(http: HttpClient) {
   if (shouldUseMock()) {
-    console.warn('⚡ [Factory] Retourne : MOCK Service (GPU)');
     return new GpuDataServiceMock();
   }
-  console.log('🌐 [Factory] Retourne : LIVE Service (GPU)');
   return new GpuDataService(http);
 }
 

@@ -1,7 +1,6 @@
 import {Component, inject, Signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
-// Imports Angular Material
 import {MatCardModule} from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import {MatIconModule} from '@angular/material/icon';
@@ -12,10 +11,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {toSignal} from '@angular/core/rxjs-interop';
 
-// MODÈLE GLOBAL
 import {Gateway} from '../../models/gpu.model';
-// **** MODIFICATION : Importer le NOUVEAU service ****
-import {GatewayDataMockService} from '../../services/gateway-data-mock.service';
+// CORRECTION : Import du service abstrait
+import {GatewayDataService} from '../../services/gateway-data.service';
 
 
 @Component({
@@ -37,11 +35,10 @@ import {GatewayDataMockService} from '../../services/gateway-data-mock.service';
 })
 export class GatewayManagementComponent {
 
-  // **** MODIFICATION : Injecter le NOUVEAU service ****
-  private gatewayDataService = inject(GatewayDataMockService);
+  // CORRECTION : Injection via la classe abstraite
+  private gatewayDataService = inject(GatewayDataService);
   private snackBar = inject(MatSnackBar);
 
-  // **** MODIFICATION : Utiliser le nouveau service ****
   public gateways: Signal<Gateway[]> = toSignal(this.gatewayDataService.gateways$, { initialValue: [] });
 
   public dataSource = this.gateways;
@@ -52,13 +49,13 @@ export class GatewayManagementComponent {
       return;
     }
 
-    // **** MODIFICATION : Utiliser le nouveau service ****
     this.gatewayDataService.restartGateway(gateway.id).subscribe({
       next: (response) => {
-        if (response.success) {
+        // En mode Live, 'response' peut être vide ou différer du mock. Ajustez selon votre API.
+        if (response && response.success !== false) {
           this.snackBar.open(`La gateway "${gateway.name}" a été relancée.`, 'Fermer', { duration: 3000 });
         } else {
-          this.snackBar.open(`Échec de la relance: ${response.message}`, 'Fermer', { duration: 5000, panelClass: ['error-snackbar'] });
+          this.snackBar.open(`Échec de la relance.`, 'Fermer', {duration: 5000});
         }
       },
       error: (err) => {

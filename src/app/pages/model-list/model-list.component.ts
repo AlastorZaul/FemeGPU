@@ -6,7 +6,8 @@ import {MatTableModule} from '@angular/material/table';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatChipsModule} from '@angular/material/chips';
-import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+// CORRECTION : Import du service abstrait
+import {GpuDataService} from '../../services/gpu-data.service';
 import {AiModel} from '../../models/aimodel.model';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {Router} from '@angular/router';
@@ -24,17 +25,17 @@ import {Router} from '@angular/router';
     MatProgressSpinner
   ],
   templateUrl: './model-list.component.html',
-  styleUrls: ['./model-list.component.scss'] // Créez ce fichier vide si besoin
+  styleUrls: ['./model-list.component.scss']
 })
 export class ModelListComponent {
   displayedColumns: string[] = ['name', 'type', 'vram', 'description', 'actions'];
-  private gpuService = inject(GpuDataServiceMock);
-  // Chargement des modèles sous forme de Signal
+  // CORRECTION : Injection via la classe abstraite
+  private gpuService = inject(GpuDataService);
+
   models: Signal<AiModel[]> = toSignal(this.gpuService.getAvailableModels(), {initialValue: []});
   private router = inject(Router);
 
   onProvision(model: AiModel) {
-    // Navigation vers le créateur avec les infos du modèle en paramètre
     this.router.navigate(['/create-namespace'], {
       queryParams: {
         app: model.name,

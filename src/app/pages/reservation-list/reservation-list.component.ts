@@ -9,7 +9,8 @@ import {AiModel} from '../../models/aimodel.model';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatTooltip} from '@angular/material/tooltip';
-import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+// CORRECTION : Import du service abstrait
+import {GpuDataService} from '../../services/gpu-data.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatIconButton} from '@angular/material/button';
 import {MatDialog} from '@angular/material/dialog';
@@ -23,11 +24,10 @@ import {MatSelectModule} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
 
-// 1. Mise à jour de l'interface pour inclure le propriétaire
 export interface FlatReservation extends ReservationDetail {
   clusterName: string;
   nodeName: string;
-  owner: string; // <--- NOUVEAU CHAMP
+  owner: string;
 }
 
 @Component({
@@ -43,7 +43,8 @@ export interface FlatReservation extends ReservationDetail {
   styleUrls: ['./reservation-list.component.scss']
 })
 export class ReservationListComponent {
-  private gpuDataService = inject(GpuDataServiceMock);
+  // CORRECTION : Injection via la classe abstraite
+  private gpuDataService = inject(GpuDataService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
@@ -54,9 +55,8 @@ export class ReservationListComponent {
   public searchText = signal('');
   public selectedNodeFilter = signal<string | null>(null);
 
-  // 2. Mise à jour des colonnes affichées
   public displayedColumns: string[] = [
-    'status', 'owner', 'clusterName', 'nodeName', 'namespace', 'application', // <--- Ajout de 'owner'
+    'status', 'owner', 'clusterName', 'nodeName', 'namespace', 'application',
     'gpusRequested', 'memoryRequest', 'cpuRequest', 'createdAt', 'actions'
   ];
 
@@ -72,7 +72,7 @@ export class ReservationListComponent {
               ...res,
               clusterName: cluster.cluster_name,
               nodeName: nodeName,
-              owner: node.owner // <--- Récupération du propriétaire du nœud
+              owner: node.owner
             });
           }
         }
@@ -86,14 +86,10 @@ export class ReservationListComponent {
     const search = this.searchText().toLowerCase();
     const nodeFilter = this.selectedNodeFilter();
 
-    // --- 3. FILTRAGE DE SÉCURITÉ ---
     const currentUser = this.authService.currentUser();
     if (currentUser && !currentUser.roles.includes('ADMIN')) {
-      // Si ce n'est pas un admin, on ne montre que les réservations
-      // sur les nœuds qui lui appartiennent.
       data = data.filter(res => res.owner === currentUser.username);
     }
-    // -------------------------------
 
     if (nodeFilter) {
       data = data.filter(res => res.nodeName === nodeFilter);
@@ -102,7 +98,7 @@ export class ReservationListComponent {
       data = data.filter(res =>
         res.namespace.toLowerCase().includes(search) ||
         res.application.toLowerCase().includes(search) ||
-        res.owner.toLowerCase().includes(search) // Recherche possible sur le propriétaire
+        res.owner.toLowerCase().includes(search)
       );
     }
     return data;
@@ -118,7 +114,6 @@ export class ReservationListComponent {
     return nodes;
   });
 
-  // ... (Le reste des méthodes checkNodeAccess, onToggleStatus, openActionsModal, etc. reste identique)
   private checkNodeAccess(clusterName: string, nodeName: string): boolean {
     const cluster = this.clusters().find(c => c.cluster_name === clusterName);
     const node = cluster?.nodes[nodeName];
@@ -184,6 +179,6 @@ export class ReservationListComponent {
 
   onDeployReservation(reservation: FlatReservation) {
     this.snackBar.open(`🚀 Déploiement du namespace ${reservation.namespace} lancé !`, 'Fermer', {duration: 3000});
-    // Ici, vous appellerez plus tard : this.gpuDataService.deployNamespace(reservation)...
+    this.gpuDataService.deployNamespace(reservation).subscribe();
   }
 }

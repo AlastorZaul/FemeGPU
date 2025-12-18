@@ -11,7 +11,8 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatSelectModule} from '@angular/material/select';
 import {RouterLink} from '@angular/router';
 import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.component';
-import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+// CORRECTION : Import du service abstrait (pas le Mock)
+import {GpuDataService} from '../../services/gpu-data.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,9 +24,9 @@ import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-
 export class DashboardComponent {
-  private gpuDataService = inject(GpuDataServiceMock);
+  // CORRECTION : Injection via la classe abstraite
+  private gpuDataService = inject(GpuDataService);
 
   private allClusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
 

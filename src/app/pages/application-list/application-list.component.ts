@@ -9,7 +9,8 @@ import {FormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 
-import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+// CORRECTION : Import du service abstrait
+import {GpuDataService} from '../../services/gpu-data.service';
 import {ClusterApiResponse, ReservationDetail} from '../../models/gpu.model';
 
 export interface FlatReservation extends ReservationDetail {
@@ -42,7 +43,8 @@ export interface ApplicationGroup {
   styleUrls: ['./application-list.component.scss']
 })
 export class ApplicationListComponent {
-  private gpuDataService = inject(GpuDataServiceMock);
+  // CORRECTION : Injection via la classe abstraite
+  private gpuDataService = inject(GpuDataService);
 
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
 
@@ -72,9 +74,8 @@ export class ApplicationListComponent {
     const allRes = this.allReservations();
     const search = this.searchText().toLowerCase();
 
-    // Groupement simple par nom d'application (qui est maintenant générique)
     const groups = allRes.reduce((acc, res) => {
-      const appName = res.application; // Ex: "Jupyter Lab"
+      const appName = res.application;
       let group = acc.get(appName);
 
       if (!group) {

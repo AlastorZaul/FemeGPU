@@ -17,7 +17,7 @@ import {startWith} from 'rxjs/operators';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
-import {GpuDataServiceMock, NamespaceReservation} from '../../services/gpu-data-mock.service';
+import {GpuDataService, NamespaceReservation} from '../../services/gpu-data.service';
 import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.component';
 
 @Component({
@@ -34,7 +34,7 @@ import {CustomGaugeComponent} from '../../components/custom-gauge/custom-gauge.c
 })
 export class NamespaceCreatorComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private gpuDataService = inject(GpuDataServiceMock);
+  private gpuDataService = inject(GpuDataService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -45,8 +45,6 @@ export class NamespaceCreatorComponent implements OnInit {
   // Données
   clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, { initialValue: [] });
   availableApplications = toSignal(this.gpuDataService.getAvailableApplications(), { initialValue: [] });
-
-  // NOUVEAU : On charge aussi la liste des modèles pour l'autocomplétion
   availableModels = toSignal(this.gpuDataService.getAvailableModels(), {initialValue: []});
 
   // Formulaire
@@ -55,7 +53,7 @@ export class NamespaceCreatorComponent implements OnInit {
     node: [{ value: '', disabled: true }, Validators.required],
     namespace: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
     application: ['', Validators.required],
-    modelName: [''], // <--- NOUVEAU CHAMP (Optionnel)
+    modelName: [''],
     gpusRequested: [1, [Validators.required, Validators.min(1)]],
     memoryRequest: [1, [Validators.required, Validators.min(1)]],
     cpuRequest: [1, [Validators.required, Validators.min(1)]]
@@ -71,17 +69,15 @@ export class NamespaceCreatorComponent implements OnInit {
     return this.availableApplications().filter(app => app.toLowerCase().includes(filterValue));
   });
 
-  // --- NOUVEAU : AUTOCOMPLETE : MODÈLE ---
+  // --- AUTOCOMPLETE : MODÈLE ---
   currentModelInput = toSignal(
     this.reservationForm.get('modelName')!.valueChanges.pipe(startWith('')),
     {initialValue: ''}
   );
   filteredModels = computed(() => {
     const filterValue = (this.currentModelInput() || '').toLowerCase();
-    // On filtre la liste des modèles IA (AiModel) par leur nom
     return this.availableModels().filter(m => m.name.toLowerCase().includes(filterValue));
   });
-
 
   // --- SÉLECTION CLUSTER & NODE ---
   selectedClusterName = toSignal(
@@ -167,29 +163,24 @@ export class NamespaceCreatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      const appName = params['app']; // Nom du modèle venant du catalogue
+      const appName = params['app'];
       const vram = params['vram'];
-      const type = params['type'];
 
       if (appName) {
-        // Logique intelligente :
-        // 1. On met le nom du modèle dans le champ "Modèle"
-        this.reservationForm.patchValue({modelName: appName});
+        // --- MODIFICATION ---
+        // On remplit le champ "Modèle" pour information
+        // MAIS on laisse le champ "Application" vide pour forcer le choix (ex: Triton, Ollama...)
+        this.reservationForm.patchValue({
+          modelName: appName,
+          application: ''
+        });
 
-        // 2. On essaie de deviner l'Application générique selon le type
-        let genericApp = 'Autre';
-        if (type === 'IDE') genericApp = 'Jupyter Lab';
-        else if (type === 'LLM') genericApp = 'Triton Inference Server';
-        else if (type === 'Vision') genericApp = 'Stable Diffusion';
-
-        this.reservationForm.patchValue({application: genericApp});
-
-        // 3. Ajustement RAM
+        // Ajustement RAM
         if (vram) {
           const vramNum = Number(vram);
           const suggestedRam = Math.ceil(vramNum * 1.5);
           this.reservationForm.patchValue({memoryRequest: suggestedRam});
-          this.snackBar.open(`Modèle ${appName} sélectionné. RAM ajustée.`, 'Ok', {duration: 3000});
+          this.snackBar.open(`Modèle "${appName}" sélectionné. Veuillez choisir une Application.`, 'Ok', {duration: 3000});
         }
       }
     });
@@ -210,7 +201,7 @@ export class NamespaceCreatorComponent implements OnInit {
 
       this.gpuDataService.createNamespaceReservation(formData).subscribe({
         next: (res) => {
-          this.snackBar.open(res.message || 'Réservation réussie', 'OK', { duration: 3000 });
+          this.snackBar.open(res && res.message ? res.message : 'Réservation réussie', 'OK', {duration: 3000});
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {

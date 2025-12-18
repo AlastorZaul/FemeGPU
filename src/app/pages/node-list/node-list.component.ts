@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, computed, inject, Signal, signal} from '@angular/core'; // 1. Import ChangeDetectionStrategy
+import {ChangeDetectionStrategy, Component, computed, inject, Signal, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {ClusterApiResponse, NodeMetrics} from '../../models/gpu.model';
@@ -7,7 +7,8 @@ import {MatTableModule} from '@angular/material/table';
 import {MatCardModule} from '@angular/material/card';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatIconModule} from '@angular/material/icon';
-import {GpuDataServiceMock} from '../../services/gpu-data-mock.service';
+// CORRECTION : Import du service abstrait
+import {GpuDataService} from '../../services/gpu-data.service';
 
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -28,10 +29,11 @@ export interface FlatNode {
   imports: [CommonModule, MatTableModule, MatCardModule, MatProgressBarModule, MatIconModule,MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
   templateUrl: './node-list.component.html',
   styleUrls: ['./node-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush // 3. Activation du mode haute performance
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NodeListComponent {
-  private gpuDataService = inject(GpuDataServiceMock);
+  // CORRECTION : Injection via la classe abstraite
+  private gpuDataService = inject(GpuDataService);
 
   private clusters: Signal<ClusterApiResponse[]> = toSignal(this.gpuDataService.clusterData$, {initialValue: []});
 
@@ -44,7 +46,6 @@ export class NodeListComponent {
       for (const nodeName in cluster.nodes) {
         const metrics = cluster.nodes[nodeName];
 
-        // 4. Calcul de la classe CSS ici (exécuté seulement quand les données changent)
         let cssClass = 'usage-low';
         if (metrics.gpu_usage_percent > 90) cssClass = 'usage-high';
         else if (metrics.gpu_usage_percent > 70) cssClass = 'usage-medium';
@@ -56,8 +57,8 @@ export class NodeListComponent {
           clusterName: cluster.cluster_name,
           nodeName: nodeName,
           metrics: metrics,
-          usageClass: cssClass, // On stocke le résultat
-          statusClass: statusClass // <--- On stocke la classe
+          usageClass: cssClass,
+          statusClass: statusClass
         });
       }
     }
@@ -83,7 +84,6 @@ export class NodeListComponent {
     return data;
   });
 
-  // Pour remplir le dropdown de statut automatiquement
   public availableStatuses = computed(() => {
     const statuses = new Set(this.allNodes().map(n => n.metrics.status));
     return Array.from(statuses).sort();
