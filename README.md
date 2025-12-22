@@ -1,140 +1,133 @@
+Voici le contenu complet et optimisé pour votre fichier `README.md`. Ce document regroupe la présentation du projet, les détails techniques et le mode opératoire (MODOP) pour une utilisation clé en main.
+
+Vous pouvez copier-coller le bloc ci-dessous directement dans un fichier nommé `README.md` à la racine de votre projet.
+
+```markdown
 # 🚀 Ferme GPU - Dashboard de Gestion de Ressources
 
-Bienvenue sur le projet **Ferme GPU** ! Cette application web moderne, basée sur **Angular 18**, est conçue pour la surveillance et la gestion centralisée de clusters de calcul haute performance (GPU, CPU, Mémoire).
+[![Angular](https://img.shields.io/badge/Angular-18.2-DD0031?style=for-the-badge&logo=angular)](https://angular.io/)
+[![Node.js](https://img.shields.io/badge/Node.js-LTS-339933?style=for-the-badge&logo=nodedotjs)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-API-000000?style=for-the-badge&logo=express)](https://expressjs.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-L'application offre une interface claire pour visualiser l'état des nœuds et gérer les réservations de ressources pour différentes applications et namespaces.
+## 📝 Présentation
 
----
-
-## 🛠️ Présentation Technique
-
-### Architecture & Framework
-
-* **Frontend** : Architecture 100% **Composants Standalone** avec Angular 18.
-* **Gestion d'état** : Utilisation intensive des **Signaux Angular** (`signal`, `computed`) pour une réactivité optimale.
-* **UI & Design** : Intégration d'**Angular Material**, **Bootstrap 5** et **ECharts** pour les visualisations de données.
-* **Sécurité** : Système d'authentification avec protection des routes par `roleGuard` (Rôles : ADMIN, USER).
-
-### Backend & Persistance
-
-* **API Mock** : Un serveur **Express** (Node.js) simule une API réelle sur le port 3000.
-* **Stockage** : Les données sont persistées dans le `localStorage` du navigateur pour conserver les modifications entre les sessions.
-* **Endpoints Clés** :
-  * `GET /api/clusters` : Récupération des données serveurs et clusters.
-  * `POST /api/reservations` : Création et enregistrement des réservations en mémoire serveur.
+**Ferme GPU** est une solution de monitoring et de gestion centralisée pour les clusters de calcul haute performance. Développée avec **Angular 18**, cette plateforme permet de superviser en temps réel l'utilisation des ressources critiques (GPU, CPU, Mémoire) et d'orchestrer les réservations pour des applications variées (IA, Scripts Python, Docker Jobs).
 
 ---
 
-## 🚀 Démarrage
+## ✨ Fonctionnalités Clés
 
-Suivez ces étapes pour lancer l'environnement complet de développement.
+### 🖥️ Monitoring & Visualisation
 
-### 1. Installation
+* **Tableau de Bord Holistique** : Vue d'ensemble de la santé des clusters avec des jauges dynamiques pour l'utilisation globale des ressources.
+* **Gestion des Nœuds** : Liste détaillée des serveurs (ex: `SRV-01`, `SRV-02`) affichant le statut (En ligne/Hors ligne), le propriétaire, et la répartition des GPUs physiques et virtuels.
+* **Contrôle des Gateways** : Panneau dédié pour surveiller les passerelles réseau et simuler des relances en cas de panne.
 
-Installez les dépendances du projet :
+### 📋 Gestion des Réservations
+
+* **Création Flexible** : Formulaire complet pour allouer des ressources par application, namespace et modèle d'IA.
+* **Actions interactives** : Possibilité d'activer/désactiver, supprimer ou migrer des réservations entre les nœuds via des modales de confirmation.
+* **Persistance intelligente** : Utilisation du `localStorage` pour le mode mock et d'une API Express pour le mode live.
+
+### 🔒 Sécurité & Accès
+
+* **Authentification** : Système de login avec protection des routes via `AuthGuard`.
+* **Contrôle des Rôles** : Gestion des accès différenciés entre les profils **ADMIN** et **USER**.
+
+---
+
+## 🛠️ Stack Technique
+
+* **Frontend** : Angular 18 (Composants Standalone, Signaux Angular).
+* **UI Framework** : Angular Material & Bootstrap 5.
+* **Visualisation** : ECharts, ngx-charts, D3.js.
+* **Backend (Mock)** : Node.js avec Express.
+* **Qualité** : Playwright (E2E), Jasmine/Karma (Unit tests).
+
+---
+
+## 🚀 Installation et Démarrage
+
+### 1. Prérequis
+
+* **Node.js** (v18+)
+* **Angular CLI** (`npm install -g @angular/cli`)
+
+### 2. Installation
+```bash
+# Installation des dépendances
+npm install
+
+```
+
+### 3. Lancement du Backend (API Live)
+
+Dans un premier terminal, lancez le serveur de simulation pour permettre la persistance des données :
 
 ```bash
-npm install
-
-🚀 Ferme GPU - Dashboard de Gestion
-📝 Présentation du Projet
-Ferme GPU est une application web moderne développée avec Angular 18, conçue pour la surveillance et la gestion centralisée de ressources de calcul (GPU, CPU, Mémoire) au sein de clusters.
-
-L'outil permet aux administrateurs et aux utilisateurs de visualiser en temps réel l'état de santé des nœuds, de gérer les cycles de vie des réservations de ressources et de surveiller l'infrastructure réseau (gateways) via une interface intuitive et réactive.
-
-✨ Fonctionnalités Clés
-Tableau de Bord Holistique : Visualisation globale des clusters via des jauges personnalisées pour l'utilisation GPU, CPU et RAM.
-
-Gestion Avancée des Réservations :
-
-Création de réservations spécifiques par application, namespace et modèle d'IA.
-
-Actions interactives : activation/désactivation, suppression ou migration de réservations entre les nœuds via des modales de confirmation.
-
-Monitoring des Nœuds : Liste détaillée des serveurs incluant le propriétaire, le statut et les métriques de performance individuelles.
-
-Contrôle des Gateways : Panneau de surveillance des passerelles réseau avec détection d'erreurs et simulation de redémarrage.
-
-Sécurité : Système d'authentification (AuthService) protégé par un garde de route (AuthGuard).
-
-🛠️ Stack Technique
-Frontend : Angular 18 (100% Standalone Components), Angular Signals pour une gestion d'état réactive, Angular Material pour l'UI.
-
-Visualisation : ECharts, ngx-charts et D3.js pour les graphiques et jauges.
-
-Backend (Simulation & Live) :
-
-Serveur Node.js/Express pour simuler une API réelle.
-
-Persistance locale via localStorage pour le mode mock, permettant de conserver les données entre les sessions.
-
-📖 Mode Opératoire (MODOP)
-1. Prérequis
-Node.js (v18+)
-
-Angular CLI (npm install -g @angular/cli)
-
-Navigateur Web récent (Chrome, Firefox, Edge)
-
-2. Installation et Lancement
-Clonage et Dépendances :
-
-Bash
-
-# Installer les modules
-npm install
-Lancement du Backend (Live API) : Ouvrez un terminal dédié pour le serveur de simulation :
-
-Bash
-
 node server/server.js
-Le serveur sera accessible sur http://localhost:3000/api/clusters.
 
-Lancement du Frontend : Dans un autre terminal :
+```
 
-Bash
+*Le serveur écoute sur le port **3000**. Testez l'accès via : `http://localhost:3000/api/clusters*`.
 
+### 4. Lancement du Frontend
+
+Dans un second terminal, démarrez l'application Angular :
+
+```bash
 ng serve -o
-L'application s'ouvrira automatiquement sur http://localhost:4200/.
 
-3. Utilisation de l'Application
-A. Connexion
-Accédez à la page de login.
+```
 
-Utilisez vos identifiants pour accéder au layout principal protégé par le AuthGuard.
+*L'interface sera disponible sur `http://localhost:4200/*`.
 
-B. Création d'une Réservation
-Naviguez vers la section "Réservations".
+---
 
-Remplissez le formulaire :
+## 📖 Mode Opératoire (MODOP)
 
-Sélectionnez l'Application (ex: Python Script, Docker Job).
+### A. Connexion
 
-Choisissez le Modèle d'IA (ex: GPT-4, Bert).
+1. Accédez à l'URL de l'application.
+2. Connectez-vous avec vos identifiants pour débloquer le dashboard.
 
-Allouez les ressources (Nombre de GPU, Coeurs CPU, Mémoire RAM).
+### B. Créer une Réservation
 
-Sélectionnez le Nœud cible (ex: SRV-01).
+1. Naviguez dans l'onglet **Réservations**.
+2. Cliquez sur le bouton de création.
+3. Sélectionnez l'application (ex: `Python Script`) et le modèle d'IA (ex: `GPT-4 Turbo`).
+4. Ajustez les ressources nécessaires (GPU, CPU, RAM) et choisissez un nœud cible (ex: `SRV-01`).
+5. Validez. La réservation apparaît dans la table et impacte immédiatement les jauges de ressources du nœud.
 
-Validez. La réservation sera enregistrée en mémoire vive sur le serveur (si l'API est active) ou en local.
+### C. Gérer les Incidents Réseau
 
-C. Gestion des Gateways
-Allez dans le panneau Gateway Management.
+1. Rendez-vous dans la section **Gateway Management**.
+2. Si une passerelle est marquée comme `Offline`, consultez le message d'erreur.
+3. Utilisez l'action de relance pour simuler une reprise d'activité.
 
-Si une gateway affiche le statut "Offline", utilisez le bouton de simulation pour tenter une relance.
+### D. Maintenance des Nœuds
 
-D. Monitoring des Ressources
-Consultez le Dashboard principal pour voir les jauges de consommation globale.
+* Consultez la **Node List** pour identifier les serveurs saturés ou inactifs.
+* Utilisez l'option de réallocation pour libérer des ressources sur un nœud spécifique.
 
-Utilisez la Node List pour voir quel propriétaire utilise quel serveur et vérifier le nombre de GPUs physiques vs virtuels.
+---
 
-4. Tests
-Pour vérifier le bon fonctionnement de l'application :
+## 🧪 Tests
 
-Bash
-
-# Lancer les tests unitaires (Karma/Jasmine)
+```bash
+# Tests unitaires
 npm test
 
-# Lancer les tests de bout en bout (Playwright)
+# Tests de bout en bout (Playwright)
 npx playwright test
+
+```
+
+---
+
+*Projet développé par AlastorZaul pour la gestion intelligente de ressources GPU.*
+
+```
+
+```
