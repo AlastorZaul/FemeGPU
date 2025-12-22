@@ -1,8 +1,3 @@
-Voici le contenu complet et optimisé pour votre fichier `README.md`. Ce document regroupe la présentation du projet, les détails techniques et le mode opératoire (MODOP) pour une utilisation clé en main.
-
-Vous pouvez copier-coller le bloc ci-dessous directement dans un fichier nommé `README.md` à la racine de votre projet.
-
-```markdown
 # 🚀 Ferme GPU - Dashboard de Gestion de Ressources
 
 [![Angular](https://img.shields.io/badge/Angular-18.2-DD0031?style=for-the-badge&logo=angular)](https://angular.io/)
