@@ -80,49 +80,130 @@ ng serve -o
 
 ---
 
-## 📖 Mode Opératoire (MODOP)
-
-### A. Connexion
-
-1. Accédez à l'URL de l'application.
-2. Connectez-vous avec vos identifiants pour débloquer le dashboard.
-
-### B. Créer une Réservation
-
-1. Naviguez dans l'onglet **Réservations**.
-2. Cliquez sur le bouton de création.
-3. Sélectionnez l'application (ex: `Python Script`) et le modèle d'IA (ex: `GPT-4 Turbo`).
-4. Ajustez les ressources nécessaires (GPU, CPU, RAM) et choisissez un nœud cible (ex: `SRV-01`).
-5. Validez. La réservation apparaît dans la table et impacte immédiatement les jauges de ressources du nœud.
-
-### C. Gérer les Incidents Réseau
-
-1. Rendez-vous dans la section **Gateway Management**.
-2. Si une passerelle est marquée comme `Offline`, consultez le message d'erreur.
-3. Utilisez l'action de relance pour simuler une reprise d'activité.
-
-### D. Maintenance des Nœuds
-
-* Consultez la **Node List** pour identifier les serveurs saturés ou inactifs.
-* Utilisez l'option de réallocation pour libérer des ressources sur un nœud spécifique.
+#Voici un mode opératoire (MODOP) détaillé pour l'installation, la configuration et l'utilisation de la plateforme **Ferme GPU**. Ce guide est conçu pour accompagner aussi bien les administrateurs système que les utilisateurs finaux.
 
 ---
 
-## 🧪 Tests
+# 📖 Mode Opératoire Détaillé - Ferme GPU
+
+Ce document décrit les procédures standard pour exploiter l'application de gestion de ressources GPU.
+
+## 🛠️ 1. Installation et Préparation de l'Environnement
+
+### A. Prérequis Techniques
+
+* **Node.js** : Version 18.0.0 ou supérieure requise pour assurer la compatibilité avec Angular 18.
+* **Angular CLI** : Installable via la commande `npm install -g @angular/cli`.
+* **Navigateur** : Chrome, Firefox ou Edge dans leurs versions récentes pour le support des Signaux Angular.
+
+### B. Procédure d'Installation
+
+1. **Récupération du projet** : Clonez le dépôt sur votre machine locale.
+2. **Installation des dépendances** : Exécutez la commande suivante à la racine du projet pour installer les bibliothèques nécessaires (Angular Material, ECharts, RxJS, etc.) :
 
 ```bash
-# Tests unitaires
-npm test
-
-# Tests de bout en bout (Playwright)
-npx playwright test
+npm install
 
 ```
+
+
 
 ---
 
-*Projet développé par AlastorZaul pour la gestion intelligente de ressources GPU.*
+## 🚀 2. Lancement des Services
+
+L'application nécessite le démarrage simultané du serveur de données et de l'interface utilisateur.
+
+### Étape 1 : Démarrage du Backend (API de Simulation)
+
+Ouvrez un terminal et lancez le serveur Express. Ce serveur gère la persistance en mémoire des réservations et simule les endpoints des clusters.
+
+```bash
+node server/server.js
 
 ```
 
+> **Note** : Le serveur est configuré par défaut sur le port **3000**.
+
+### Étape 2 : Démarrage du Frontend
+
+Dans un second terminal, lancez le serveur de développement Angular :
+
+```bash
+ng serve -o
+
 ```
+
+L'application sera accessible sur `http://localhost:4200/`.
+
+---
+
+## 🔐 3. Authentification et Accès
+
+L'accès à l'application est protégé par un service d'authentification (`AuthService`) et des gardes de route (`AuthGuard` et `RoleGuard`).
+
+1. **Page de Connexion** : Saisissez vos identifiants sur la page de login.
+2. **Rôles Utilisateurs** :
+
+* **ADMIN** : Accès complet à toutes les fonctionnalités de gestion et de configuration.
+* **USER** : Accès restreint à la consultation et aux réservations simples.
+
+---
+
+## 📊 4. Utilisation du Dashboard de Monitoring
+
+Le tableau de bord principal fournit une vision macroscopique de l'infrastructure.
+
+* **Jauges Globales** : Visualisez instantanément le pourcentage d'utilisation totale des **GPU**, de la **Mémoire** et du **CPU** sur l'ensemble des clusters connectés.
+* **Node List** : Consultez la liste détaillée de chaque nœud (ex: `SRV-01`) pour vérifier :
+* Le **Statut** (En ligne / Hors ligne).
+* Le **Propriétaire** affecté au serveur.
+* Le ratio entre **GPUs physiques** et **GPUs virtuels** disponibles.
+
+---
+
+## 📋 5. Gestion des Réservations de Ressources
+
+C'est le cœur opérationnel de l'application. Elle permet d'allouer précisément la puissance de calcul.
+
+### A. Créer une Réservation
+
+1. Naviguez vers l'onglet **"Réservations"** puis cliquez sur le formulaire de création.
+2. **Configuration** :
+
+* Sélectionnez l'**Application** et le **Namespace** concerné.
+* Choisissez le **Modèle d'IA** (ex: GPT-4 Turbo, Bert) pour lequel vous réservez les ressources.
+* Définissez les quantités : Nombre de GPU, cœurs CPU et Go de RAM.
+
+
+3. **Validation** : Une fois validée, la réservation est envoyée au backend via un appel `POST /api/reservations` et stockée dans le `localStorage` pour persistance locale.
+
+### B. Actions sur les Réservations existantes
+
+Dans la table des réservations, vous pouvez effectuer trois types d'actions via une modale de confirmation :
+
+* **Basculer le Statut** : Activez ou désactivez une réservation sans la supprimer.
+* **Déplacer (Move)** : Transférez une réservation d'un nœud vers un autre pour équilibrer la charge (Load Balancing).
+* **Suppression** : Libérez définitivement les ressources occupées.
+
+---
+
+## 🌐 6. Maintenance des Gateways
+
+Le panneau **Gateway Management** permet de surveiller la connectivité réseau du cluster.
+
+1. **Surveillance** : Identifiez les passerelles en statut `Offline`.
+2. **Dépannage** : En cas de panne simulée, utilisez le bouton de **Relance** pour tenter de rétablir la connexion de la gateway.
+
+---
+
+## 🧪 7. Procédures de Test
+
+Pour s'assurer que l'application fonctionne correctement après une modification :
+
+* **Tests Unitaires** : Exécutez `npm test` pour vérifier la logique des composants et services.
+* **Tests de bout en bout (E2E)** : Utilisez `npx playwright test` pour simuler des parcours utilisateurs complets (connexion, création de réservation).
+
+---
+
+Souhaitez-vous que j'ajoute une section spécifique sur la personnalisation des seuils d'alerte pour les jauges de ressources ?
