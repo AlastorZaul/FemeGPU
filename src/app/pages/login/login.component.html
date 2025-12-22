@@ -3,36 +3,75 @@
   <div class="bg-shape shape-2"></div>
 
   <mat-card class="login-card">
+
+    <div class="mode-switch"
+         [class.mock]="authService.isMockMode()"
+         [class.api]="!authService.isMockMode()"
+         (click)="toggleMode()"
+         title="Cliquez pour changer de mode">
+      <mat-icon>{{ authService.isMockMode() ? 'science' : 'dns' }}</mat-icon>
+      <span class="label">{{ authService.isMockMode() ? 'MODE DÉMO' : 'LIVE API' }}</span>
+      <mat-icon class="swap-icon">swap_horiz</mat-icon>
+    </div>
+
     <mat-card-header class="login-header">
-      <div class="logo-container">
-        <mat-icon>developer_board</mat-icon>
+      <div class="logo-container" [class.active]="!isLoading()">
+        <mat-icon>{{ isLoading() ? 'hourglass_empty' : 'developer_board' }}</mat-icon>
       </div>
-      <mat-card-title>Qui est-ce ?</mat-card-title>
-      <mat-card-subtitle>Choisissez un profil pour la démo</mat-card-subtitle>
+      <mat-card-title>Ferme GPU</mat-card-title>
+      <mat-card-subtitle>
+        {{ authService.isMockMode() ? 'Sélectionnez un profil ou connectez-vous' : 'Connexion sécurisée au cluster' }}
+      </mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-      <div class="user-grid">
-        @for (user of users; track user.username) {
-          <button class="user-card-btn" (click)="login(user)">
-            <div class="avatar-circle" [ngClass]="user.roles[0].toLowerCase()">
-              <mat-icon>{{ user.icon }}</mat-icon>
-            </div>
-            <div class="user-info">
-              <span class="name">{{ user.username }}</span>
-              <span class="role-badge" [ngClass]="user.roles[0].toLowerCase()">
-                {{ user.roles[0] }}
-              </span>
-              <span class="desc">{{ user.description }}</span>
-            </div>
-            <mat-icon class="chevron">chevron_right</mat-icon>
-          </button>
-        }
-      </div>
+      <form (ngSubmit)="onSubmit()" class="login-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Identifiant / Email</mat-label>
+          <input matInput [(ngModel)]="username" name="username" [disabled]="isLoading()" required>
+          <mat-icon matSuffix>person</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Mot de passe</mat-label>
+          <input matInput [(ngModel)]="password" name="password" type="password" [disabled]="isLoading()">
+          <mat-icon matSuffix>key</mat-icon>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading() || !username" class="submit-btn">
+
+          @if (isLoading()) {
+            <mat-spinner diameter="20" color="accent"></mat-spinner>
+            <span>Connexion...</span>
+          } @else {
+            <ng-container>
+              <span>Se connecter</span>
+              <mat-icon>arrow_forward</mat-icon>
+            </ng-container>
+          }
+
+        </button>
+      </form>
+
+      @if (authService.isMockMode()) {
+        <div class="quick-login-area">
+          <p class="separator"><span>Accès Rapide</span></p>
+          <div class="chips-grid">
+            @for (user of availableMockUsers; track user.username) {
+              <div class="user-chip" (click)="fillMockUser(user.username)" [title]="user.description">
+                <mat-icon>{{ user.icon }}</mat-icon>
+                <span>{{ user.username }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
     </mat-card-content>
 
     <mat-card-footer>
-      <span class="version">Demo Environment v1.1</span>
+      <span class="version">
+        {{ authService.isMockMode() ? 'Environnement de Test' : 'Production v1.2' }}
+      </span>
     </mat-card-footer>
   </mat-card>
 </div>

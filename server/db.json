@@ -1,0 +1,125 @@
+{
+  "config": {
+    "applications": [
+      "Python Script",
+      "Docker Job",
+      "NodeJS Server",
+      "Backend Service"
+    ],
+    "models": [
+      {
+        "id": "gpt-4-turbo",
+        "name": "GPT-4 Turbo (API)",
+        "type": "LLM",
+        "vramRequiredGb": 0,
+        "source": "OpenAI",
+        "tags": [
+          "Cloud"
+        ]
+      },
+      {
+        "id": "bert-base",
+        "name": "Bert Base",
+        "type": "NLP",
+        "vramRequiredGb": 2,
+        "source": "HuggingFace",
+        "tags": [
+          "Local"
+        ]
+      },
+      {
+        "id": "llama-3-70b",
+        "name": "Llama 3 70B",
+        "type": "LLM",
+        "vramRequiredGb": 40,
+        "source": "Meta",
+        "tags": [
+          "Local"
+        ]
+      }
+    ]
+  },
+  "users": [
+    {
+      "id": "u1",
+      "username": "admin",
+      "password": "123",
+      "email": "admin@fermegpu.com",
+      "roles": [
+        "ADMIN",
+        "USER"
+      ],
+      "avatar": "assets/avatars/admin.png"
+    },
+    {
+      "id": "u2",
+      "username": "user",
+      "password": "123",
+      "email": "user@fermegpu.com",
+      "roles": [
+        "USER"
+      ],
+      "avatar": "assets/avatars/user.png"
+    }
+  ],
+  "clusters": [
+    {
+      "cluster_name": "Cluster BACKEND (Live)",
+      "total_physical_gpus": 20,
+      "total_virtual_gpus": 20,
+      "total_used_gpus": 5,
+      "global_gpu_usage_percent": 25,
+      "total_memory_gb": 1024,
+      "total_cpu_cores": 256,
+      "total_used_memory_gb": 64,
+      "total_used_cpu_cores": 16,
+      "nodes": {
+        "SRV-01": {
+          "owner": "Backend Team",
+          "status": "En ligne",
+          "physical_gpus": 10,
+          "virtual_gpus": 10,
+          "reserved_gpus": 5,
+          "used_gpus": 5,
+          "gpu_usage_percent": 50,
+          "total_memory_gb": 512,
+          "reserved_memory_gb": 64,
+          "total_used_memory_gb": 64,
+          "total_cpu_cores": 128,
+          "reserved_cpu_cores": 16,
+          "total_used_cpu_cores": 16,
+          "reservations": [
+            {
+              "id": "res-init-1",
+              "namespace": "backend-core",
+              "application": "Backend Service",
+              "modelName": "-",
+              "gpusRequested": 5,
+              "memoryRequest": 64,
+              "cpuRequest": 16,
+              "status": "Running",
+              "isActive": true,
+              "createdAt": "2025-12-22T16:29:22.393Z"
+            }
+          ]
+        },
+        "SRV-02": {
+          "owner": "Admin",
+          "status": "En ligne",
+          "physical_gpus": 10,
+          "virtual_gpus": 10,
+          "reserved_gpus": 0,
+          "used_gpus": 0,
+          "gpu_usage_percent": 0,
+          "total_memory_gb": 512,
+          "reserved_memory_gb": 0,
+          "total_used_memory_gb": 0,
+          "total_cpu_cores": 128,
+          "reserved_cpu_cores": 0,
+          "total_used_cpu_cores": 0,
+          "reservations": []
+        }
+      }
+    }
+  ]
+}
