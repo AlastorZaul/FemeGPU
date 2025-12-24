@@ -3,12 +3,11 @@ import {HttpClient} from '@angular/common/http';
 import {Observable, timer} from 'rxjs';
 import {shareReplay, switchMap} from 'rxjs/operators';
 import {Gateway} from '../models/gpu.model';
-import {IGatewayDataService} from '../interfaces/gateway-data-service.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GatewayDataService implements IGatewayDataService {
+export class GatewayDataService {
   constructor(private http: HttpClient) {
   }
   private readonly apiUrl = '/api';

@@ -4,7 +4,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import {MatIconModule} from '@angular/material/icon';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle'; // <-- Import nécessaire
+// MatSlideToggleModule peut être retiré des imports si vous ne l'utilisez plus ailleurs
 import {AuthService} from '../services/auth.service';
 import {BreadcrumbComponent} from '../components/breadcrumb/breadcrumb.component';
 
@@ -19,7 +19,6 @@ import {BreadcrumbComponent} from '../components/breadcrumb/breadcrumb.component
     MatListModule,
     MatIconModule,
     MatExpansionModule,
-    MatSlideToggleModule, // <-- Ajouter ici
     BreadcrumbComponent
   ],
   templateUrl: './layout.component.html',
@@ -28,19 +27,5 @@ import {BreadcrumbComponent} from '../components/breadcrumb/breadcrumb.component
 export class LayoutComponent {
   public authService = inject(AuthService);
 
-  // --- LOGIQUE DU MODE DÉVELOPPEUR ---
-
-  // Lit l'état actuel (true si 'true', false sinon)
-  isMockMode = localStorage.getItem('FORCE_MOCK') === 'true';
-
-  onModeChange(event: any) {
-    const isChecked = event.checked;
-    if (isChecked) {
-      localStorage.setItem('FORCE_MOCK', 'true');
-    } else {
-      localStorage.setItem('FORCE_MOCK', 'false');
-    }
-    // Rechargement pour appliquer le changement de Factory
-    window.location.reload();
-  }
+  // SUPPRIMÉ : isMockMode, onModeChange()
 }

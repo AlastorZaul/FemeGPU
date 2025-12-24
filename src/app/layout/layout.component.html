@@ -63,15 +63,6 @@
 
         <div class="footer-actions">
 
-          <div class="debug-toggle-row" [class.mock-active]="isMockMode">
-            <mat-slide-toggle
-              [checked]="isMockMode"
-              (change)="onModeChange($event)"
-              color="warn">
-              <span class="toggle-label">{{ isMockMode ? 'Mode SIMULATION' : 'Mode LIVE API' }}</span>
-            </mat-slide-toggle>
-          </div>
-
           <button mat-flat-button color="warn" class="logout-btn-wide" (click)="authService.logout()">
             <mat-icon>logout</mat-icon>
             Déconnexion

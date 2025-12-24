@@ -1,7 +1,18 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const bcrypt = require('bcrypt');
+const {
+  sequelize,
+  User,
+  AiModel,
+  Cluster,
+  Node,
+  Reservation,
+  Gateway,      // ✅ Ajouté pour corriger ReferenceError
+  Application,  // ✅ Ajouté pour corriger ReferenceError
+  Namespace,    // ✅ Ajouté pour les nouvelles routes
+  initDb
+} = require('./database');
 
 const app = express();
 const port = 3000;
@@ -9,338 +20,335 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-// ==========================================
-// 1. GESTION DE LA PERSISTANCE (JSON)
-// ==========================================
-
-const DB_FILE = path.join(__dirname, 'db.json');
-
-// --- DONNÉES PAR DÉFAUT (Utilisées si db.json n'existe pas) ---
-const DEFAULT_DATA = {
-  config: {
-    applications: ['Python Script', 'Docker Job', 'NodeJS Server', 'Backend Service'],
-    models: [
-      {id: 'gpt-4-turbo', name: 'GPT-4 Turbo (API)', type: 'LLM', vramRequiredGb: 0, source: 'OpenAI', tags: ['Cloud']},
-      {id: 'bert-base', name: 'Bert Base', type: 'NLP', vramRequiredGb: 2, source: 'HuggingFace', tags: ['Local']},
-      {id: 'llama-3-70b', name: 'Llama 3 70B', type: 'LLM', vramRequiredGb: 40, source: 'Meta', tags: ['Local']}
-    ]
-  },
-  // UTILISATEURS POUR L'AUTHENTIFICATION
-  users: [
-    {
-      id: 'u1',
-      username: 'admin',
-      password: '123',
-      email: 'admin@fermegpu.com',
-      roles: ['ADMIN', 'USER'],
-      avatar: 'assets/avatars/admin.png'
-    },
-    {
-      id: 'u2',
-      username: 'user',
-      password: '123',
-      email: 'user@fermegpu.com',
-      roles: ['USER'],
-      avatar: 'assets/avatars/user.png'
-    }
-  ],
-  clusters: [
-    {
-      cluster_name: 'Cluster BACKEND (Live)',
-      total_physical_gpus: 20, total_virtual_gpus: 20,
-      total_used_gpus: 0, global_gpu_usage_percent: 0,
-      total_memory_gb: 1024, total_cpu_cores: 256,
-      total_used_memory_gb: 0, total_used_cpu_cores: 0,
-      nodes: {
-        "SRV-01": {
-          owner: 'Backend Team', status: 'En ligne',
-          physical_gpus: 10, virtual_gpus: 10, reserved_gpus: 0, used_gpus: 0,
-          gpu_usage_percent: 0,
-          total_memory_gb: 512, reserved_memory_gb: 0, total_used_memory_gb: 0,
-          total_cpu_cores: 128, reserved_cpu_cores: 0, total_used_cpu_cores: 0,
-          reservations: [
-            {
-              id: 'res-init-1', namespace: 'backend-core', application: 'Backend Service', modelName: '-',
-              gpusRequested: 5, memoryRequest: 64, cpuRequest: 16,
-              status: 'Running', isActive: true, createdAt: new Date().toISOString()
-            }
-          ]
-        },
-        "SRV-02": {
-          owner: 'Admin', status: 'En ligne',
-          physical_gpus: 10, virtual_gpus: 10, reserved_gpus: 0, used_gpus: 0,
-          gpu_usage_percent: 0,
-          total_memory_gb: 512, reserved_memory_gb: 0, total_used_memory_gb: 0,
-          total_cpu_cores: 128, reserved_cpu_cores: 0, total_used_cpu_cores: 0,
-          reservations: []
-        }
-      }
-    }
-  ]
-};
-
-// Variables en mémoire
-let APP_CONFIG = DEFAULT_DATA.config;
-let MOCK_USERS = DEFAULT_DATA.users;
-let MOCK_CLUSTERS = DEFAULT_DATA.clusters;
-
-// --- FONCTIONS DE CHARGEMENT / SAUVEGARDE ---
-
-function loadData() {
-  if (fs.existsSync(DB_FILE)) {
-    try {
-      const rawData = fs.readFileSync(DB_FILE, 'utf8');
-      const data = JSON.parse(rawData);
-      APP_CONFIG = data.config || DEFAULT_DATA.config;
-      MOCK_CLUSTERS = data.clusters || DEFAULT_DATA.clusters;
-      MOCK_USERS = data.users || DEFAULT_DATA.users;
-      console.log('📂 Données chargées depuis db.json');
-    } catch (err) {
-      console.error('⚠️ Erreur lecture db.json, utilisation des défauts:', err);
-      saveData();
-    }
-  } else {
-    console.log('✨ Création du fichier db.json avec les données par défaut');
-    saveData();
-  }
-}
-
-function saveData() {
-  const data = {
-    config: APP_CONFIG,
-    users: MOCK_USERS,
-    clusters: MOCK_CLUSTERS
-  };
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
-  } catch (err) {
-    console.error('❌ Erreur sauvegarde db.json:', err);
-  }
-}
+// Initialisation de la DB au démarrage
+initDb();
 
 // ==========================================
-// 2. LOGIQUE MÉTIER (Recalculs)
+// UTILITAIRES
 // ==========================================
 
-function updateMetrics(clusterName, nodeName) {
-  const cluster = MOCK_CLUSTERS.find(c => c.cluster_name === clusterName);
-  if (!cluster) return;
+/**
+ * Recalcule les métriques d'un noeud en fonction de ses réservations actives
+ * Retourne un objet avec les compteurs à jour.
+ */
+async function updateNodeMetrics(nodeId) {
+  const node = await Node.findByPk(nodeId, {include: 'reservations'});
+  if (!node) return {};
 
-  const node = cluster.nodes[nodeName];
-  if (!node) return;
+  let usedGpus = 0;
+  let usedMem = 0;
+  let usedCpu = 0;
 
-  // Reset
-  node.used_gpus = 0;
-  node.reserved_gpus = 0;
-  node.total_used_memory_gb = 0;
-  node.reserved_memory_gb = 0;
-  node.total_used_cpu_cores = 0;
-  node.reserved_cpu_cores = 0;
-
-  // Somme
   if (node.reservations) {
     node.reservations.forEach(res => {
       if (res.isActive) {
-        const gpus = Number(res.gpusRequested) || 0;
-        node.used_gpus += gpus;
-        node.reserved_gpus += gpus;
-
-        const ram = Number(res.memoryRequest) || 0;
-        node.total_used_memory_gb += ram;
-        node.reserved_memory_gb += ram;
-
-        const cpu = Number(res.cpuRequest) || 0;
-        node.total_used_cpu_cores += cpu;
-        node.reserved_cpu_cores += cpu;
+        usedGpus += res.gpusRequested || 0;
+        usedMem += res.memoryRequest || 0;
+        usedCpu += res.cpuRequest || 0;
       }
     });
   }
 
-  // % Nœud
-  if (node.physical_gpus > 0) {
-    node.gpu_usage_percent = Math.round((node.used_gpus / node.physical_gpus) * 100);
-  } else {
-    node.gpu_usage_percent = 0;
-  }
+  // C'est ici que se joue la correction des noms pour le frontend
+  return {
+    used_gpus: usedGpus,
+    reserved_gpus: usedGpus,
 
-  // % Cluster
-  let clusterGpu = 0;
-  let clusterMem = 0;
-  let clusterCpu = 0;
+    // CORRECTION : On utilise les noms attendus par le frontend (gpu.model.ts)
+    reserved_memory_gb: usedMem,   // Au lieu de total_used_memory_gb
+    reserved_cpu_cores: usedCpu,   // Au lieu de total_used_cpu_cores
 
-  Object.values(cluster.nodes).forEach(n => {
-    clusterGpu += n.used_gpus;
-    clusterMem += n.total_used_memory_gb;
-    clusterCpu += n.total_used_cpu_cores;
-  });
+    // On garde aussi les anciens noms au cas où le Cluster global les utilise
+    total_used_memory_gb: usedMem,
+    total_used_cpu_cores: usedCpu,
 
-  cluster.total_used_gpus = clusterGpu;
-  cluster.total_used_memory_gb = clusterMem;
-  cluster.total_used_cpu_cores = clusterCpu;
-
-  if (cluster.total_physical_gpus > 0) {
-    cluster.global_gpu_usage_percent = Math.round((cluster.total_used_gpus / cluster.total_physical_gpus) * 100);
-  }
+    // Calcul du pourcentage d'usage GPU
+    gpu_usage_percent: node.physical_gpus > 0 ? Math.round((usedGpus / node.physical_gpus) * 100) : 0
+  };
 }
 
-// Initialisation au démarrage
-loadData();
-MOCK_CLUSTERS.forEach(c => Object.keys(c.nodes).forEach(n => updateMetrics(c.cluster_name, n)));
-saveData();
-
 // ==========================================
-// 3. ROUTES API
+// ROUTES API
 // ==========================================
 
 // --- AUTHENTIFICATION ---
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const {username, password} = req.body;
-  console.log(`🔑 Login: ${username}`);
 
-  // Recherche dans les données chargées
-  const user = MOCK_USERS.find(u => u.username === username && u.password === password);
+  try {
+    const user = await User.findOne({where: {username}});
+    if (!user) return res.status(401).json({message: 'Identifiants incorrects'});
 
-  if (user) {
-    // On renvoie l'user sans le mot de passe
-    const {password, ...userWithoutPass} = user;
-    res.json(userWithoutPass);
-  } else {
-    res.status(401).json({message: 'Identifiants incorrects'});
+    // Comparaison du mot de passe haché
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({message: 'Identifiants incorrects'});
+
+    // Renvoi des infos utilisateur (sans le mot de passe)
+    res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      roles: user.roles,
+      avatar: user.avatar
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({message: 'Erreur serveur'});
   }
 });
 
-app.get('/api/clusters', (req, res) => res.json(MOCK_CLUSTERS));
+// --- CLUSTERS (Structure complexe pour le Frontend) ---
+app.get('/api/clusters', async (req, res) => {
+  try {
+    const clustersDb = await Cluster.findAll({
+      include: [{
+        model: Node,
+        as: 'nodes',
+        include: [{model: Reservation, as: 'reservations'}]
+      }]
+    });
 
-// --- RESERVATIONS ---
-app.post('/api/reservations', (req, res) => {
-  const {cluster, node, namespace, application, modelName, gpusRequested, memoryRequest, cpuRequest} = req.body;
+    const responseData = await Promise.all(clustersDb.map(async (c) => {
+      const cJson = c.toJSON();
+      cJson.cluster_name = c.name;
 
-  const targetCluster = MOCK_CLUSTERS.find(c => c.cluster_name === cluster);
-  if (!targetCluster) return res.status(404).json({message: "Cluster introuvable"});
+      const nodesMap = {};
+      let clusterUsedGpu = 0;
+      let clusterUsedMem = 0; // ✅ Variable pour le total RAM
+      let clusterUsedCpu = 0; // ✅ Variable pour le total CPU
 
-  const targetNode = targetCluster.nodes[node];
-  if (!targetNode) return res.status(404).json({message: "Nœud introuvable"});
+      for (const n of c.nodes) {
+        const metrics = await updateNodeMetrics(n.id);
 
-  const newRes = {
-    id: `res-${Date.now()}`,
-    namespace, application, modelName,
-    gpusRequested: Number(gpusRequested) || 0,
-    memoryRequest: Number(memoryRequest) || 0,
-    cpuRequest: Number(cpuRequest) || 0,
-    status: 'Running', isActive: true, createdAt: new Date().toISOString()
-  };
+        // Cumul des métriques pour le cluster global
+        clusterUsedGpu += metrics.used_gpus;
+        clusterUsedMem += metrics.total_used_memory_gb || 0;
+        clusterUsedCpu += metrics.total_used_cpu_cores || 0;
 
-  targetNode.reservations.push(newRes);
-  updateMetrics(cluster, node);
-  saveData();
+        // Transformation des réservations avec Alias de sécurité
+        const mappedReservations = n.reservations.map(r => {
+          const rJson = r.toJSON();
+          return {
+            ...rJson,
+            // 1. Mapping obligatoire pour le backend
+            namespace: r.namespaceName,
+            application: r.applicationName,
 
-  res.json({message: 'Réservation créée', reservation: newRes});
+            // 2. Alias de compatibilité (au cas où le front utilise 'ram' ou 'cpu')
+            ram: r.memoryRequest,      // Alias pour memoryRequest
+            memory: r.memoryRequest,   // Alias pour memoryRequest
+            cpu: r.cpuRequest,         // Alias pour cpuRequest
+
+            // 3. Info contextuelle utile
+            nodeName: n.name,
+            clusterName: c.name
+          };
+        });
+
+        nodesMap[n.name] = {
+          ...n.toJSON(),
+          ...metrics,
+          status: n.status,
+          owner: n.owner,
+          reservations: mappedReservations
+        };
+      }
+
+      cJson.nodes = nodesMap;
+
+      // ✅ Assignation des totaux calculés (pour les jauges du dashboard)
+      cJson.total_used_gpus = clusterUsedGpu;
+      cJson.total_used_memory_gb = clusterUsedMem;
+      cJson.total_used_cpu_cores = clusterUsedCpu;
+
+      // Calcul des pourcentages globaux
+      cJson.global_gpu_usage_percent = c.total_physical_gpus > 0
+        ? Math.round((clusterUsedGpu / c.total_physical_gpus) * 100) : 0;
+
+      // Optionnel : Ajout des pourcentages globaux CPU/RAM si le front les utilise
+      // cJson.global_memory_usage_percent = ...
+
+      return cJson;
+    }));
+
+    res.json(responseData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({message: err.message});
+  }
 });
 
-app.post('/api/reservations/toggle', (req, res) => {
-  const {cluster, node, namespace} = req.body;
-  const c = MOCK_CLUSTERS.find(x => x.cluster_name === cluster);
-  if (c && c.nodes[node]) {
-    const resItem = c.nodes[node].reservations.find(r => r.namespace === namespace);
+// --- CRÉATION RÉSERVATION ---
+app.post('/api/reservations', async (req, res) => {
+  const {cluster, node, namespace, application, modelName, gpusRequested, memoryRequest, cpuRequest} = req.body;
+
+  try {
+    // 1. Trouver le Namespace (optionnel, pour lier proprement si on veut)
+    let nsEntity = null;
+    if (namespace) {
+      nsEntity = await Namespace.findOne({where: {name: namespace}});
+    }
+
+    // 2. Trouver le Noeud cible
+    const targetNode = await Node.findOne({where: {name: node}});
+    if (!targetNode) return res.status(404).json({message: "Nœud introuvable"});
+
+    // 3. Création
+    const newRes = await Reservation.create({
+      namespaceName: namespace, // Pour compatibilité front
+      NamespaceId: nsEntity ? nsEntity.id : null,
+      applicationName: application,
+      modelName,
+      gpusRequested: Number(gpusRequested) || 0,
+      memoryRequest: Number(memoryRequest) || 0,
+      cpuRequest: Number(cpuRequest) || 0,
+      NodeId: targetNode.id,
+      status: 'Running',
+      isActive: true
+    });
+
+    res.json({message: 'Réservation créée', reservation: newRes});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({message: "Erreur lors de la création de la réservation"});
+  }
+});
+
+// --- TOGGLE STATUS (Activer/Désactiver) ---
+app.post('/api/reservations/toggle', async (req, res) => {
+  const {node, namespace} = req.body;
+  try {
+    const targetNode = await Node.findOne({where: {name: node}});
+    if (!targetNode) return res.status(404).json({message: "Nœud introuvable"});
+
+    // On cherche la réservation via le Node ID et le Namespace
+    // (Note: Idéalement, il faudrait utiliser l'ID unique de la réservation)
+    const resItem = await Reservation.findOne({
+      where: {NodeId: targetNode.id, namespaceName: namespace}
+    });
+
     if (resItem) {
       resItem.isActive = !resItem.isActive;
       resItem.status = resItem.isActive ? 'Running' : 'Stopped';
-      updateMetrics(cluster, node);
-      saveData();
+      await resItem.save();
       return res.json({message: `Réservation ${resItem.isActive ? 'activée' : 'désactivée'}`});
     }
+    res.status(404).json({message: "Réservation introuvable sur ce noeud"});
+  } catch (e) {
+    res.status(500).json({message: "Erreur serveur"});
   }
-  res.status(404).json({message: "Réservation introuvable"});
 });
 
-app.post('/api/reservations/move', (req, res) => {
-  const {cluster, sourceNode, targetNode, namespace} = req.body;
-  const c = MOCK_CLUSTERS.find(x => x.cluster_name === cluster);
+// --- SUPPRESSION RÉSERVATION ---
+app.delete('/api/reservations', async (req, res) => {
+  const {node, namespace} = req.body;
+  try {
+    const targetNode = await Node.findOne({where: {name: node}});
+    if (!targetNode) return res.status(404).json({message: "Nœud introuvable"});
 
-  if (!c || !c.nodes[sourceNode] || !c.nodes[targetNode]) {
-    return res.status(404).json({message: "Source ou Cible introuvable"});
+    const deleted = await Reservation.destroy({
+      where: {NodeId: targetNode.id, namespaceName: namespace}
+    });
+
+    if (deleted) return res.json({message: "Réservation supprimée"});
+    res.status(404).json({message: "Réservation introuvable"});
+  } catch (e) {
+    res.status(500).json({message: "Erreur serveur"});
   }
-
-  const sourceList = c.nodes[sourceNode].reservations;
-  const resIndex = sourceList.findIndex(r => r.namespace === namespace);
-
-  if (resIndex > -1) {
-    const [reservationToMove] = sourceList.splice(resIndex, 1);
-    c.nodes[targetNode].reservations.push(reservationToMove);
-
-    updateMetrics(cluster, sourceNode);
-    updateMetrics(cluster, targetNode);
-    saveData();
-    return res.json({message: `Migration réussie vers ${targetNode}`});
-  }
-  res.status(404).json({message: "Réservation introuvable"});
 });
 
-app.delete('/api/reservations', (req, res) => {
-  const {cluster, node, namespace} = req.body;
-  const c = MOCK_CLUSTERS.find(x => x.cluster_name === cluster);
-
-  if (c && c.nodes[node]) {
-    const initialLength = c.nodes[node].reservations.length;
-    c.nodes[node].reservations = c.nodes[node].reservations.filter(r => r.namespace !== namespace);
-
-    if (c.nodes[node].reservations.length < initialLength) {
-      updateMetrics(cluster, node);
-      saveData();
-      return res.json({message: "Réservation supprimée"});
-    }
+// --- CONFIGURATION : APPLICATIONS ---
+app.get('/api/config/applications', async (req, res) => {
+  try {
+    const apps = await Application.findAll();
+    // Le front attend un tableau de chaînes de caractères (noms)
+    res.json(apps.map(a => a.name));
+  } catch (e) {
+    res.status(500).json({message: "Erreur récupération applications"});
   }
-  res.status(404).json({message: "Introuvable"});
 });
 
-app.put('/api/reservations/model', (req, res) => {
-  const {cluster, node, namespace, modelName} = req.body;
-  const c = MOCK_CLUSTERS.find(x => x.cluster_name === cluster);
-  if (c && c.nodes[node]) {
-    const resItem = c.nodes[node].reservations.find(r => r.namespace === namespace);
+// --- CONFIGURATION : MODÈLES IA ---
+app.get('/api/config/models', async (req, res) => {
+  try {
+    const models = await AiModel.findAll();
+    // Mapping pour le format attendu par le front
+    const response = models.map(m => ({
+      id: m.idName,
+      name: m.name,
+      type: m.type,
+      vramRequiredGb: m.vramRequiredGb,
+      source: m.source,
+      tags: m.tags
+    }));
+    res.json(response);
+  } catch (e) {
+    res.status(500).json({message: "Erreur récupération modèles"});
+  }
+});
+
+// --- GATEWAYS ---
+app.get('/api/gateways', async (req, res) => {
+  try {
+    const gateways = await Gateway.findAll();
+    res.json(gateways);
+  } catch (e) {
+    res.status(500).json({message: "Erreur récupération gateways"});
+  }
+});
+
+// --- NAMESPACES ---
+app.get('/api/config/namespaces', async (req, res) => {
+  try {
+    const namespaces = await Namespace.findAll();
+    res.json(namespaces);
+  } catch (err) {
+    res.status(500).json({message: "Erreur récupération namespaces"});
+  }
+});
+
+app.post('/api/config/namespaces', async (req, res) => {
+  try {
+    const {name, owner, quotaGpu} = req.body;
+    // Vérifier unicité si besoin
+    const newNs = await Namespace.create({name, owner, quotaGpu});
+    res.json(newNs);
+  } catch (err) {
+    res.status(500).json({message: "Erreur création namespace"});
+  }
+});
+
+app.put('/api/reservations/model', async (req, res) => {
+  // Le frontend envoie : { cluster, node, namespace, modelName }
+  const {node, namespace, modelName} = req.body;
+
+  try {
+    // 1. On identifie le noeud
+    const targetNode = await Node.findOne({where: {name: node}});
+    if (!targetNode) return res.status(404).json({message: "Nœud introuvable"});
+
+    // 2. On cherche la réservation correspondante
+    const resItem = await Reservation.findOne({
+      where: {NodeId: targetNode.id, namespaceName: namespace}
+    });
+
     if (resItem) {
+      // 3. Mise à jour du champ modelName
       resItem.modelName = modelName;
-      saveData();
+      await resItem.save(); // Persistance en BDD
+
       return res.json({message: `Modèle mis à jour vers ${modelName}`});
     }
+
+    res.status(404).json({message: "Réservation introuvable"});
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({message: "Erreur serveur lors de la mise à jour du modèle"});
   }
-  res.status(404).json({message: "Introuvable"});
 });
 
-app.post('/api/reservations/deploy', (req, res) => {
-  const {cluster, namespace} = req.body;
-  console.log(`🚀 [MOCK] Début déploiement: ${namespace}`);
-  setTimeout(() => console.log(`✅ [MOCK] Fin déploiement: ${namespace}`), 2000);
-  res.json({message: `Déploiement initié pour ${namespace}`});
-});
-
-// --- CONFIG ---
-app.get('/api/config/applications', (req, res) => res.json(APP_CONFIG.applications));
-app.get('/api/config/models', (req, res) => res.json(APP_CONFIG.models));
-
-app.post('/api/config/models', (req, res) => {
-  const newModel = {id: `model-${Date.now()}`, ...req.body};
-  APP_CONFIG.models.push(newModel);
-  saveData();
-  res.json(newModel);
-});
-
-app.delete('/api/config/models/:id', (req, res) => {
-  const id = req.params.id;
-  APP_CONFIG.models = APP_CONFIG.models.filter(m => m.id !== id);
-  saveData();
-  res.json({message: 'Modèle supprimé'});
-});
-
-app.get('/api/gateways', (req, res) => {
-  res.json([
-    {id: 'gw-1', name: 'Gateway Production', ipAddress: '10.0.0.254', status: 'Online'},
-    {id: 'gw-2', name: 'Gateway Backup', ipAddress: '10.0.0.253', status: 'Offline', errorMessage: 'Timeout'}
-  ]);
-});
-
-// --- DÉMARRAGE ---
+// --- DÉMARRAGE SERVEUR ---
 app.listen(port, () => {
-  console.log(`✅ Serveur DÉMARRÉ sur http://localhost:${port}`);
-  console.log(`   Base de données : ${DB_FILE}`);
+  console.log(`✅ Serveur DB (SQLite) démarré sur http://localhost:${port}`);
+  console.log(`   Base de données : server/ferme.sqlite`);
 });
