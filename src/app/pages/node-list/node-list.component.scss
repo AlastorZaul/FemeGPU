@@ -188,3 +188,13 @@ table {
     mat-icon { display: none; } // Cache l'icône dans le badge pour gagner de la place
   }
 }
+
+.status-drain {
+  color: #d97706; /* Orange ambré */
+  background-color: #fef3c7;
+}
+
+.status-error {
+  color: #b91c1c; /* Rouge foncé */
+  background-color: #fee2e2;
+}

@@ -246,6 +246,10 @@ app.delete('/api/reservations', async (req, res) => {
     const targetNode = await Node.findOne({where: {name: node}});
     if (!targetNode) return res.status(404).json({message: "Nœud introuvable"});
 
+    if (targetNode.status === 'Drain') {
+      return res.status(409).json({message: "Impossible de réserver : Le nœud est en mode Drain."});
+    }
+
     const deleted = await Reservation.destroy({
       where: {NodeId: targetNode.id, namespaceName: namespace}
     });
@@ -344,6 +348,29 @@ app.put('/api/reservations/model', async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({message: "Erreur serveur lors de la mise à jour du modèle"});
+  }
+});
+
+// --- GESTION DES NOEUDS (DRAIN) ---
+app.post('/api/nodes/toggle-drain', async (req, res) => {
+  const { nodeName } = req.body;
+  try {
+    const node = await Node.findOne({ where: { name: nodeName } });
+    if (!node) return res.status(404).json({ message: "Nœud introuvable" });
+
+    // Bascule : Si 'Drain', on repasse 'En ligne', sinon on passe en 'Drain'
+    // Note : On pourrait affiner si vous avez d'autres statuts comme 'Maintenance'
+    if (node.status === 'Drain') {
+      node.status = 'En ligne';
+    } else {
+      node.status = 'Drain';
+    }
+
+    await node.save();
+    res.json({ message: `Statut du nœud mis à jour : ${node.status}`, newStatus: node.status });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Erreur lors du changement de statut" });
   }
 });
 

@@ -1,9 +1,10 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {EMPTY, Observable, timer} from 'rxjs';
 import {catchError, shareReplay, switchMap} from 'rxjs/operators';
 import {ClusterApiResponse, ReservationDetail} from '../models/gpu.model';
 import {AiModel} from '../models/aimodel.model';
+import {ENV_CONFIG} from '../core/env.config';
 
 // Interfaces de réponse API
 export interface ApiMessageResponse {
@@ -37,8 +38,9 @@ export class GpuDataService {
   constructor(private http: HttpClient) {
     console.log('%c✅ SERVICE RÉEL (HTTP) INSTANCIÉ', 'background: green; color: white; padding: 4px; font-size: 14px');
   }
-
-  private readonly apiUrl = '/api';
+  private env = inject(ENV_CONFIG);
+  // Utilisation de l'environnement pour l'URL de l'API
+  private readonly apiUrl = this.env.apiUrl;
 
   // 1. POLLING DES CLUSTERS
   public clusterData$: Observable<ClusterApiResponse[]> = timer(0, 5000).pipe(
@@ -137,4 +139,16 @@ export class GpuDataService {
       namespace: reservation.namespace
     });
   }
+
+  /**
+   * Active ou désactive le drainage d'un nœud.
+   * Le serveur renvoie { message: string }
+   * @param nodeName Le nom du nœud à drainer ou undrainer.
+   */
+  toggleNodeDrain(nodeName: string): Observable<ApiMessageResponse> {
+    return this.http.post<ApiMessageResponse>(`${this.apiUrl}/nodes/toggle-drain`, {
+      nodeName
+    });
+  }
+
 }

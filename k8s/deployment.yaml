@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ferme-gpu-front
+  namespace: default
+  labels:
+    app: ferme-gpu-front
+spec:
+  replicas: 1
+  # ✅ AJOUT : Le selector est obligatoire pour lier le Deployment aux Pods
+  selector:
+    matchLabels:
+      app: ferme-gpu-front
+  template:
+    metadata:
+      # ✅ AJOUT : Ces labels doivent correspondre au selector ci-dessus
+      labels:
+        app: ferme-gpu-front
+    spec:
+      containers:
+        - name: frontend
+          image: votre-registry/ferme-gpu:latest # Remplacez par votre image réelle
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            # Montage du fichier env.js généré par la ConfigMap
+            - name: config-volume
+              mountPath: /usr/share/nginx/html/env.js
+              subPath: env.js
+              readOnly: true
+      volumes:
+        # Définition du volume pointant vers la ConfigMap
+        - name: config-volume
+          configMap:
+            name: app-config # Doit correspondre au nom dans settings.configmap.yaml

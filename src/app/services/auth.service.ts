@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {UserProfile, UserRole} from '../models/user.model';
 import {Observable} from 'rxjs';
 import {tap} from 'rxjs/operators';
+import {ENV_CONFIG} from '../core/env.config';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ import {tap} from 'rxjs/operators';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private env = inject(ENV_CONFIG);
 
   // Signal pour l'utilisateur courant
   public currentUser = signal<UserProfile | null>(null);
@@ -33,7 +35,8 @@ export class AuthService {
    * Remplace l'ancien 'loginSmart' et 'loginApi'
    */
   login(creds: { username: string, password?: string }): Observable<UserProfile> {
-    return this.http.post<UserProfile>('/api/auth/login', creds).pipe(
+    // Utilisation de this.env.apiUrl
+    return this.http.post<UserProfile>(`${this.env.apiUrl}/auth/login`, creds).pipe( //
       tap(user => this.setSession(user))
     );
   }

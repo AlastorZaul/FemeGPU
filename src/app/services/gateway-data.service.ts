@@ -1,8 +1,9 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, timer} from 'rxjs';
 import {shareReplay, switchMap} from 'rxjs/operators';
 import {Gateway} from '../models/gpu.model';
+import {ENV_CONFIG} from '../core/env.config';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,10 @@ import {Gateway} from '../models/gpu.model';
 export class GatewayDataService {
   constructor(private http: HttpClient) {
   }
-  private readonly apiUrl = '/api';
+
+  private env = inject(ENV_CONFIG);
+
+  private readonly apiUrl = this.env.apiUrl;
 
 
   // POLLING DES GATEWAYS

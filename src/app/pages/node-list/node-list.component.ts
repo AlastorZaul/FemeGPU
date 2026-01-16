@@ -14,6 +14,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
+import {MatIconButton} from '@angular/material/button';
 
 export interface FlatNode {
   clusterName: string;
@@ -26,7 +27,7 @@ export interface FlatNode {
 @Component({
   selector: 'app-node-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatCardModule, MatProgressBarModule, MatIconModule,MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule],
+  imports: [CommonModule, MatTableModule, MatCardModule, MatProgressBarModule, MatIconModule, MatFormFieldModule, MatInputModule, MatSelectModule, FormsModule, MatIconButton],
   templateUrl: './node-list.component.html',
   styleUrls: ['./node-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -89,6 +90,14 @@ export class NodeListComponent {
     return Array.from(statuses).sort();
   });
 
+  toggleDrain(node: FlatNode) {
+    // Optimiste ou simple appel (ici simple appel avec rechargement via le polling du service)
+    this.gpuDataService.toggleNodeDrain(node.nodeName).subscribe({
+      next: (res) => console.log(res.message),
+      error: (err) => console.error('Erreur drain', err)
+    });
+  }
+
   public displayedColumns: string[] = [
     'clusterName',
     'nodeName',
@@ -99,6 +108,7 @@ export class NodeListComponent {
     'used_gpus',
     'memory',
     'cpu',
-    'gpu_usage_percent'
+    'gpu_usage_percent',
+    'actions'
   ];
 }
