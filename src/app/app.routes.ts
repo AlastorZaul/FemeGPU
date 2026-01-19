@@ -17,7 +17,9 @@ export const routes: Routes = [
     component: LayoutComponent,
     // Le layout de base reste protégé par le guard simple ou roleGuard
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      // MODIFICATION ICI : Redirection vers 'login' au lieu de 'dashboard'
+      { path: '', redirectTo: '/login', pathMatch: 'full' },
+
       // Accessible à tout le monde connecté
       {
         path: 'dashboard',
@@ -28,19 +30,19 @@ export const routes: Routes = [
       {
         path: 'nodes',
         component: NodeListComponent,
-        canActivate: [roleGuard], // <--- Protection active
+        canActivate: [roleGuard],
         data: {
           breadcrumb: 'Nodes',
-          roles: ['ADMIN', 'USER'] // Admin et User peuvent voir
+          roles: ['ADMIN', 'USER']
         }
       },
       {
         path: 'gateways',
         component: GatewayManagementComponent,
-        canActivate: [roleGuard], // <--- Protection active
+        canActivate: [roleGuard],
         data: {
           breadcrumb: 'Gateways',
-          roles: ['ADMIN'] // SEUL L'ADMIN PEUT VOIR
+          roles: ['ADMIN']
         }
       },
       {
@@ -55,7 +57,7 @@ export const routes: Routes = [
       {
         path: 'models',
         component: ModelListComponent,
-        canActivate: [roleGuard], // Protection activée
+        canActivate: [roleGuard],
         data: {
           breadcrumb: 'Catalogue Modèles',
           roles: ['ADMIN', 'USER']
@@ -76,5 +78,6 @@ export const routes: Routes = [
       },
     ]
   },
-  { path: '**', redirectTo: 'dashboard' }
+  // MODIFICATION ICI (Optionnel) : Redirection des routes inconnues vers 'login'
+  { path: '**', redirectTo: '/login' }
 ];
